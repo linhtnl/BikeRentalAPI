@@ -27,19 +27,19 @@ namespace BikeRental.API.Controllers
             return _areaService.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("id/{id}")]
         public AreaViewModel GetArea(string id)
         {
             return _areaService.GetById(id);
         }
 
-        [HttpGet("{name}")]
+        [HttpGet("name/{name}")]
         public AreaViewModel GetAreaByName(string name)
         {
             return _areaService.GetByName(name);
         }
 
-        [HttpGet("{postalCode}")]
+        [HttpGet("postalCode/{postalCode}")]
         public AreaViewModel GetAreaByPostalCode(int postalCode)
         {
             return _areaService.GetAreaByPostalCode(postalCode);
