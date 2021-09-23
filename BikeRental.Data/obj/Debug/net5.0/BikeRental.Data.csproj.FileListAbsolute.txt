@@ -1,0 +1,15 @@
+D:\API\BikeRentalAPI\BikeRental.Data\bin\Debug\net5.0\BikeRental.Data.deps.json
+D:\API\BikeRentalAPI\BikeRental.Data\bin\Debug\net5.0\BikeRental.Data.runtimeconfig.json
+D:\API\BikeRentalAPI\BikeRental.Data\bin\Debug\net5.0\BikeRental.Data.runtimeconfig.dev.json
+D:\API\BikeRentalAPI\BikeRental.Data\bin\Debug\net5.0\BikeRental.Data.dll
+D:\API\BikeRentalAPI\BikeRental.Data\bin\Debug\net5.0\ref\BikeRental.Data.dll
+D:\API\BikeRentalAPI\BikeRental.Data\bin\Debug\net5.0\BikeRental.Data.pdb
+D:\API\BikeRentalAPI\BikeRental.Data\obj\Debug\net5.0\BikeRental.Data.csprojAssemblyReference.cache
+D:\API\BikeRentalAPI\BikeRental.Data\obj\Debug\net5.0\BikeRental.Data.GeneratedMSBuildEditorConfig.editorconfig
+D:\API\BikeRentalAPI\BikeRental.Data\obj\Debug\net5.0\BikeRental.Data.AssemblyInfoInputs.cache
+D:\API\BikeRentalAPI\BikeRental.Data\obj\Debug\net5.0\BikeRental.Data.AssemblyInfo.cs
+D:\API\BikeRentalAPI\BikeRental.Data\obj\Debug\net5.0\BikeRental.Data.csproj.CoreCompileInputs.cache
+D:\API\BikeRentalAPI\BikeRental.Data\obj\Debug\net5.0\BikeRental.Data.dll
+D:\API\BikeRentalAPI\BikeRental.Data\obj\Debug\net5.0\ref\BikeRental.Data.dll
+D:\API\BikeRentalAPI\BikeRental.Data\obj\Debug\net5.0\BikeRental.Data.pdb
+D:\API\BikeRentalAPI\BikeRental.Data\obj\Debug\net5.0\BikeRental.Data.genruntimeconfig.cache
