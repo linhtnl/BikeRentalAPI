@@ -36,13 +36,6 @@ namespace BikeRental.Data.Models
         public virtual DbSet<VoucherItem> VoucherItems { get; set; }
         public virtual DbSet<Wallet> Wallets { get; set; }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    if (!optionsBuilder.IsConfigured)
-        //        optionsBuilder.UseSqlServer("Server=localhost;Database=ChoThueXeMay;User ID=sa;Password=123456;Trusted_Connection=True;");
-        //    }
-        //}
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "Latin1_General_CI_AS");
