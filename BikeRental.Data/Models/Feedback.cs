@@ -7,7 +7,7 @@ namespace BikeRental.Data.Models
 {
     public partial class Feedback
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public int? Rating { get; set; }
         public string Content { get; set; }
 

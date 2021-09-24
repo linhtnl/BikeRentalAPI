@@ -12,7 +12,7 @@ namespace BikeRental.Data.Models
             Categories = new HashSet<Category>();
         }
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
 
         public virtual ICollection<Category> Categories { get; set; }

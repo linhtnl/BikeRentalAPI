@@ -13,10 +13,10 @@ namespace BikeRental.Data.Models
             PriceLists = new HashSet<PriceList>();
         }
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public int? Type { get; set; }
-        public string BranchId { get; set; }
+        public Guid BranchId { get; set; }
 
         public virtual Branch Branch { get; set; }
         public virtual ICollection<Bike> Bikes { get; set; }

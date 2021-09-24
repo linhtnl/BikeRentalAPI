@@ -7,9 +7,9 @@ namespace BikeRental.Data.Models
 {
     public partial class VoucherExchangeHistory
     {
-        public string Id { get; set; }
-        public string CustomerId { get; set; }
-        public string VoucherCode { get; set; }
+        public Guid Id { get; set; }
+        public Guid CustomerId { get; set; }
+        public Guid VoucherCode { get; set; }
         public DateTime? ActionDate { get; set; }
 
         public virtual Customer Customer { get; set; }
