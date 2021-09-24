@@ -7,9 +7,9 @@ namespace BikeRental.Data.Models
 {
     public partial class PriceList
     {
-        public string CategoryId { get; set; }
+        public Guid CategoryId { get; set; }
         public decimal? Price { get; set; }
-        public string AreaId { get; set; }
+        public Guid AreaId { get; set; }
 
         public virtual Area Area { get; set; }
         public virtual Category Category { get; set; }

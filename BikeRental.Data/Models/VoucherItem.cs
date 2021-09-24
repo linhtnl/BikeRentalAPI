@@ -12,12 +12,12 @@ namespace BikeRental.Data.Models
             Bookings = new HashSet<Booking>();
         }
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public DateTime? TimeUsing { get; set; }
         public int? TimeUsingRemain { get; set; }
-        public string CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
         public int? PointExchange { get; set; }
-        public string VoucherId { get; set; }
+        public Guid VoucherId { get; set; }
 
         public virtual Customer Customer { get; set; }
         public virtual Voucher Voucher { get; set; }

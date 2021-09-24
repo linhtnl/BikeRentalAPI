@@ -12,7 +12,7 @@ namespace BikeRental.Data.Models
             TransactionHistories = new HashSet<TransactionHistory>();
         }
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public decimal? Balance { get; set; }
         public string MomoId { get; set; }
         public string BankId { get; set; }

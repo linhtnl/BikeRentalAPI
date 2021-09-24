@@ -12,7 +12,7 @@ namespace BikeRental.Data.Models
             Bookings = new HashSet<Booking>();
         }
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public int? Method { get; set; }
         public string Name { get; set; }
         public DateTime? ActionDate { get; set; }

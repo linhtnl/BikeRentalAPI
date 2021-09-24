@@ -12,16 +12,16 @@ namespace BikeRental.Data.Models
             TransactionHistories = new HashSet<TransactionHistory>();
         }
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public DateTime? DayRent { get; set; }
         public DateTime? DayReturnActual { get; set; }
         public DateTime? DayReturnExpected { get; set; }
         public decimal? Price { get; set; }
-        public string VoucherCode { get; set; }
-        public string CustomerId { get; set; }
-        public string BikeId { get; set; }
-        public string OwnerId { get; set; }
-        public string PaymentId { get; set; }
+        public Guid VoucherCode { get; set; }
+        public Guid CustomerId { get; set; }
+        public Guid BikeId { get; set; }
+        public Guid OwnerId { get; set; }
+        public Guid PaymentId { get; set; }
 
         public virtual Bike Bike { get; set; }
         public virtual Customer Customer { get; set; }

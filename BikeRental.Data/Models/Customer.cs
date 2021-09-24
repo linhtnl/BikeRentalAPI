@@ -14,7 +14,7 @@ namespace BikeRental.Data.Models
             VoucherItems = new HashSet<VoucherItem>();
         }
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string PhoneNumber { get; set; }
         public string IdentityNumber { get; set; }
         public string Fullname { get; set; }
@@ -22,7 +22,7 @@ namespace BikeRental.Data.Models
         public int? RewardPoints { get; set; }
         public bool? IsBanned { get; set; }
         public int? BanCount { get; set; }
-        public string AdminId { get; set; }
+        public Guid AdminId { get; set; }
 
         public virtual Admin Admin { get; set; }
         public virtual ICollection<Booking> Bookings { get; set; }

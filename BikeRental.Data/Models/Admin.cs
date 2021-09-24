@@ -13,7 +13,7 @@ namespace BikeRental.Data.Models
             Owners = new HashSet<Owner>();
         }
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
 

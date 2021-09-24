@@ -14,7 +14,7 @@ namespace BikeRental.Data.Models
             PriceLists = new HashSet<PriceList>();
         }
 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public int? PostalCode { get; set; }
         public string Name { get; set; }
 
