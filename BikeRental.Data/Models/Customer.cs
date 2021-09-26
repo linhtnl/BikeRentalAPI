@@ -22,7 +22,7 @@ namespace BikeRental.Data.Models
         public int? RewardPoints { get; set; }
         public bool? IsBanned { get; set; }
         public int? BanCount { get; set; }
-        public Guid AdminId { get; set; }
+        public Guid? AdminId { get; set; }
 
         public virtual Admin Admin { get; set; }
         public virtual ICollection<Booking> Bookings { get; set; }

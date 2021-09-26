@@ -17,11 +17,11 @@ namespace BikeRental.Data.Models
         public DateTime? DayReturnActual { get; set; }
         public DateTime? DayReturnExpected { get; set; }
         public decimal? Price { get; set; }
-        public Guid VoucherCode { get; set; }
-        public Guid CustomerId { get; set; }
-        public Guid BikeId { get; set; }
-        public Guid OwnerId { get; set; }
-        public Guid PaymentId { get; set; }
+        public Guid? VoucherCode { get; set; }
+        public Guid? CustomerId { get; set; }
+        public Guid? BikeId { get; set; }
+        public Guid? OwnerId { get; set; }
+        public Guid? PaymentId { get; set; }
 
         public virtual Bike Bike { get; set; }
         public virtual Customer Customer { get; set; }

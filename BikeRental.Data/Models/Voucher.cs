@@ -21,7 +21,7 @@ namespace BikeRental.Data.Models
         public DateTime ExpiredDate { get; set; }
         public DateTime StartingDate { get; set; }
         public int? VoucherItemsRemain { get; set; }
-        public Guid CampaignId { get; set; }
+        public Guid? CampaignId { get; set; }
 
         public virtual Campaign Campaign { get; set; }
         public virtual ICollection<VoucherItem> VoucherItems { get; set; }

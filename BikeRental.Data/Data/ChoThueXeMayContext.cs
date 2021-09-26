@@ -15,14 +15,13 @@ namespace BikeRental.Data.Models
         public ChoThueXeMayContext(DbContextOptions<ChoThueXeMayContext> options)
             : base(options)
         {
-
         }
 
         public virtual DbSet<Admin> Admins { get; set; }
         public virtual DbSet<Area> Areas { get; set; }
         public virtual DbSet<Bike> Bikes { get; set; }
         public virtual DbSet<Booking> Bookings { get; set; }
-        public virtual DbSet<Branch> Branches { get; set; }
+        public virtual DbSet<Brand> Brands { get; set; }
         public virtual DbSet<Campaign> Campaigns { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
@@ -38,15 +37,13 @@ namespace BikeRental.Data.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("Relational:Collation", "Latin1_General_CI_AS");
+            modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
 
             modelBuilder.Entity<Admin>(entity =>
             {
                 entity.ToTable("Admin");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Password)
                     .HasMaxLength(50)
@@ -61,9 +58,7 @@ namespace BikeRental.Data.Models
             {
                 entity.ToTable("Area");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Name).HasMaxLength(200);
             });
@@ -72,21 +67,9 @@ namespace BikeRental.Data.Models
             {
                 entity.ToTable("Bike");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CategoryId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Color).HasMaxLength(50);
-
-                entity.Property(e => e.IsAvailable).HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.IsDelete).HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.IsRent).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.LicensePlate)
                     .HasMaxLength(11)
@@ -97,36 +80,22 @@ namespace BikeRental.Data.Models
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
-                entity.Property(e => e.OwnerId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Bikes)
                     .HasForeignKey(d => d.CategoryId)
-                    .HasConstraintName("FK__Bike__CategoryId__24927208");
+                    .HasConstraintName("FK__Bike__CategoryId__2A4B4B5E");
 
                 entity.HasOne(d => d.Owner)
                     .WithMany(p => p.Bikes)
                     .HasForeignKey(d => d.OwnerId)
-                    .HasConstraintName("FK__Bike__OwnerId__239E4DCF");
+                    .HasConstraintName("FK__Bike__OwnerId__29572725");
             });
 
             modelBuilder.Entity<Booking>(entity =>
             {
                 entity.ToTable("Booking");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.BikeId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.DayRent).HasColumnType("date");
 
@@ -134,53 +103,39 @@ namespace BikeRental.Data.Models
 
                 entity.Property(e => e.DayReturnExpected).HasColumnType("date");
 
-                entity.Property(e => e.OwnerId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.PaymentId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.Price).HasColumnType("decimal(8, 0)");
-
-                entity.Property(e => e.VoucherCode)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
 
                 entity.HasOne(d => d.Bike)
                     .WithMany(p => p.Bookings)
                     .HasForeignKey(d => d.BikeId)
-                    .HasConstraintName("FK__Booking__BikeId__412EB0B6");
+                    .HasConstraintName("FK__Booking__BikeId__4CA06362");
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.Bookings)
                     .HasForeignKey(d => d.CustomerId)
-                    .HasConstraintName("FK__Booking__Custome__403A8C7D");
+                    .HasConstraintName("FK__Booking__Custome__4BAC3F29");
 
                 entity.HasOne(d => d.Owner)
                     .WithMany(p => p.Bookings)
                     .HasForeignKey(d => d.OwnerId)
-                    .HasConstraintName("FK__Booking__OwnerId__4222D4EF");
+                    .HasConstraintName("FK__Booking__OwnerId__4D94879B");
 
                 entity.HasOne(d => d.Payment)
                     .WithMany(p => p.Bookings)
                     .HasForeignKey(d => d.PaymentId)
-                    .HasConstraintName("FK__Booking__Payment__4316F928");
+                    .HasConstraintName("FK__Booking__Payment__4E88ABD4");
 
                 entity.HasOne(d => d.VoucherCodeNavigation)
                     .WithMany(p => p.Bookings)
                     .HasForeignKey(d => d.VoucherCode)
-                    .HasConstraintName("FK__Booking__Voucher__3F466844");
+                    .HasConstraintName("FK__Booking__Voucher__4AB81AF0");
             });
 
-            modelBuilder.Entity<Branch>(entity =>
+            modelBuilder.Entity<Brand>(entity =>
             {
-                entity.ToTable("Branch");
+                entity.ToTable("Brand");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
@@ -191,13 +146,7 @@ namespace BikeRental.Data.Models
             {
                 entity.ToTable("Campaign");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.AreaId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Description).HasMaxLength(500);
 
@@ -208,20 +157,14 @@ namespace BikeRental.Data.Models
                 entity.HasOne(d => d.Area)
                     .WithMany(p => p.Campaigns)
                     .HasForeignKey(d => d.AreaId)
-                    .HasConstraintName("FK__Campaign__AreaId__30F848ED");
+                    .HasConstraintName("FK__Campaign__AreaId__38996AB5");
             });
 
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.ToTable("Category");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.BranchId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(100)
@@ -230,20 +173,14 @@ namespace BikeRental.Data.Models
                 entity.HasOne(d => d.Branch)
                     .WithMany(p => p.Categories)
                     .HasForeignKey(d => d.BranchId)
-                    .HasConstraintName("FK__Category__Branch__1DE57479");
+                    .HasConstraintName("FK__Category__Branch__22AA2996");
             });
 
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.ToTable("Customer");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.AdminId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.BanCount).HasDefaultValueSql("((0))");
 
@@ -269,16 +206,14 @@ namespace BikeRental.Data.Models
                 entity.HasOne(d => d.Admin)
                     .WithMany(p => p.Customers)
                     .HasForeignKey(d => d.AdminId)
-                    .HasConstraintName("FK__Customer__AdminI__2E1BDC42");
+                    .HasConstraintName("FK__Customer__AdminI__34C8D9D1");
             });
 
             modelBuilder.Entity<Feedback>(entity =>
             {
                 entity.ToTable("Feedback");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Content).HasMaxLength(500);
 
@@ -286,26 +221,16 @@ namespace BikeRental.Data.Models
                     .WithOne(p => p.Feedback)
                     .HasForeignKey<Feedback>(d => d.Id)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Feedback__Id__45F365D3");
+                    .HasConstraintName("FK__Feedback__Id__52593CB8");
             });
 
             modelBuilder.Entity<Owner>(entity =>
             {
                 entity.ToTable("Owner");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Address).HasMaxLength(200);
-
-                entity.Property(e => e.AdminId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.AreaId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
 
                 entity.Property(e => e.Fullname).HasMaxLength(200);
 
@@ -325,21 +250,19 @@ namespace BikeRental.Data.Models
                 entity.HasOne(d => d.Admin)
                     .WithMany(p => p.Owners)
                     .HasForeignKey(d => d.AdminId)
-                    .HasConstraintName("FK__Owner__AdminId__145C0A3F");
+                    .HasConstraintName("FK__Owner__AdminId__173876EA");
 
                 entity.HasOne(d => d.Area)
                     .WithMany(p => p.Owners)
                     .HasForeignKey(d => d.AreaId)
-                    .HasConstraintName("FK__Owner__AreaId__15502E78");
+                    .HasConstraintName("FK__Owner__AreaId__182C9B23");
             });
 
             modelBuilder.Entity<Payment>(entity =>
             {
                 entity.ToTable("Payment");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.ActionDate).HasColumnType("datetime");
 
@@ -351,17 +274,9 @@ namespace BikeRental.Data.Models
             modelBuilder.Entity<PriceList>(entity =>
             {
                 entity.HasKey(e => new { e.CategoryId, e.AreaId })
-                    .HasName("PK__PriceLis__8E02B80FB3A624F1");
+                    .HasName("PK__PriceLis__8E02B80F05EC1EBC");
 
                 entity.ToTable("PriceList");
-
-                entity.Property(e => e.CategoryId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.AreaId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
 
                 entity.Property(e => e.Price).HasColumnType("decimal(8, 0)");
 
@@ -369,57 +284,41 @@ namespace BikeRental.Data.Models
                     .WithMany(p => p.PriceLists)
                     .HasForeignKey(d => d.AreaId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__PriceList__AreaI__286302EC");
+                    .HasConstraintName("FK__PriceList__AreaI__2E1BDC42");
 
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.PriceLists)
                     .HasForeignKey(d => d.CategoryId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__PriceList__Categ__276EDEB3");
+                    .HasConstraintName("FK__PriceList__Categ__2D27B809");
             });
 
             modelBuilder.Entity<TransactionHistory>(entity =>
             {
                 entity.ToTable("TransactionHistory");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.ActionDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Amount).HasColumnType("decimal(8, 0)");
 
-                entity.Property(e => e.BookingId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.WalletId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
                 entity.HasOne(d => d.Booking)
                     .WithMany(p => p.TransactionHistories)
                     .HasForeignKey(d => d.BookingId)
-                    .HasConstraintName("FK__Transacti__Booki__49C3F6B7");
+                    .HasConstraintName("FK__Transacti__Booki__571DF1D5");
 
                 entity.HasOne(d => d.Wallet)
                     .WithMany(p => p.TransactionHistories)
                     .HasForeignKey(d => d.WalletId)
-                    .HasConstraintName("FK__Transacti__Walle__48CFD27E");
+                    .HasConstraintName("FK__Transacti__Walle__5629CD9C");
             });
 
             modelBuilder.Entity<Voucher>(entity =>
             {
                 entity.ToTable("Voucher");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CampaignId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Description).HasMaxLength(500);
 
@@ -442,77 +341,55 @@ namespace BikeRental.Data.Models
                 entity.HasOne(d => d.Campaign)
                     .WithMany(p => p.Vouchers)
                     .HasForeignKey(d => d.CampaignId)
-                    .HasConstraintName("FK__Voucher__Campaig__36B12243");
+                    .HasConstraintName("FK__Voucher__Campaig__3F466844");
             });
 
             modelBuilder.Entity<VoucherExchangeHistory>(entity =>
             {
                 entity.ToTable("VoucherExchangeHistory");
 
-                entity.HasIndex(e => e.VoucherCode, "UQ__VoucherE__7F0ABCA96A204AFA")
+                entity.HasIndex(e => e.VoucherCode, "UQ__VoucherE__7F0ABCA920BC7FF1")
                     .IsUnique();
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.ActionDate).HasColumnType("date");
-
-                entity.Property(e => e.CustomerId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.VoucherCode)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.VoucherExchangeHistories)
                     .HasForeignKey(d => d.CustomerId)
-                    .HasConstraintName("FK__VoucherEx__Custo__4D94879B");
+                    .HasConstraintName("FK__VoucherEx__Custo__5BE2A6F2");
 
                 entity.HasOne(d => d.VoucherCodeNavigation)
                     .WithOne(p => p.VoucherExchangeHistory)
                     .HasForeignKey<VoucherExchangeHistory>(d => d.VoucherCode)
-                    .HasConstraintName("FK__VoucherEx__Vouch__4E88ABD4");
+                    .HasConstraintName("FK__VoucherEx__Vouch__5CD6CB2B");
             });
 
             modelBuilder.Entity<VoucherItem>(entity =>
             {
                 entity.ToTable("VoucherItem");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.TimeUsing).HasColumnType("datetime");
-
-                entity.Property(e => e.VoucherId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.VoucherItems)
                     .HasForeignKey(d => d.CustomerId)
-                    .HasConstraintName("FK__VoucherIt__Custo__398D8EEE");
+                    .HasConstraintName("FK__VoucherIt__Custo__4316F928");
 
                 entity.HasOne(d => d.Voucher)
                     .WithMany(p => p.VoucherItems)
                     .HasForeignKey(d => d.VoucherId)
-                    .HasConstraintName("FK__VoucherIt__Vouch__3A81B327");
+                    .HasConstraintName("FK__VoucherIt__Vouch__440B1D61");
             });
 
             modelBuilder.Entity<Wallet>(entity =>
             {
                 entity.ToTable("Wallet");
 
-                entity.Property(e => e.Id)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Balance)
                     .HasColumnType("decimal(8, 0)")
@@ -536,19 +413,12 @@ namespace BikeRental.Data.Models
                     .WithOne(p => p.Wallet)
                     .HasForeignKey<Wallet>(d => d.Id)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Wallet__Id__182C9B23");
+                    .HasConstraintName("FK__Wallet__Id__1B0907CE");
             });
 
             OnModelCreatingPartial(modelBuilder);
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-    }
-}
-
-namespace DataAccessLayer
-{
-    public class ChoThueXeMay
-    {
     }
 }

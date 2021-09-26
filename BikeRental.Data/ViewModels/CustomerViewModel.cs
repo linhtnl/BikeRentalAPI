@@ -8,7 +8,7 @@ namespace BikeRental.Data.ViewModels
 {
     public class CustomerViewModel
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string PhoneNumber { get; set; }
         public string IdentityNumber { get; set; }
         public string Fullname { get; set; }
