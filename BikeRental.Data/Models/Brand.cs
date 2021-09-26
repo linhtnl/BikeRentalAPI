@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace BikeRental.Data.Models
 {
-    public partial class Branch
+    public partial class Brand
     {
-        public Branch()
+        public Brand()
         {
             Categories = new HashSet<Category>();
         }

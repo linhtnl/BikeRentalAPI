@@ -55,7 +55,7 @@ namespace BikeRental.Business.Services
         public async Task CreateAsync(TEntity entity)
         {
             await repository.CreateAsync(entity);
-            SaveAsync();
+            await SaveAsync();
         }
 
         public void Delete(TEntity entity)

@@ -67,5 +67,17 @@ namespace BikeRental.API.Controllers
         {
             return _adminService.GetAllCustomer();
         }
+
+        [HttpGet("customers/id/{id}")]
+        public CustomerViewModel GetCustomerById(Guid id)
+        {
+            return _adminService.GetCustomerById(id);
+        }
+
+        [HttpGet("customers/phone/{phone}")]
+        public CustomerViewModel GetCustomerByPhone(string phone)
+        {
+            return _adminService.GetCustomerByPhone(phone);
+        }
     }
 }

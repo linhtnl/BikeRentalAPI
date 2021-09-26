@@ -19,7 +19,7 @@ namespace BikeRental.Business.Services
 
         AreaViewModel GetAreaByPostalCode(int postalCode);
 
-        AreaViewModel GetById(string id);
+        AreaViewModel GetById(Guid id);
 
         List<AreaViewModel> GetAll();
     }
@@ -33,21 +33,21 @@ namespace BikeRental.Business.Services
 
         public List<AreaViewModel> GetAll()
         {
-            return repository.Get().ProjectTo<AreaViewModel>(_mapper).ToList();
+            return Get().ProjectTo<AreaViewModel>(_mapper).ToList();
         }
 
-        public AreaViewModel GetById(string id)
+        public AreaViewModel GetById(Guid id)
         {
-            return repository.Get(a => a.Id.Equals(id)).ProjectTo<AreaViewModel>(_mapper).FirstOrDefault();
+            return Get(a => a.Id.Equals(id)).ProjectTo<AreaViewModel>(_mapper).FirstOrDefault();
         }
         public AreaViewModel GetByName(string name)
         {
-            return repository.Get(a => a.Name.Equals(name)).ProjectTo<AreaViewModel>(_mapper).FirstOrDefault();
+            return Get(a => a.Name.Equals(name)).ProjectTo<AreaViewModel>(_mapper).FirstOrDefault();
         }
 
         public AreaViewModel GetAreaByPostalCode(int postalCode)
         {
-            return repository.Get(a => a.PostalCode == postalCode).ProjectTo<AreaViewModel>(_mapper).FirstOrDefault();
+            return Get(a => a.PostalCode == postalCode).ProjectTo<AreaViewModel>(_mapper).FirstOrDefault();
         }
     }
 }

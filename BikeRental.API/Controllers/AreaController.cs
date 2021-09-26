@@ -28,7 +28,7 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpGet("id/{id}")]
-        public AreaViewModel GetArea(string id)
+        public AreaViewModel GetArea(Guid id)
         {
             return _areaService.GetById(id);
         }

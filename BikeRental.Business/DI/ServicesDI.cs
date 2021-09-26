@@ -21,9 +21,15 @@ namespace BikeRental.Business.DI
             services.AddTransient<IAreaRepository, AreaRepository>();
             services.AddTransient<IAreaService, AreaService>();
             services.AddTransient<ICustomerRepository, CustomerRepository>();
-
+            services.AddTransient<ICustomerService, CustomerService>();
             services.AddTransient<IAdminRepository, AdminRepository>();
             services.AddTransient<IAdminService, AdminService>();
+            services.AddTransient<IBikeRepository, BikeRepository>();
+            services.AddTransient<IBikeService, BikeService>();
+            services.AddTransient<IOwnerRepository, OwnerRepository>();
+            services.AddTransient<IOwnerService, OwnerService>();
+            services.AddTransient<IFeedbackRepository, FeedbackRepository>();
+            services.AddTransient<IFeedbackService, FeedbackService>();
         }
     }
 }

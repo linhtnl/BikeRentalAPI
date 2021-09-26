@@ -34,7 +34,7 @@ namespace BikeRental.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ChoThueXeMayContext>(options => options.UseSqlServer(_configuration.GetConnectionString("ChoThueXeMayContext")));
+            services.AddDbContext<ChoThueXeMayContext>(options => options.UseSqlServer(_configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
             services.AddHttpClient();
             services.AddScoped<ChoThueXeMayContext>();
@@ -46,6 +46,8 @@ namespace BikeRental.API
                 mc.CreateMap<AreaViewModel, Area>();
                 mc.CreateMap<Customer, CustomerViewModel>();
                 mc.CreateMap<CustomerViewModel, Customer>();
+                mc.CreateMap<Bike, BikeViewModel>();
+                mc.CreateMap<BikeViewModel, Bike>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

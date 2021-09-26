@@ -8,8 +8,8 @@ namespace BikeRental.Data.Models
     public partial class VoucherExchangeHistory
     {
         public Guid Id { get; set; }
-        public Guid CustomerId { get; set; }
-        public Guid VoucherCode { get; set; }
+        public Guid? CustomerId { get; set; }
+        public Guid? VoucherCode { get; set; }
         public DateTime? ActionDate { get; set; }
 
         public virtual Customer Customer { get; set; }

@@ -17,6 +17,10 @@ namespace BikeRental.Business.Services
     {
         List<CustomerViewModel> GetAllCustomer();
 
+        CustomerViewModel GetCustomerById(Guid id);
+
+        CustomerViewModel GetCustomerByPhone(string phone);
+
        /* List<OwnerViewModel> GetAllOwner();*/
     }
     public class AdminService : BaseService<Admin>, IAdminService
@@ -34,6 +38,16 @@ namespace BikeRental.Business.Services
         public List<CustomerViewModel> GetAllCustomer()
         {
             return _customerRepository.Get().ProjectTo<CustomerViewModel>(_mapper).ToList();
+        }
+
+        public CustomerViewModel GetCustomerById(Guid id)
+        {
+            return _customerRepository.Get(c => c.Id.Equals(id)).ProjectTo<CustomerViewModel>(_mapper).FirstOrDefault();
+        }
+
+        public CustomerViewModel GetCustomerByPhone(string phone)
+        {
+            return _customerRepository.Get(c => c.PhoneNumber.Equals(phone)).ProjectTo<CustomerViewModel>(_mapper).FirstOrDefault();
         }
 
 
