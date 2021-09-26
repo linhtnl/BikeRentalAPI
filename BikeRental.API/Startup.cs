@@ -44,10 +44,15 @@ namespace BikeRental.API
             {
                 mc.CreateMap<Area, AreaViewModel>();
                 mc.CreateMap<AreaViewModel, Area>();
+
                 mc.CreateMap<Customer, CustomerViewModel>();
                 mc.CreateMap<CustomerViewModel, Customer>();
+
                 mc.CreateMap<Bike, BikeViewModel>();
                 mc.CreateMap<BikeViewModel, Bike>();
+
+                mc.CreateMap<Wallet, WalletViewModel>();
+                mc.CreateMap<WalletViewModel, Wallet>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

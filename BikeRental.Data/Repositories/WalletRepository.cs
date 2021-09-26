@@ -8,12 +8,13 @@ using System.Threading.Tasks;
 
 namespace BikeRental.Data.Repositories
 {
-    public interface IAreaRepository : IBaseRepository<Area>
+    public interface IWalletRepository : IBaseRepository<Wallet>
     {
     }
-    public class AreaRepository : BaseRepository<Area>, IAreaRepository
+
+    public class WalletRepository : BaseRepository<Wallet>, IWalletRepository
     {
-        public AreaRepository(DbContext dbContext) : base(dbContext)
+        public WalletRepository(DbContext dbContext) : base(dbContext)
         {
         }
     }
