@@ -39,6 +39,9 @@ namespace BikeRental.Business.DI
 
             services.AddTransient<IWalletRepository, WalletRepository>();
             services.AddTransient<IWalletService, WalletService>();
+
+            services.AddTransient<ITransactionHistoryRepository, TransactionHistoryRepository>();
+            services.AddTransient<ITransactionHistoryService, TransactionHistoryService>();
         }
     }
 }

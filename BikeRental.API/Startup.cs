@@ -53,6 +53,9 @@ namespace BikeRental.API
 
                 mc.CreateMap<Wallet, WalletViewModel>();
                 mc.CreateMap<WalletViewModel, Wallet>();
+
+                mc.CreateMap<TransactionHistory, TransactionHistoryViewModel>();
+                mc.CreateMap<TransactionHistoryViewModel, TransactionHistory>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

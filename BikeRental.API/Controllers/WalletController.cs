@@ -1,9 +1,12 @@
-﻿using BikeRental.Business.Services;
+﻿using BikeRental.Business.Constants;
+using BikeRental.Business.Services;
+using BikeRental.Data.Responses;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -42,10 +45,10 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpGet("transactionHistory/{id}")]
-        public WalletViewModel GetTransactionHistory(string id)
+        public List<TransactionHistoryViewModel> GetTransactionHistory(string id, int pageNum, int? filterOption)
         {
             Guid guid = Guid.Parse(id);
-            throw new NotImplementedException();
+            return _walletService.GetTransactionHistory(guid, pageNum, filterOption); // this line need to handle the null case, the null case occur when filterOption is not supported yet
         }
     }
 }

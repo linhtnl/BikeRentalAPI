@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.Configuration;
 using AutoMapper.QueryableExtensions;
+using BikeRental.Business.Constants;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
 using BikeRental.Data.UnitOfWorks;
@@ -18,16 +19,20 @@ namespace BikeRental.Business.Services
         WalletViewModel GetById(Guid id);
         WalletViewModel GetByMomoId(string momoId);
         WalletViewModel GetByBankId(string bankId);
-        WalletViewModel GetTransactionHistory(Guid id);
+        List<TransactionHistoryViewModel> GetTransactionHistory(Guid id, int pageNum, int? filterOption);
     }
 
     public class WalletService : BaseService<Wallet>, IWalletService
     {
         private readonly IConfigurationProvider _mapper;
+        private readonly ITransactionHistoryService _transactionHistoryService;
 
-        public WalletService(IUnitOfWork unitOfWork, IWalletRepository repository, IMapper mapper) : base(unitOfWork, repository)
+        private const int groupItemNum = 10;
+
+        public WalletService(IUnitOfWork unitOfWork, IWalletRepository repository, IMapper mapper, ITransactionHistoryService transactionHistoryService) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
+            _transactionHistoryService = transactionHistoryService;
         }
 
         public WalletViewModel GetById(Guid id)
@@ -45,9 +50,11 @@ namespace BikeRental.Business.Services
             return Get().Where(tempWallet => tempWallet.BankId.Equals(bankId)).ProjectTo<WalletViewModel>(_mapper).FirstOrDefault();
         }
 
-        public WalletViewModel GetTransactionHistory(Guid id)
+        public List<TransactionHistoryViewModel> GetTransactionHistory(Guid walletId, int pageNum, int? filterOption)
         {
-            throw new NotImplementedException();
+            List<TransactionHistoryViewModel> transactionHistories = _transactionHistoryService.FilterGetTransactionHistory(walletId, filterOption);
+
+            return _transactionHistoryService.GetTransactionHistoryPageItem(transactionHistories, pageNum, groupItemNum);
         }
     }
 }
