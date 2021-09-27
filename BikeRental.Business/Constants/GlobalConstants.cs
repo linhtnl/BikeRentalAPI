@@ -8,6 +8,11 @@ namespace BikeRental.Business.Constants
 {
     public class GlobalConstants
     {
-        public static string ERROR_FILTER_OPTION_NOT_SUPPORTED = "This filter option is not supported yet.";
+        protected GlobalConstants()
+        {
+            // avoid default constructor
+        }
+
+        public static readonly string ERROR_FILTER_OPTION_NOT_SUPPORTED = "This filter option is not supported yet.";
     }
 }

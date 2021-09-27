@@ -65,7 +65,7 @@ namespace BikeRental.Business.Services
             {
                 return null;
             }
-            int availablePageNum = transactionHistories.Count() / groupNum;
+            int availablePageNum = transactionHistories.Count / groupNum;
 
             if (pageNum <= 0)
             {
