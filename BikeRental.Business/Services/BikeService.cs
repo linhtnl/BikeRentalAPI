@@ -13,12 +13,13 @@ using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using BikeRental.Data.Constants;
 
 namespace BikeRental.Business.Services
 {
     public interface IBikeService : IBaseService<Bike>
     {
-        /*Task<DynamicModelResponse<BikeViewModel>> GetAll(BikeViewModel model, string[] fields, int page, int size);*/
+        List<BikeViewModel> GetAll();
 
         BikeViewModel GetBikeById(Guid id);
     }
@@ -31,6 +32,7 @@ namespace BikeRental.Business.Services
             IOwnerService ownerService,IFeedbackService feedbackService, IMapper mapper) : base(unitOfWork, repository)
         {
             _ownerService = ownerService;
+            _feedbackService = feedbackService;
             _mapper = mapper.ConfigurationProvider;
         }
 
@@ -39,27 +41,9 @@ namespace BikeRental.Business.Services
             return Get(x => x.Id.Equals(id)).ProjectTo<BikeViewModel>(_mapper).FirstOrDefault();
         }
 
-        /*public async Task<DynamicModelResponse<BikeViewModel>> GetAll(BikeViewModel model, string[] fields, int page, int size)
+        public List<BikeViewModel> GetAll()
         {
-            var bikes = Get(x => x.Status == (int)BikeStatus.Available).ProjectTo<BikeViewModel>(_mapper);
-
-            List<BikeViewModel> listBike = bikes.ToList();
-            if (listBike.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found!");
-            for (int i = 0; i < listBike.Count; i++)
-            {
-                var owner = await _ownerService.GetOwner((Guid)listBike[i].OwnerId);
-                if (owner != null)
-                {
-                    listBike[i].OwnerName = owner.Fullname;
-                    listBike[i].OwnerPhone = owner.PhoneNumber;
-                }
-                var ratings = await _feedbackService.GetBikeRating((Guid)listBike[i].Id);
-                listBike[i].Rating = ratings.FirstOrDefault().Value;
-                listBike[i].Rating = ratings.FirstOrDefault().Key;
-            }
-            bikes = listBike.AsQueryable().OrderByDescending(b => b.Rating);
-
-            var result = ((IQueryable)bikes)
-        }*/
+            return Get(x => x.Status == (int)BikeStatus.Rent).ProjectTo<BikeViewModel>(_mapper).ToList();
+        }
     }
 }

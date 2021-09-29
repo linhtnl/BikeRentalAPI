@@ -16,9 +16,9 @@ namespace BikeRental.Data.Models
         public Guid Id { get; set; }
         public string Name { get; set; }
         public int? Type { get; set; }
-        public Guid? BranchId { get; set; }
+        public Guid? BrandId { get; set; }
 
-        public virtual Brand Branch { get; set; }
+        public virtual Brand Brand { get; set; }
         public virtual ICollection<Bike> Bikes { get; set; }
         public virtual ICollection<PriceList> PriceLists { get; set; }
     }
