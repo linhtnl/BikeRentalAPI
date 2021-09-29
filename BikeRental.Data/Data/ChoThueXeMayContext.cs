@@ -80,6 +80,8 @@ namespace BikeRental.Data.Models
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
+                entity.Property(e => e.Status).HasDefaultValueSql("((0))");
+
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Bikes)
                     .HasForeignKey(d => d.CategoryId)
@@ -170,9 +172,9 @@ namespace BikeRental.Data.Models
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.HasOne(d => d.Branch)
+                entity.HasOne(d => d.Brand)
                     .WithMany(p => p.Categories)
-                    .HasForeignKey(d => d.BranchId)
+                    .HasForeignKey(d => d.BrandId)
                     .HasConstraintName("FK__Category__Branch__22AA2996");
             });
 
