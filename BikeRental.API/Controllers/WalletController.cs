@@ -1,4 +1,5 @@
-﻿using BikeRental.Business.Constants;
+﻿using BikeRental.API.Models.Request;
+using BikeRental.Business.Constants;
 using BikeRental.Business.Services;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Responses;
@@ -53,12 +54,11 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpPut("depositAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
-        public bool DepositAmount([FromBody] string id, [FromBody] int amount)
+        public bool DepositAmount([FromBody] WalletRequest requestData)
         {
-            Guid guid = Guid.Parse(id);
             try
             {
-                _walletService.UpdateAmount(guid, amount, (int) WalletStatus.DEPOSIT);
+                _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int) WalletStatus.DEPOSIT);
                 return true;
             }
             catch
@@ -68,12 +68,11 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpPut("decreaseAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
-        public bool DecreaseAmount([FromBody] string id, [FromBody] int amount)
+        public bool DecreaseAmount([FromBody] WalletRequest requestData)
         {
-            Guid guid = Guid.Parse(id);
             try
             {
-                _walletService.UpdateAmount(guid, amount, (int)WalletStatus.DECREASE);
+                _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int)WalletStatus.DECREASE);
                 return true;
             }
             catch
