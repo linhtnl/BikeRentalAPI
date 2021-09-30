@@ -1,5 +1,6 @@
 ﻿using BikeRental.Business.Constants;
 using BikeRental.Business.Services;
+using BikeRental.Data.Enums;
 using BikeRental.Data.Responses;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -49,6 +50,36 @@ namespace BikeRental.API.Controllers
         {
             Guid guid = Guid.Parse(id);
             return _walletService.GetTransactionHistory(guid, pageNum, filterOption); // this line need to handle the null case, the null case occur when filterOption is not supported yet
+        }
+
+        [HttpPut("depositAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
+        public bool DepositAmount([FromBody] string id, [FromBody] int amount)
+        {
+            Guid guid = Guid.Parse(id);
+            try
+            {
+                _walletService.UpdateAmount(guid, amount, (int) WalletStatus.DEPOSIT);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        [HttpPut("decreaseAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
+        public bool DecreaseAmount([FromBody] string id, [FromBody] int amount)
+        {
+            Guid guid = Guid.Parse(id);
+            try
+            {
+                _walletService.UpdateAmount(guid, amount, (int)WalletStatus.DECREASE);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

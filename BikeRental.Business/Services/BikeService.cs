@@ -20,7 +20,6 @@ namespace BikeRental.Business.Services
     public interface IBikeService : IBaseService<Bike>
     {
         List<BikeViewModel> GetAll();
-
         BikeViewModel GetBikeById(Guid id);
     }
     public class BikeService : BaseService<Bike>, IBikeService
