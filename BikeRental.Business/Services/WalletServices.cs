@@ -20,6 +20,7 @@ namespace BikeRental.Business.Services
         WalletViewModel GetByMomoId(string momoId);
         WalletViewModel GetByBankId(string bankId);
         List<TransactionHistoryViewModel> GetTransactionHistory(Guid id, int pageNum, int? filterOption);
+        bool UpdateAmount(Guid id, int amount, int isDeposited);
     }
 
     public class WalletService : BaseService<Wallet>, IWalletService
@@ -55,6 +56,50 @@ namespace BikeRental.Business.Services
             List<TransactionHistoryViewModel> transactionHistories = _transactionHistoryService.FilterGetTransactionHistory(walletId, filterOption);
 
             return _transactionHistoryService.GetTransactionHistoryPageItem(transactionHistories, pageNum, groupItemNum);
+        }
+
+        private bool DepositAmount(Guid id, int amount)
+        {
+            Wallet targetWallet = Get().Where(tempWallet => tempWallet.Id.Equals(id)).First();
+
+            targetWallet.Balance += amount;
+
+            try
+            {
+                Update(targetWallet);
+                return true;
+            } catch
+            {
+                return false;
+            }
+        }
+
+        private bool DecreaseAmount(Guid id, int amount)
+        {
+            Wallet targetWallet = Get().Where(tempWallet => tempWallet.Id.Equals(id)).First();
+
+            targetWallet.Balance -= amount;
+
+            try
+            {
+                Update(targetWallet);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool UpdateAmount(Guid id, int amount, int status)
+        {
+            if (isDeposited)
+            {
+                return DepositAmount(id, amount);
+            } else
+            {
+                return DecreaseAmount(id, amount);
+            }
         }
     }
 }

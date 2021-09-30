@@ -55,10 +55,13 @@ namespace BikeRental.API
 
                 mc.CreateMap<TransactionHistory, TransactionHistoryViewModel>();
                 mc.CreateMap<TransactionHistoryViewModel, TransactionHistory>();
+
                 mc.CreateMap<Bike, BikeViewModel>();
                 mc.CreateMap<BikeViewModel, Bike>();
+
                 mc.CreateMap<Brand, BrandViewModel>();
                 mc.CreateMap<BrandViewModel, Brand>();
+
                 mc.CreateMap<Category, CategoryViewModel>();
                 mc.CreateMap<CategoryViewModel, Category>();
 
