@@ -2,6 +2,7 @@
 using AutoMapper.Configuration;
 using AutoMapper.QueryableExtensions;
 using BikeRental.Business.Constants;
+using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
 using BikeRental.Data.UnitOfWorks;
@@ -93,7 +94,7 @@ namespace BikeRental.Business.Services
 
         public bool UpdateAmount(Guid id, int amount, int status)
         {
-            if (isDeposited)
+            if (status == (int) WalletStatus.DEPOSIT)
             {
                 return DepositAmount(id, amount);
             } else

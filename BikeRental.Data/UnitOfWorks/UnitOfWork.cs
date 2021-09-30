@@ -15,6 +15,11 @@ namespace BikeRental.Data.UnitOfWorks
     public class UnitOfWork : IUnitOfWork
     {
         private DbContext _context;
+        
+        public UnitOfWork(DbContext context)
+        {
+            _context = context;
+        }
 
         public int Commit()
         {
