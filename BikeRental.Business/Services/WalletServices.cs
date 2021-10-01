@@ -2,6 +2,7 @@
 using AutoMapper.Configuration;
 using AutoMapper.QueryableExtensions;
 using BikeRental.Business.Constants;
+using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
@@ -21,7 +22,7 @@ namespace BikeRental.Business.Services
         WalletViewModel GetByMomoId(string momoId);
         WalletViewModel GetByBankId(string bankId);
         List<TransactionHistoryViewModel> GetTransactionHistory(Guid id, int pageNum, int? filterOption);
-        bool UpdateAmount(Guid id, int amount, int isDeposited);
+        Task<bool> UpdateAmount(Guid id, int amount, int isDeposited);
     }
 
     public class WalletService : BaseService<Wallet>, IWalletService
@@ -56,10 +57,10 @@ namespace BikeRental.Business.Services
         {
             List<TransactionHistoryViewModel> transactionHistories = _transactionHistoryService.FilterGetTransactionHistory(walletId, filterOption);
 
-            return _transactionHistoryService.GetTransactionHistoryPageItem(transactionHistories, pageNum, groupItemNum);
+            return PagingUtil<TransactionHistoryViewModel>.Paging(transactionHistories, pageNum);       
         }
 
-        private bool DepositAmount(Guid id, int amount)
+        private async Task<bool> DepositAmount(Guid id, int amount)
         {
             Wallet targetWallet = Get().Where(tempWallet => tempWallet.Id.Equals(id)).First();
 
@@ -67,7 +68,7 @@ namespace BikeRental.Business.Services
 
             try
             {
-                Update(targetWallet);
+                await UpdateAsync(targetWallet);
                 return true;
             } catch
             {
@@ -75,7 +76,7 @@ namespace BikeRental.Business.Services
             }
         }
 
-        private bool DecreaseAmount(Guid id, int amount)
+        private async Task<bool> DecreaseAmount(Guid id, int amount)
         {
             Wallet targetWallet = Get().Where(tempWallet => tempWallet.Id.Equals(id)).First();
 
@@ -83,7 +84,7 @@ namespace BikeRental.Business.Services
 
             try
             {
-                Update(targetWallet);
+                await UpdateAsync(targetWallet);
                 return true;
             }
             catch
@@ -92,14 +93,14 @@ namespace BikeRental.Business.Services
             }
         }
 
-        public bool UpdateAmount(Guid id, int amount, int status)
+        public async Task<bool> UpdateAmount(Guid id, int amount, int status)
         {
-            if (status == (int) WalletStatus.DEPOSIT)
+            if (status == (int)WalletStatus.DEPOSIT)
             {
-                return DepositAmount(id, amount);
+                return await DepositAmount(id, amount);
             } else
             {
-                return DecreaseAmount(id, amount);
+                return await DecreaseAmount(id, amount);
             }
         }
     }

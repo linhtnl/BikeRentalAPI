@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
 {
-    [Route("api/admin")]
+    [Route("api/v1.0/admins")]
     [ApiController]
     public class AdminController : ControllerBase
     {

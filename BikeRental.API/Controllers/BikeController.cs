@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
 {
-    [Route("api/bikes")]
+    [Route("api/v1.0/bikes")]
     [ApiController]
     public class BikeController : ControllerBase
     {
@@ -23,9 +23,9 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpGet]        
-        public List<BikeViewModel> Get()
+        public List<BikeViewModel> Get(int pageNum)
         {
-            return _bikeService.GetAll();
+            return _bikeService.GetAll(pageNum);
         }
     }
 }
