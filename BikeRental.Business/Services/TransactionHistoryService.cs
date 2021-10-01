@@ -18,7 +18,6 @@ namespace BikeRental.Business.Services
         TransactionHistoryViewModel GetById(Guid id);
         List<TransactionHistoryViewModel> GetInRangeTime(string startTime, string endTime);
         List<TransactionHistoryViewModel> GetByWalletId(Guid walletId);
-        List<TransactionHistoryViewModel> GetTransactionHistoryPageItem(List<TransactionHistoryViewModel> transactionHistories, int pageNum, int groupNum);
         List<TransactionHistoryViewModel> FilterGetTransactionHistory(Guid walletId, int? filterOption);
     }
     public class TransactionHistoryService : BaseService<TransactionHistory>, ITransactionHistoryService
@@ -59,25 +58,6 @@ namespace BikeRental.Business.Services
             return (inputTime > startTime && inputTime < endTime);
         }
 
-        public List<TransactionHistoryViewModel> GetTransactionHistoryPageItem(List<TransactionHistoryViewModel> transactionHistories, int pageNum, int groupNum)
-        {
-            if (transactionHistories == null)
-            {
-                return null;
-            }
-            int availablePageNum = transactionHistories.Count / groupNum;
-
-            if (pageNum <= 0)
-            {
-                pageNum = 1;
-            }
-            else if (pageNum > availablePageNum)
-            {
-                pageNum = availablePageNum;
-            }
-
-            return transactionHistories.GetRange((groupNum * pageNum) - groupNum, groupNum);
-        }
 
         public List<TransactionHistoryViewModel> FilterGetTransactionHistory(Guid walletId, int? filterOption)
         {

@@ -14,12 +14,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using BikeRental.Data.Constants;
+using BikeRental.Business.Utilities;
 
 namespace BikeRental.Business.Services
 {
     public interface IBikeService : IBaseService<Bike>
     {
-        List<BikeViewModel> GetAll();
+        List<BikeViewModel> GetAll(int pageNum);
         BikeViewModel GetBikeById(Guid id);
     }
     public class BikeService : BaseService<Bike>, IBikeService
@@ -40,9 +41,10 @@ namespace BikeRental.Business.Services
             return Get(x => x.Id.Equals(id)).ProjectTo<BikeViewModel>(_mapper).FirstOrDefault();
         }
 
-        public List<BikeViewModel> GetAll()
+        public List<BikeViewModel> GetAll(int pageNum)
         {
-            return Get(x => x.Status == (int)BikeStatus.Rent).ProjectTo<BikeViewModel>(_mapper).ToList();
+            var list = Get(x => x.Status == (int)BikeStatus.Rent).ProjectTo<BikeViewModel>(_mapper).ToList();
+            return PagingUtil<BikeViewModel>.Paging(list, pageNum);
         }
     }
 }

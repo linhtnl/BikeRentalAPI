@@ -16,7 +16,7 @@ namespace BikeRental.API.Controllers
     // all methods of this controller should be implement in PUT or POST Http Method,
     // to keep user personal information secret
     // fix later (delete this comment if this has fixed already)
-    [Route("api/wallet")]
+    [Route("api/v1.0/wallets")]
     [ApiController]
     public class WalletController : Controller
     {
@@ -54,31 +54,15 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpPut("depositAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
-        public bool DepositAmount([FromBody] WalletRequest requestData)
+        public async Task<bool> DepositAmount([FromBody] WalletRequest requestData)
         {
-            try
-            {
-                _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int) WalletStatus.DEPOSIT);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+                return await _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int) WalletStatus.DEPOSIT);             
         }
 
         [HttpPut("decreaseAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
-        public bool DecreaseAmount([FromBody] WalletRequest requestData)
-        {
-            try
-            {
-                _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int)WalletStatus.DECREASE);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+        public async Task<bool> DecreaseAmount([FromBody] WalletRequest requestData)
+        {          
+               return await _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int)WalletStatus.DECREASE);    
         }
     }
 }

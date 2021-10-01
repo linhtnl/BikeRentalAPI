@@ -14,5 +14,6 @@ namespace BikeRental.Business.Constants
         }
 
         public static readonly string ERROR_FILTER_OPTION_NOT_SUPPORTED = "This filter option is not supported yet.";
+        public static readonly int GROUP_ITEM_NUM = 8;
     }
 }

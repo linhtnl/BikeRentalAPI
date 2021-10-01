@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
 {
-    [Route("api/customer")]
+    [Route("api/v1.0/customers")]
     [ApiController]
     public class CustomerController : ControllerBase
     {
