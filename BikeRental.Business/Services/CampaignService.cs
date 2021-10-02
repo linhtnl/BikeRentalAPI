@@ -46,27 +46,37 @@ namespace BikeRental.Business.Services
 
         public List<CampaignViewModel> GetAll()
         {
-            return Get().Where(tempCampaign => (bool)tempCampaign.IsHappening).ProjectTo<CampaignViewModel>(_mapper).ToList();
+            return Get().Where(tempCampaign => (bool)tempCampaign.IsHappening)
+                .ProjectTo<CampaignViewModel>(_mapper)
+                .ToList();
         }
 
         public CampaignViewModel GetById(Guid id)
         {
-            return Get().Where(tempCampaign => tempCampaign.Id.Equals(id)).ProjectTo<CampaignViewModel>(_mapper).FirstOrDefault();
+            return Get().Where(tempCampaign => tempCampaign.Id.Equals(id))
+                .ProjectTo<CampaignViewModel>(_mapper)
+                .FirstOrDefault();
         }
 
         public List<CampaignViewModel> GetByAreaId(Guid areaId)
         {
-            return Get().Where(tempCampain => tempCampain.AreaId.Equals(areaId)).ProjectTo<CampaignViewModel>(_mapper).ToList();
+            return Get().Where(tempCampain => tempCampain.AreaId.Equals(areaId))
+                .ProjectTo<CampaignViewModel>(_mapper)
+                .ToList();
         }
 
         public List<CampaignViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate)
         {
-            return Get().Where(tempCampaign => IsInRange(tempCampaign.StartingDate, startDate, endDate)).ProjectTo<CampaignViewModel>(_mapper).ToList();
+            return Get().Where(tempCampaign => tempCampaign.StartingDate >= startDate && tempCampaign.StartingDate <= endDate)
+                .ProjectTo<CampaignViewModel>(_mapper)
+                .ToList();
         }
 
         public List<CampaignViewModel> GetEndInRangeDate(DateTime startDate, DateTime endDate)
         {
-            return Get().Where(tempCampaign => IsInRange(tempCampaign.StartingDate, startDate, endDate)).ProjectTo<CampaignViewModel>(_mapper).ToList();
+            return Get().Where(tempCampaign => tempCampaign.ExpiredDate >= startDate && tempCampaign.ExpiredDate <= endDate)
+                .ProjectTo<CampaignViewModel>(_mapper)
+                .ToList();
         }
     }
 }

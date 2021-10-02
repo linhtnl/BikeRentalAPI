@@ -69,6 +69,9 @@ namespace BikeRental.API
                 mc.CreateMap<Campaign, CampaignViewModel>();
                 mc.CreateMap<CampaignViewModel, Campaign>();
 
+                mc.CreateMap<Voucher, VoucherViewModel>();
+                mc.CreateMap<VoucherViewModel, Voucher>();
+
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
