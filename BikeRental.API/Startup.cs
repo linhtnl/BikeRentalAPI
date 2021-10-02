@@ -49,8 +49,6 @@ namespace BikeRental.API
                 mc.CreateMap<Customer, CustomerViewModel>();
                 mc.CreateMap<CustomerViewModel, Customer>();
 
-             
-
                 mc.CreateMap<Wallet, WalletViewModel>();
                 mc.CreateMap<WalletViewModel, Wallet>();
 
@@ -71,6 +69,9 @@ namespace BikeRental.API
 
                 mc.CreateMap<Voucher, VoucherViewModel>();
                 mc.CreateMap<VoucherViewModel, Voucher>();
+
+                mc.CreateMap<VoucherItem, VoucherItemViewModel>();
+                mc.CreateMap<VoucherItemViewModel, VoucherItem>();
 
             });
             IMapper mapper = mappingConfig.CreateMapper();

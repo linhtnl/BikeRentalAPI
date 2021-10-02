@@ -54,6 +54,9 @@ namespace BikeRental.Business.DI
 
             services.AddTransient<IVoucherRepository, VoucherRepository>();
             services.AddTransient<IVoucherService, VoucherService>();
+
+            services.AddTransient<IVoucherItemRepository, VoucherItemRepository>();
+            services.AddTransient<IVoucherItemService, VoucherItemService>();
         }
     }
 }
