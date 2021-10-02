@@ -45,13 +45,13 @@ namespace BikeRental.API.Controllers
             return _campaignService.GetByAreaId(areaId);
         }
 
-        [HttpGet("inRange/start")]
+        [HttpGet("inRangeDate/start")]
         public List<CampaignViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate)
         {
             return _campaignService.GetStartInRangeDate(startDate, endDate);
         }
 
-        [HttpGet("inRange/end")]
+        [HttpGet("inRangeDate/end")]
         public List<CampaignViewModel> GetEndInRangeDate(DateTime startDate, DateTime endDate)
         {
             return _campaignService.GetEndInRangeDate(startDate, endDate);

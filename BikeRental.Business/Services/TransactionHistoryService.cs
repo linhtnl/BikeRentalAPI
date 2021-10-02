@@ -16,7 +16,7 @@ namespace BikeRental.Business.Services
     public interface ITransactionHistoryService : IBaseService<TransactionHistory>
     {
         TransactionHistoryViewModel GetById(Guid id);
-        List<TransactionHistoryViewModel> GetInRangeTime(string startTime, string endTime);
+        List<TransactionHistoryViewModel> GetInRangeTime(DateTime startTime, DateTime endTime);
         List<TransactionHistoryViewModel> GetByWalletId(Guid walletId);
         List<TransactionHistoryViewModel> FilterGetTransactionHistory(Guid walletId, int? filterOption);
     }
@@ -38,24 +38,12 @@ namespace BikeRental.Business.Services
             return Get().Where(tempTransactionHistory => tempTransactionHistory.WalletId.Equals(walletId)).ProjectTo<TransactionHistoryViewModel>(_mapper).ToList();
         }
 
-        public List<TransactionHistoryViewModel> GetInRangeTime(string startTime, string endTime)
+        public List<TransactionHistoryViewModel> GetInRangeTime(DateTime startTime, DateTime endTime)
         {
             return Get()
-                .Where(tempTransactionHistory => isInRange(tempTransactionHistory.ActionDate.ToString(), startTime, endTime))
+                .Where(tempTransactionHistory => tempTransactionHistory.ActionDate >= startTime && tempTransactionHistory.ActionDate <= endTime)
                 .ProjectTo<TransactionHistoryViewModel>(_mapper)
                 .ToList();
-        }
-
-        // https://docs.microsoft.com/en-us/dotnet/standard/base-types/parsing-datetime
-        private bool isInRange(string inputTimeString, string startTimeString, string endTimeString)
-        {
-            DateTime inputTime, startTime, endTime;
-
-            inputTime = DateTime.Parse(inputTimeString);
-            startTime = DateTime.Parse(startTimeString);
-            endTime = DateTime.Parse(endTimeString);
-
-            return (inputTime > startTime && inputTime < endTime);
         }
 
 
