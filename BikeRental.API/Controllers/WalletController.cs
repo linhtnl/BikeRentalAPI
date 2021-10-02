@@ -13,9 +13,6 @@ using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
 {
-    // all methods of this controller should be implement in PUT or POST Http Method,
-    // to keep user personal information secret
-    // fix later (delete this comment if this has fixed already)
     [Route("api/v1.0/wallets")]
     [ApiController]
     public class WalletController : Controller
