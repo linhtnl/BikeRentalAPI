@@ -25,6 +25,7 @@ namespace BikeRental.Business.Services
         Task DeleteAsync(TEntity entity);
         void Save();
         Task SaveAsync();
+        bool IsInRange(DateTime inputDate, DateTime startDate, DateTime endDate);
     }
     public class BaseService<TEntity> : IBaseService<TEntity> where TEntity : class
     {
@@ -109,6 +110,11 @@ namespace BikeRental.Business.Services
         {
             repository.Update(entity);
             await SaveAsync();
+        }
+
+        public bool IsInRange(DateTime inputDate, DateTime startDate, DateTime endDate)
+        {
+            return (inputDate >= startDate && inputDate <= endDate);
         }
     }
 }

@@ -18,6 +18,7 @@ using BikeRental.Business.Services;
 using AutoMapper;
 using BikeRental.Data.ViewModels;
 using BikeRental.Business.DI;
+using BikeRental.API.Models.Request;
 
 namespace BikeRental.API
 {
@@ -64,6 +65,9 @@ namespace BikeRental.API
 
                 mc.CreateMap<Category, CategoryViewModel>();
                 mc.CreateMap<CategoryViewModel, Category>();
+
+                mc.CreateMap<Campaign, CampaignViewModel>();
+                mc.CreateMap<CampaignViewModel, Campaign>();
 
             });
             IMapper mapper = mappingConfig.CreateMapper();
