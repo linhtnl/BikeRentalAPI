@@ -19,7 +19,7 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<bool> CreateNew(VoucherViewModel voucherRequest)
+        public async Task<bool> CreateNew([FromBody] VoucherViewModel voucherRequest)
         {
             return await _voucherService.CreateNew(voucherRequest);
         }
