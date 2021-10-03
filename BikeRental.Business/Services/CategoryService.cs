@@ -17,7 +17,9 @@ namespace BikeRental.Business.Services
     {
         List<CategoryViewModel> GetAllCate();
         CategoryViewModel GetCateById(Guid id);
-        CategoryViewModel GetCateByType(int type);
+        List<CategoryViewModel> GetCateByType(int type);
+        Task<Category> Update(Guid id, string name, int type);
+        Task<Category> Create(CategoryCreateModel model);
     }
     public class CategoryService : BaseService<Category>, ICategoryService
     {
@@ -26,6 +28,13 @@ namespace BikeRental.Business.Services
         public CategoryService(IUnitOfWork unitOfWork, ICategoryRepository repository, IMapper mapper) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
+        }
+
+        public async Task<Category> Create(CategoryCreateModel model)
+        {
+            var cate = _mapper.CreateMapper().Map<Category>(model);
+            await CreateAsync(cate);
+            return cate;
         }
 
         public List<CategoryViewModel> GetAllCate()
@@ -38,9 +47,18 @@ namespace BikeRental.Business.Services
             return Get(c => c.Id.Equals(id)).ProjectTo<CategoryViewModel>(_mapper).FirstOrDefault();
         }
 
-        public CategoryViewModel GetCateByType(int type)
+        public List<CategoryViewModel> GetCateByType(int type)
         {
-            return Get(c => c.Type == type).ProjectTo<CategoryViewModel>(_mapper).FirstOrDefault();
+            return Get(c => c.Type == type).ProjectTo<CategoryViewModel>(_mapper).ToList();
+        }
+
+        public async Task<Category> Update(Guid id, string name, int type)
+        {
+            var cate = Get(g => g.Id.Equals(id)).FirstOrDefault();
+            cate.Name = name;
+            cate.Type = type;
+            await UpdateAsync(cate);
+            return cate;
         }
     }
 }

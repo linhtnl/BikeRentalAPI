@@ -1,5 +1,4 @@
-﻿using BikeRental.Data.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 #nullable disable
@@ -11,16 +10,6 @@ namespace BikeRental.Data.Models
         public VoucherItem()
         {
             Bookings = new HashSet<Booking>();
-        }
-
-        public VoucherItem(VoucherItemViewModel voucherItemViewModel)
-        {
-            Id = voucherItemViewModel.Id;
-            TimeUsing = voucherItemViewModel.TimeUsing;
-            TimeUsingRemain = voucherItemViewModel.TimeUsingRemain;
-            CustomerId = voucherItemViewModel.CustomerId;
-            PointExchange = voucherItemViewModel.PointExchange;
-            VoucherId = voucherItemViewModel.VoucherId;
         }
 
         public Guid Id { get; set; }

@@ -34,7 +34,7 @@ namespace BikeRental.Business.Services
         {
             try
             {
-                Voucher voucher = new Voucher(voucherRequest);
+                var voucher = (_mapper).CreateMapper().Map<Voucher>(voucherRequest);
                 await CreateAsync(voucher);
 
                 return true;
@@ -47,7 +47,7 @@ namespace BikeRental.Business.Services
 
         public List<VoucherViewModel> GetAll()
         {
-            return Get().Where(tempVoucher => (bool)tempVoucher.IsAvailable)
+            return Get()
                 .ProjectTo<VoucherViewModel>(_mapper)
                 .ToList();
         }

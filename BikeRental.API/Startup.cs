@@ -46,6 +46,9 @@ namespace BikeRental.API
                 mc.CreateMap<Area, AreaViewModel>();
                 mc.CreateMap<AreaViewModel, Area>();
 
+                mc.CreateMap<Area, AreaCreateModel>();
+                mc.CreateMap<AreaCreateModel, Area>();
+
                 mc.CreateMap<Customer, CustomerViewModel>();
                 mc.CreateMap<CustomerViewModel, Customer>();
 
@@ -63,6 +66,9 @@ namespace BikeRental.API
 
                 mc.CreateMap<Category, CategoryViewModel>();
                 mc.CreateMap<CategoryViewModel, Category>();
+
+                mc.CreateMap<Category, CategoryCreateModel>();
+                mc.CreateMap<CategoryCreateModel, Category>();
 
                 mc.CreateMap<Campaign, CampaignViewModel>();
                 mc.CreateMap<CampaignViewModel, Campaign>();

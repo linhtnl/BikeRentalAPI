@@ -19,7 +19,7 @@ namespace BikeRental.Data.Models
         public string Fullname { get; set; }
         public string Address { get; set; }
         public string IdentityImg { get; set; }
-        public bool? IsBanned { get; set; }
+        public int? Status { get; set; }
         public int? BanTimes { get; set; }
         public Guid? AdminId { get; set; }
         public Guid? AreaId { get; set; }

@@ -196,14 +196,14 @@ namespace BikeRental.Data.Models
                     .HasMaxLength(12)
                     .IsUnicode(false);
 
-                entity.Property(e => e.IsBanned).HasDefaultValueSql("((0))");
-
                 entity.Property(e => e.PhoneNumber)
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.RewardPoints).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Status).HasDefaultValueSql("((0))");
 
                 entity.HasOne(d => d.Admin)
                     .WithMany(p => p.Customers)

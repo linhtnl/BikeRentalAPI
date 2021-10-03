@@ -22,6 +22,10 @@ namespace BikeRental.Business.Services
         AreaViewModel GetById(Guid id);
 
         List<AreaViewModel> GetAll();
+
+        Task<Area> Update(Guid id,int postalCode, string name);
+
+        Task<Area> Create(AreaCreateModel model);
     }
     public class AreaService : BaseService<Area>, IAreaService
     {
@@ -48,6 +52,22 @@ namespace BikeRental.Business.Services
         public AreaViewModel GetAreaByPostalCode(int postalCode)
         {
             return Get(a => a.PostalCode == postalCode).ProjectTo<AreaViewModel>(_mapper).FirstOrDefault();
+        }
+
+        public async Task<Area> Update(Guid id, int postalCode, string name)
+        {
+            Area area = Get(a => a.Id.Equals(id)).First();
+            area.PostalCode = postalCode;
+            area.Name = name;
+            await UpdateAsync(area);
+            return area;
+        }
+
+        public async Task<Area> Create(AreaCreateModel model)
+        {
+            var area = _mapper.CreateMapper().Map<Area>(model);
+            await CreateAsync(area);
+            return area;
         }
     }
 }

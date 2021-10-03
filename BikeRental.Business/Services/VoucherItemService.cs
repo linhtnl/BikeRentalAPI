@@ -32,7 +32,7 @@ namespace BikeRental.Business.Services
         {
             try
             {
-                VoucherItem voucherItem = new VoucherItem(voucherItemRequest);
+                var voucherItem = _mapper.CreateMapper().Map<VoucherItem>(voucherItemRequest);
                 await CreateAsync(voucherItem);
                 return true;
             }

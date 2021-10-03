@@ -16,47 +16,47 @@ namespace BikeRental.Business.DI
     {
         public static void ConfigServicesDI(this IServiceCollection services)
         {
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
-            services.AddTransient<DbContext, ChoThueXeMayContext>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<DbContext, ChoThueXeMayContext>();
 
-            services.AddTransient<IAreaRepository, AreaRepository>();
-            services.AddTransient<IAreaService, AreaService>();
+            services.AddScoped<IAreaRepository, AreaRepository>();
+            services.AddScoped<IAreaService, AreaService>();
 
-            services.AddTransient<ICustomerRepository, CustomerRepository>();
-            services.AddTransient<ICustomerService, CustomerService>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<ICustomerService, CustomerService>();
 
-            services.AddTransient<IWalletRepository, WalletRepository>();
-            services.AddTransient<IWalletService, WalletService>();
+            services.AddScoped<IWalletRepository, WalletRepository>();
+            services.AddScoped<IWalletService, WalletService>();
 
-            services.AddTransient<ITransactionHistoryRepository, TransactionHistoryRepository>();
-            services.AddTransient<ITransactionHistoryService, TransactionHistoryService>();
+            services.AddScoped<ITransactionHistoryRepository, TransactionHistoryRepository>();
+            services.AddScoped<ITransactionHistoryService, TransactionHistoryService>();
 
-            services.AddTransient<IAdminRepository, AdminRepository>();
-            services.AddTransient<IAdminService, AdminService>();
+            services.AddScoped<IAdminRepository, AdminRepository>();
+            services.AddScoped<IAdminService, AdminService>();
 
-            services.AddTransient<IBikeRepository, BikeRepository>();
-            services.AddTransient<IBikeService, BikeService>();
+            services.AddScoped<IBikeRepository, BikeRepository>();
+            services.AddScoped<IBikeService, BikeService>();
 
-            services.AddTransient<IOwnerRepository, OwnerRepository>();
-            services.AddTransient<IOwnerService, OwnerService>();
+            services.AddScoped<IOwnerRepository, OwnerRepository>();
+            services.AddScoped<IOwnerService, OwnerService>();
 
-            services.AddTransient<IFeedbackRepository, FeedbackRepository>();
-            services.AddTransient<IFeedbackService, FeedbackService>();
+            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            services.AddScoped<IFeedbackService, FeedbackService>();
 
-            services.AddTransient<IBrandRepository, BrandRepository>();
-            services.AddTransient<IBrandService, BrandService>();
+            services.AddScoped<IBrandRepository, BrandRepository>();
+            services.AddScoped<IBrandService, BrandService>();
 
-            services.AddTransient<ICategoryRepository, CategoryRepository>();
-            services.AddTransient<ICategoryService, CategoryService>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ICategoryService, CategoryService>();
 
-            services.AddTransient<ICampaignRepository, CampaignRepository>();
-            services.AddTransient<ICampaignService, CampaignService>();
+            services.AddScoped<ICampaignRepository, CampaignRepository>();
+            services.AddScoped<ICampaignService, CampaignService>();
 
-            services.AddTransient<IVoucherRepository, VoucherRepository>();
-            services.AddTransient<IVoucherService, VoucherService>();
+            services.AddScoped<IVoucherRepository, VoucherRepository>();
+            services.AddScoped<IVoucherService, VoucherService>();
 
-            services.AddTransient<IVoucherItemRepository, VoucherItemRepository>();
-            services.AddTransient<IVoucherItemService, VoucherItemService>();
+            services.AddScoped<IVoucherItemRepository, VoucherItemRepository>();
+            services.AddScoped<IVoucherItemService, VoucherItemService>();
         }
     }
 }

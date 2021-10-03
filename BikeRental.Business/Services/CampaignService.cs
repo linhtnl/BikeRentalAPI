@@ -29,12 +29,12 @@ namespace BikeRental.Business.Services
             _mapper = mapper.ConfigurationProvider;
         }
 
-        public async Task<bool> CreateNew(CampaignViewModel campaignRequest)
+        public async Task<bool> CreateNew(CampaignViewModel model)
         {
             try
             {
-                Campaign campaign = new Campaign(campaignRequest);
-
+                var campaign = _mapper.CreateMapper().Map<Campaign>(model);
+                campaign.Id = null;
                 await CreateAsync(campaign);
                 return true;
             }
@@ -46,7 +46,7 @@ namespace BikeRental.Business.Services
 
         public List<CampaignViewModel> GetAll()
         {
-            return Get().Where(tempCampaign => (bool)tempCampaign.IsHappening)
+            return Get()
                 .ProjectTo<CampaignViewModel>(_mapper)
                 .ToList();
         }

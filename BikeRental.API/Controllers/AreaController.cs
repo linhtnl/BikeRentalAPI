@@ -44,5 +44,15 @@ namespace BikeRental.API.Controllers
         {
             return _areaService.GetAreaByPostalCode(postalCode);
         }
+        [HttpPut] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
+        public async Task<Area> Update(Guid id , int postalCode, string name)
+        {
+                return await _areaService.Update(id, postalCode, name);
+        }
+        [HttpPost]
+        public async Task<Area> Create(AreaCreateModel model)
+        {
+            return await _areaService.Create(model);
+        }
     }
 }

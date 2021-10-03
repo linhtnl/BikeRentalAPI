@@ -13,7 +13,7 @@ using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
-using BikeRental.Data.Constants;
+
 using BikeRental.Business.Utilities;
 
 namespace BikeRental.Business.Services
