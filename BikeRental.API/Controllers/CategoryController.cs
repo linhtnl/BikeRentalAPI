@@ -1,4 +1,5 @@
 ﻿using BikeRental.Business.Services;
+using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,9 +33,19 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpGet("type/{type}")]
-        public CategoryViewModel GetCateByType(int type)
+        public List<CategoryViewModel> GetCateByType(int type)
         {
             return _categoryService.GetCateByType(type);
+        }
+        [HttpPut]
+        public async Task<Category> Update(Guid id, string name, int type)
+        {
+            return await _categoryService.Update(id, name, type);
+        }
+        [HttpPost]
+        public async Task<Category> Create(CategoryCreateModel model)
+        {
+            return await _categoryService.Create(model);
         }
     }
 }

@@ -16,6 +16,10 @@ namespace BikeRental.Business.Services
     {
         List<BrandViewModel> GetAll();
         BrandViewModel GetBrandById(Guid id);
+
+        Task<Brand> Update(Guid id, string name);
+
+        Task<Brand> Create(string name);
     }
     public class BrandService : BaseService<Brand>, IBrandService
     {
@@ -26,6 +30,14 @@ namespace BikeRental.Business.Services
             _mapper = mapper.ConfigurationProvider;
         }
 
+        public async Task<Brand> Create(string name)
+        {
+            var brand = new Brand();
+            brand.Name = name;
+            await CreateAsync(brand);
+            return brand;
+        }
+
         public List<BrandViewModel> GetAll()
         {
             return Get().ProjectTo<BrandViewModel>(_mapper).ToList();
@@ -34,6 +46,14 @@ namespace BikeRental.Business.Services
         public BrandViewModel GetBrandById(Guid id)
         {
             return Get(b => b.Id.Equals(id)).ProjectTo<BrandViewModel>(_mapper).FirstOrDefault();
+        }
+
+        public async Task<Brand> Update(Guid id, string name)
+        {
+            Brand brand = Get(b => b.Id.Equals(id)).FirstOrDefault();
+            brand.Name = name;
+            await UpdateAsync(brand);
+            return brand;
         }
     }
 }

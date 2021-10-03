@@ -1,4 +1,5 @@
 ﻿using BikeRental.Business.Services;
+using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,16 @@ namespace BikeRental.API.Controllers
         public BrandViewModel GetById(Guid id)
         {
             return _brandService.GetBrandById(id);
+        }
+        [HttpPut]
+        public async Task<Brand> Update(Guid id, string name)
+        {
+            return await _brandService.Update(id, name);
+        }
+        [HttpPost]
+        public async Task<Brand> Create(string name)
+        {
+            return await _brandService.Create(name);
         }
     }
 }

@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace BikeRental.Data.ViewModels
 {
-    class BikeUpdateViewModel
+    public class AreaCreateModel
     {
+        public int PostalCode { get; set; }
+        public string Name { get; set; }
     }
 }

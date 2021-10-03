@@ -21,7 +21,7 @@ namespace BikeRental.API.Controllers
             _campaignService = campaignService;
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public Task<bool> CreateNew([FromBody] CampaignViewModel campainRequest)
         {
             return _campaignService.CreateNew(campainRequest);

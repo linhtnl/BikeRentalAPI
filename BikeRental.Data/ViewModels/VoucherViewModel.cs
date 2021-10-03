@@ -13,7 +13,7 @@ namespace BikeRental.Data.ViewModels
         public string Description { get; set; }
         public int? DiscountPercent { get; set; }
         public decimal? DiscountAmount { get; set; }
-        public bool? IsAvailable { get; set; }
+        public int? Status { get; set; }
         public DateTime ExpiredDate { get; set; }
         public DateTime StartingDate { get; set; }
         public int? VoucherItemsRemain { get; set; }
