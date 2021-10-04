@@ -1,5 +1,7 @@
-﻿using BikeRental.Business.Services;
+﻿using BikeRental.API.Models.Request;
+using BikeRental.Business.Services;
 using BikeRental.Data.ViewModels;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;

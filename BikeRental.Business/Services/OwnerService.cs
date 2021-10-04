@@ -14,9 +14,10 @@ namespace BikeRental.Business.Services
 {
     public interface IOwnerService : IBaseService<Owner>
     {
+        Task<OwnerViewModel> CreateNew(Owner ownerInfo);
         OwnerViewModel GetOwnerById(Guid id);
-
         Task<Owner> GetOwner(Guid id);
+        Task<OwnerViewModel> GetByMail(string mail);
     }
     public class OwnerService : BaseService<Owner>, IOwnerService
     {
@@ -37,5 +38,23 @@ namespace BikeRental.Business.Services
             return Get(x => x.Id.Equals(id)).ProjectTo<OwnerViewModel>(_mapper).FirstOrDefault();
         }
 
+        public async Task<OwnerViewModel> GetByMail(string mail)
+        {
+            return Get().Where(tempOwner => tempOwner.Mail.Equals(mail)).ProjectTo<OwnerViewModel>(_mapper).FirstOrDefault();
+        }
+
+        public async Task<OwnerViewModel> CreateNew(Owner ownerInfo)
+        {
+            try
+            {
+                await CreateAsync(ownerInfo);
+
+                return await GetByMail(ownerInfo.Mail);
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

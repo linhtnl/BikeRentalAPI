@@ -57,6 +57,9 @@ namespace BikeRental.Business.DI
 
             services.AddScoped<IVoucherItemRepository, VoucherItemRepository>();
             services.AddScoped<IVoucherItemService, VoucherItemService>();
+
+            services.AddScoped<IOwnerRepository, OwnerRepository>();
+            services.AddScoped<IOwnerService, OwnerService>();
         }
     }
 }
