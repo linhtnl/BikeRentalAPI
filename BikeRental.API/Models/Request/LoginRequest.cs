@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 namespace BikeRental.API.Models.Request
 {
-    public class AreaRequest
+    public class LoginRequest
     {
+        public string AccessToken { get; set; }
+        public string GoogleId { get; set; }
     }
 }

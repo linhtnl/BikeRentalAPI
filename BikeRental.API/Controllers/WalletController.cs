@@ -1,5 +1,6 @@
 ﻿using BikeRental.API.Models.Request;
 using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Responses;
