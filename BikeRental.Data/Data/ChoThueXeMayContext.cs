@@ -244,6 +244,10 @@ namespace BikeRental.Data.Models
                     .HasMaxLength(12)
                     .IsUnicode(false);
 
+                entity.Property(e => e.Mail)
+                    .HasMaxLength(255)
+                    .HasColumnName("mail");
+
                 entity.Property(e => e.PhoneNumber)
                     .HasMaxLength(10)
                     .IsUnicode(false)
