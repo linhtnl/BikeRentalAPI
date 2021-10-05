@@ -15,36 +15,108 @@ using System.Threading.Tasks;
 using System.Net;
 
 using BikeRental.Business.Utilities;
+using Microsoft.EntityFrameworkCore;
+using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
 
 namespace BikeRental.Business.Services
 {
     public interface IBikeService : IBaseService<Bike>
     {
-        List<BikeViewModel> GetAll(int pageNum);
-        BikeViewModel GetBikeById(Guid id);
+        Task<DynamicModelResponse<BikeViewModel>> GetAll(BikeViewModel model, int pageNum);
+        Task<BikeViewModel> GetBikeById(Guid id);
+        Task<Bike> Create(BikeCreateRequest request);
+        Task<Bike> Update(Guid id , BikeUpdateRequest request);
+        Task<Bike> Delete(Guid id);
     }
     public class BikeService : BaseService<Bike>, IBikeService
     {
         private readonly IConfigurationProvider _mapper;
         private readonly IOwnerService _ownerService;
         private readonly IFeedbackService _feedbackService;
+        private readonly ICategoryService _categoryService;
+        private readonly IBrandService _brandService;
         public BikeService(IUnitOfWork unitOfWork, IBikeRepository repository,
-            IOwnerService ownerService,IFeedbackService feedbackService, IMapper mapper) : base(unitOfWork, repository)
+            IOwnerService ownerService,IFeedbackService feedbackService, ICategoryService categoryService,IBrandService brandService, IMapper mapper) : base(unitOfWork, repository)
         {
             _ownerService = ownerService;
             _feedbackService = feedbackService;
+            _categoryService = categoryService;
+            _brandService = brandService;
             _mapper = mapper.ConfigurationProvider;
         }
 
-        public BikeViewModel GetBikeById(Guid id)
+        public async Task<BikeViewModel> GetBikeById(Guid id)
         {
-            return Get(x => x.Id.Equals(id)).ProjectTo<BikeViewModel>(_mapper).FirstOrDefault();
+            var bike = await Get(x => x.Id.Equals(id)).ProjectTo<BikeViewModel>(_mapper).FirstOrDefaultAsync();
+            return bike;
         }
 
-        public List<BikeViewModel> GetAll(int pageNum)
+        public async Task<DynamicModelResponse<BikeViewModel>> GetAll(BikeViewModel model, int pageNum)
         {
-            var list = Get(x => x.Status == (int)BikeStatus.Rent).ProjectTo<BikeViewModel>(_mapper).ToList();
-            return PagingUtil<BikeViewModel>.Paging(list, pageNum);
+            //if user = admin BikeStatus : show all
+            //if user = owner BikeStatus : Available, Rent base on ownerID
+            //if user = user BikeStatus : Available only
+            var bikes = Get(x => x.Status == (int)BikeStatus.Available).ProjectTo<BikeViewModel>(_mapper);
+            List<BikeViewModel> listBike = bikes.ToList();
+            if(listBike.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
+            for (int i = 0; i < listBike.Count; i++)
+            {
+                var cate = await _categoryService.GetCateById(listBike[i].CategoryId);
+                var brand = await _brandService.GetBrandById(cate.BrandId);
+                listBike[i].BrandName = brand.Name;
+            }
+            bikes = listBike.AsQueryable().OrderByDescending(b => b.BrandName).ThenByDescending(b => b.CategoryName);
+            var result = bikes
+                .DynamicFilter(model)
+                .PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
+            //if (result.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            var rs = new DynamicModelResponse<BikeViewModel>
+            {
+                Metadata = new PagingMetaData
+                {
+                    Page = pageNum,
+                    Size = GlobalConstants.GROUP_ITEM_NUM,
+                    Total = result.Item1
+                },
+                Data = result.Item2.ToList()
+            };
+            return rs;
+        }
+
+        public async Task<Bike> Create(BikeCreateRequest request)
+        {
+            //get id from token
+            var bike = _mapper.CreateMapper().Map<Bike>(request);
+            var cate = await _categoryService.GetCateById(bike.CategoryId);
+            if (cate.Status == (int)CategoryStatus.Pending)
+            {
+                bike.Status = (int)BikeStatus.Pending;
+            }
+            else
+            {
+                bike.Status = (int)BikeStatus.Available;
+            }
+            await CreateAsync(bike);
+            return bike;
+        }
+
+        public async Task<Bike> Update(Guid id, BikeUpdateRequest request)
+        {
+            var bike = await GetAsync(id);
+            if (bike == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Bike not found");
+            var updateBike = _mapper.CreateMapper().Map(request, bike);
+            await UpdateAsync(updateBike);
+            return updateBike;
+        }
+
+        public async Task<Bike> Delete(Guid id)
+        {
+            var bike = await GetAsync(id);
+            if (bike == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Bike not found");
+            bike.Status = (int)BikeStatus.Delete;
+            await UpdateAsync(bike);
+            return bike;
         }
     }
 }

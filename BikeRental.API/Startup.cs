@@ -27,6 +27,8 @@ using Google.Apis.Auth.OAuth2;
 using BikeRental.Business.RequestModels;
 using BikeRental.Business.Utilities;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace BikeRental.API
 {
@@ -93,6 +95,12 @@ namespace BikeRental.API
                 mc.CreateMap<Bike, BikeViewModel>();
                 mc.CreateMap<BikeViewModel, Bike>();
 
+                mc.CreateMap<Bike, BikeCreateRequest>();
+                mc.CreateMap<BikeCreateRequest, Bike>();
+
+                mc.CreateMap<Bike, BikeUpdateRequest>();
+                mc.CreateMap<BikeUpdateRequest, Bike>();
+
                 mc.CreateMap<Brand, BrandViewModel>();
                 mc.CreateMap<BrandViewModel, Brand>();
 
@@ -116,6 +124,15 @@ namespace BikeRental.API
 
                 mc.CreateMap<Owner, OwnerRegisterRequest>();
                 mc.CreateMap<OwnerRegisterRequest, Owner>();
+
+                mc.CreateMap<Feedback, FeedbackCreateRequest>();
+                mc.CreateMap<FeedbackCreateRequest, Feedback>();
+
+                mc.CreateMap<PriceList, PriceListViewModel>();
+                mc.CreateMap<PriceListViewModel, PriceList>();
+
+                mc.CreateMap<PriceList, PricelistCreateRequest>();
+                mc.CreateMap<PricelistCreateRequest, PriceList>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

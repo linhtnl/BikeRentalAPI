@@ -4,6 +4,7 @@ using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace BikeRental.Business.Services
 
         public async Task<OwnerViewModel> GetByMail(string mail)
         {
-            return Get().Where(tempOwner => tempOwner.Mail.Equals(mail)).ProjectTo<OwnerViewModel>(_mapper).FirstOrDefault();
+            return await Get().Where(tempOwner => tempOwner.Mail.Equals(mail)).ProjectTo<OwnerViewModel>(_mapper).FirstOrDefaultAsync();
         }
 
         public async Task<OwnerViewModel> CreateNew(Owner ownerInfo)

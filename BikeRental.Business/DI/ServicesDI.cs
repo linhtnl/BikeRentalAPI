@@ -60,6 +60,9 @@ namespace BikeRental.Business.DI
 
             services.AddScoped<IOwnerRepository, OwnerRepository>();
             services.AddScoped<IOwnerService, OwnerService>();
+
+            services.AddScoped<IPriceListRepository, PriceListRepository>();
+            services.AddScoped<IPriceListService, PriceListService>();
         }
     }
 }

@@ -14,8 +14,9 @@ using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
 {
-    [Route("api/v1.0/owner")]
+    [Route("api/v{version:apiVersion}/owners")]
     [ApiController]
+    [ApiVersion("1")]
     public class OwnerController : Controller
     {
         private readonly IOwnerService _ownerService;
@@ -27,6 +28,7 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpPost("login")]
+        [MapToApiVersion("1")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(request.GoogleId); // get user by request's guid
@@ -52,6 +54,7 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpPost("register")]
+        [MapToApiVersion("1")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             FirebaseToken token = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(request.AccessToken); // get firebase token via request's access token

@@ -4,6 +4,7 @@
     {
         Available,
         Rent,
-        Delete
+        Delete,
+        Pending
     }
 }

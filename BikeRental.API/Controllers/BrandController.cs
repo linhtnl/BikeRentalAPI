@@ -1,4 +1,5 @@
-﻿using BikeRental.Business.Services;
+﻿using BikeRental.Business.Constants;
+using BikeRental.Business.Services;
 using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Http;
@@ -10,8 +11,9 @@ using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
 {
-    [Route("api/v1.0/brands")]
+    [Route("api/v{version:apiVersion}/brands")]
     [ApiController]
+    [ApiVersion("1")]
     public class BrandController : ControllerBase
     {
         private readonly IBrandService _brandService;
@@ -21,25 +23,35 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpGet]
-        public List<BrandViewModel> GetAll()
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Get([FromQuery] BrandViewModel model, int page = CommonConstants.DefaultPage)
         {
-            return _brandService.GetAll();
+            return Ok(await _brandService.GetAll(model, page));
         }
-        
-        [HttpGet("id/{id}")]
-        public BrandViewModel GetById(Guid id)
+
+        [HttpGet("{id}")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> GetById(Guid id)
         {
-            return _brandService.GetBrandById(id);
+            return Ok(await _brandService.GetBrandById(id));
         }
         [HttpPut]
-        public async Task<Brand> Update(Guid id, string name)
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Update(Guid id, string name)
         {
-            return await _brandService.Update(id, name);
+            return Ok(await _brandService.Update(id, name));
         }
         [HttpPost]
-        public async Task<Brand> Create(string name)
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Create(string name)
         {
-            return await _brandService.Create(name);
+            return Ok(await _brandService.Create(name));
+        }
+        [HttpDelete]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            return Ok(await _brandService.Delete(id));
         }
     }
 }

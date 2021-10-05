@@ -18,7 +18,7 @@ namespace BikeRental.Business.Services
         CustomerViewModel GetCustomerById(Guid id);
         CustomerViewModel GetCustomerByPhone(string phone);
         CustomerViewModel VerifyCustomer(Guid id, string password);
-        BikeViewModel ViewBike(Guid id);
+        Task<BikeViewModel> ViewBike(Guid id);
 
     }
     public class CustomerService : BaseService<Customer>, ICustomerService
@@ -47,9 +47,9 @@ namespace BikeRental.Business.Services
             throw new NotImplementedException();
         }
 
-        public BikeViewModel ViewBike(Guid id)
+        public async Task<BikeViewModel> ViewBike(Guid id)
         {
-            return _bikeService.GetBikeById(id);
+            return await _bikeService.GetBikeById(id);
         }
     }
 }

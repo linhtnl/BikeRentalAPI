@@ -1,18 +1,23 @@
 ﻿
 using BikeRental.Business.Services;
+using BikeRental.Business.Constants;
 using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BikeRental.Data.Responses;
+using System.Net;
 
 namespace BikeRental.API.Controllers
 {
-    [Route("api/v1.0/areas")]
+    [Route("api/v{version:apiVersion}/areas")]
     [ApiController]
+    [ApiVersion("1")]
     public class AreaController : ControllerBase
     {
         private readonly IAreaService _areaService;
@@ -22,34 +27,29 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpGet]
-        public List<AreaViewModel> GetAllArea()
+        [MapToApiVersion("1")]
+        //[ProducesResponseType(typeof(DynamicModelResponse<AreaViewModel>), (int)HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
+        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
+        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> Get([FromQuery] AreaViewModel model, int page = CommonConstants.DefaultPage)
         {
-            return _areaService.GetAll();
+            return Ok(await _areaService.GetAll(model,page));
         }
-
-        [HttpGet("id/{id}")]
-        public AreaViewModel GetArea(Guid id)
+        [HttpGet("{id}")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> GetArea(Guid id)
         {
-            return _areaService.GetById(id);
+            return Ok(await _areaService.GetById(id));
         }
-
-        [HttpGet("name/{name}")]
-        public AreaViewModel GetAreaByName(string name)
-        {
-            return _areaService.GetByName(name);
-        }
-
-        [HttpGet("postalCode/{postalCode}")]
-        public AreaViewModel GetAreaByPostalCode(int postalCode)
-        {
-            return _areaService.GetAreaByPostalCode(postalCode);
-        }
-        [HttpPut] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
+        [HttpPut]
+        [MapToApiVersion("1")]
         public async Task<Area> Update(Guid id , int postalCode, string name)
         {
                 return await _areaService.Update(id, postalCode, name);
         }
         [HttpPost]
+        [MapToApiVersion("1")]
         public async Task<Area> Create(AreaCreateModel model)
         {
             return await _areaService.Create(model);
