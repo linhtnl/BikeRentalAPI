@@ -29,6 +29,7 @@ using BikeRental.Business.Utilities;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 namespace BikeRental.API
 {
@@ -122,6 +123,9 @@ namespace BikeRental.API
                 mc.CreateMap<Owner, OwnerViewModel>();
                 mc.CreateMap<OwnerViewModel, Owner>();
 
+                mc.CreateMap<Owner, OwnerRatingViewModel>();
+                mc.CreateMap<OwnerRatingViewModel, Owner>();
+
                 mc.CreateMap<Owner, OwnerRegisterRequest>();
                 mc.CreateMap<OwnerRegisterRequest, Owner>();
 
@@ -155,16 +159,17 @@ namespace BikeRental.API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BikeRentalAPI", Version = "v1" });
+                c.SwaggerDoc("v2", new OpenApiInfo { Title = "BikeRentalAPI", Version = "v2" });
             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
 
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BikeRentalAPI v1"));
+            
 
             app.UseHttpsRedirection();
 
@@ -175,6 +180,14 @@ namespace BikeRental.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+            app.UseSwaggerUI(
+            options =>
+            {
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
             });
         }
     }

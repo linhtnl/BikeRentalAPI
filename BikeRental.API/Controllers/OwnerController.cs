@@ -76,5 +76,18 @@ namespace BikeRental.API.Controllers
             }
             return await Task.Run(() => StatusCode(ResponseStatusConstants.FORBIDDEN));
         }
+        [HttpGet]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Get()
+        {
+            return Ok(await _ownerService.GetAll());
+        }
+
+        [HttpGet("{id}")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            return Ok(await _ownerService.GetOwnerById(id));
+        }
     }
 }

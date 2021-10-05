@@ -28,18 +28,17 @@ namespace BikeRental.Business.Services
         Task<Bike> Create(BikeCreateRequest request);
         Task<Bike> Update(Guid id , BikeUpdateRequest request);
         Task<Bike> Delete(Guid id);
+        Task<List<Bike>> GetBikeByOwnerId(Guid id);
     }
     public class BikeService : BaseService<Bike>, IBikeService
     {
         private readonly IConfigurationProvider _mapper;
-        private readonly IOwnerService _ownerService;
         private readonly IFeedbackService _feedbackService;
         private readonly ICategoryService _categoryService;
         private readonly IBrandService _brandService;
         public BikeService(IUnitOfWork unitOfWork, IBikeRepository repository,
-            IOwnerService ownerService,IFeedbackService feedbackService, ICategoryService categoryService,IBrandService brandService, IMapper mapper) : base(unitOfWork, repository)
+            IFeedbackService feedbackService, ICategoryService categoryService,IBrandService brandService, IMapper mapper) : base(unitOfWork, repository)
         {
-            _ownerService = ownerService;
             _feedbackService = feedbackService;
             _categoryService = categoryService;
             _brandService = brandService;
@@ -117,6 +116,11 @@ namespace BikeRental.Business.Services
             bike.Status = (int)BikeStatus.Delete;
             await UpdateAsync(bike);
             return bike;
+        }
+
+        public async Task<List<Bike>> GetBikeByOwnerId(Guid id)
+        {
+            return await Get(b => b.OwnerId.Equals(id)).ToListAsync();
         }
     }
 }
