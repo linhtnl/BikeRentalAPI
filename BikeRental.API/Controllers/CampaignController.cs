@@ -1,4 +1,5 @@
 ﻿using BikeRental.API.Models.Request;
+using BikeRental.Business.Constants;
 using BikeRental.Business.Services;
 using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
@@ -10,8 +11,9 @@ using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
 {
-    [Route("api/v1.0/campaigns")]
+    [Route("api/v{version:apiVersion}/campaigns")]
     [ApiController]
+    [ApiVersion("1")]
     public class CampaignController : Controller
     {
         private readonly ICampaignService _campaignService;
@@ -22,30 +24,39 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpPost]
-        public Task<bool> CreateNew([FromBody] CampaignViewModel campainRequest)
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> CreateNew([FromBody] CampaignViewModel campainRequest)
         {
-            return _campaignService.CreateNew(campainRequest);
+            return Ok(await _campaignService.CreateNew(campainRequest));
         }
 
         [HttpGet]
-        public List<CampaignViewModel> GetAll()
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Get([FromQuery] CampaignViewModel model, int page = CommonConstants.DefaultPage)
         {
-            return _campaignService.GetAll();
+            return Ok(await _campaignService.GetAll(model, page));
         }
 
-        [HttpGet("id/{id}")]
-        public CampaignViewModel GetById(Guid id)
+        [HttpGet("{id}")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> GetById(Guid id)
         {
-            return _campaignService.GetById(id);
+            return Ok(await _campaignService.GetById(id));
+        }
+        [HttpDelete]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            return Ok(await _campaignService.Delete(id));
         }
 
-        [HttpGet("areaId/{areaId}")]
-        public List<CampaignViewModel> GetByAreaId(Guid areaId)
-        {
-            return _campaignService.GetByAreaId(areaId);
-        }
+        /*     [HttpGet("areaId/{areaId}")]
+             public List<CampaignViewModel> GetByAreaId(Guid areaId)
+             {
+                 return _campaignService.GetByAreaId(areaId);
+             }*/
 
-        [HttpGet("inRangeDate/start")]
+        /*[HttpGet("inRangeDate/start")]
         public List<CampaignViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate)
         {
             return _campaignService.GetStartInRangeDate(startDate, endDate);
@@ -55,6 +66,6 @@ namespace BikeRental.API.Controllers
         public List<CampaignViewModel> GetEndInRangeDate(DateTime startDate, DateTime endDate)
         {
             return _campaignService.GetEndInRangeDate(startDate, endDate);
-        }
+        }*/
     }
 }

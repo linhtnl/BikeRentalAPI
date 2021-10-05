@@ -1,13 +1,19 @@
 ﻿
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using BikeRental.Business.Constants;
+using BikeRental.Business.Utilities;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
+using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,13 +21,9 @@ namespace BikeRental.Business.Services
 {
     public interface IAreaService : IBaseService<Area>
     {
-        AreaViewModel GetByName(string name);
+        Task<AreaViewModel> GetById(Guid id);
 
-        AreaViewModel GetAreaByPostalCode(int postalCode);
-
-        AreaViewModel GetById(Guid id);
-
-        List<AreaViewModel> GetAll();
+        Task<DynamicModelResponse<AreaViewModel>> GetAll(AreaViewModel model, int pageNum);
 
         Task<Area> Update(Guid id,int postalCode, string name);
 
@@ -35,14 +37,23 @@ namespace BikeRental.Business.Services
             _mapper = mapper.ConfigurationProvider;
         }
 
-        public List<AreaViewModel> GetAll()
+        public async Task<DynamicModelResponse<AreaViewModel>> GetAll(AreaViewModel model, int pageNum)
         {
-            return Get().ProjectTo<AreaViewModel>(_mapper).ToList();
-        }
-
-        public AreaViewModel GetById(Guid id)
-        {
-            return Get(a => a.Id.Equals(id)).ProjectTo<AreaViewModel>(_mapper).FirstOrDefault();
+            var areas = Get().ProjectTo<AreaViewModel>(_mapper)
+                .DynamicFilter(model)
+                .PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
+            if (areas.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            var rs = new DynamicModelResponse<AreaViewModel>
+            {
+                Metadata = new PagingMetaData
+                {
+                    Page = pageNum,
+                    Size = GlobalConstants.GROUP_ITEM_NUM,
+                    Total = areas.Item1
+                },
+                Data = await areas.Item2.ToListAsync()
+            };
+            return rs;
         }
         public AreaViewModel GetByName(string name)
         {
@@ -67,6 +78,12 @@ namespace BikeRental.Business.Services
         {
             var area = _mapper.CreateMapper().Map<Area>(model);
             await CreateAsync(area);
+            return area;
+        }
+
+        public async Task<AreaViewModel> GetById(Guid id)
+        {
+            var area = await Get(a => a.Id.Equals(id)).ProjectTo<AreaViewModel>(_mapper).FirstOrDefaultAsync();
             return area;
         }
     }

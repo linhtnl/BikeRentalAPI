@@ -14,8 +14,9 @@ using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
 {
-    [Route("api/v1.0/wallets")]
+    [Route("api/v{version:apiVersion}/wallets")]
     [ApiController]
+    [ApiVersion("1")]
     public class WalletController : Controller
     {
         private readonly IWalletService _walletService;
@@ -26,6 +27,7 @@ namespace BikeRental.API.Controllers
 
         // this should be PUT or POST to make sure user can watch another's wallet
         [HttpGet("id/{id}")]
+        [MapToApiVersion("1")]
         public WalletViewModel GetById(string id)
         {
             Guid guid = Guid.Parse(id);
@@ -33,18 +35,21 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpGet("bankId/{bankId}")]
+        [MapToApiVersion("1")]
         public WalletViewModel GetByBankId(string bankId)
         {
             return _walletService.GetByBankId(bankId);
         }
 
         [HttpGet("momoId/{momoId}")]
+        [MapToApiVersion("1")]
         public WalletViewModel GetByMomoId(string momoId)
         {
             return _walletService.GetByMomoId(momoId);
         }
 
         [HttpGet("transactionHistory/{id}")]
+        [MapToApiVersion("1")]
         public List<TransactionHistoryViewModel> GetTransactionHistory(string id, int pageNum, int? filterOption)
         {
             Guid guid = Guid.Parse(id);
@@ -52,12 +57,14 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpPut("depositAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
+        [MapToApiVersion("1")]
         public async Task<bool> DepositAmount([FromBody] WalletRequest requestData)
         {
                 return await _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int) WalletStatus.DEPOSIT);             
         }
 
         [HttpPut("decreaseAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
+        [MapToApiVersion("1")]
         public async Task<bool> DecreaseAmount([FromBody] WalletRequest requestData)
         {          
                return await _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int)WalletStatus.DECREASE);    

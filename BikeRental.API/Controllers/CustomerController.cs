@@ -11,8 +11,9 @@ using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
 {
-    [Route("api/v1.0/customers")]
+    [Route("api/v{version:apiVersion}/customers")]
     [ApiController]
+    [ApiVersion("1")]
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerService _customerService;
@@ -21,16 +22,18 @@ namespace BikeRental.API.Controllers
             _customerService = customerService;
         }
 
-        [HttpGet("id/{id}")]
+        /*[HttpGet("id/{id}")]
+        [MapToApiVersion("1")]
         public CustomerViewModel GetCustomerById(Guid id)
         {
             return _customerService.GetCustomerById(id);
         }
 
         [HttpGet("phone/{phone}")]
+        [MapToApiVersion("1")]
         public CustomerViewModel GetCustomerByPhone(string phone)
         {
             return _customerService.GetCustomerByPhone(phone);
-        }
+        }*/
     }
 }
