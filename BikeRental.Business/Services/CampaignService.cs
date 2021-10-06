@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
 using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
@@ -20,7 +21,7 @@ namespace BikeRental.Business.Services
 {
     public interface ICampaignService : IBaseService<Campaign>
     {
-        Task<bool> CreateNew(CampaignViewModel campaign);
+        Task<Campaign> CreateNew(CampaignCreateRequest campaign);
         Task<bool> Delete(Guid id);
         Task<DynamicModelResponse<CampaignViewModel>> GetAll(CampaignViewModel model, int pageNum);
         Task<CampaignViewModel> GetById(Guid id);
@@ -36,17 +37,17 @@ namespace BikeRental.Business.Services
             _mapper = mapper.ConfigurationProvider;
         }
 
-        public async Task<bool> CreateNew(CampaignViewModel model)
+        public async Task<Campaign> CreateNew(CampaignCreateRequest model)
         {
             try
             {
                 var campaign = _mapper.CreateMapper().Map<Campaign>(model);
                 await CreateAsync(campaign);
-                return true;
+                return campaign;
             }
             catch
             {
-                return false;
+                return null;
             }
         }
 

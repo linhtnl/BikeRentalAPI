@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using BikeRental.Business.RequestModels;
+using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
+using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +18,9 @@ namespace BikeRental.Business.Services
 {
     public interface IVoucherService : IBaseService<Voucher>
     {
-        Task<bool> CreateNew(VoucherViewModel voucherRequest);
+        Task<Voucher> CreateNew(VoucherCreateRequest voucherRequest);
+        Task<Voucher> UpdateVoucher(Guid id, VoucherUpdateRequest voucherRequest);
+        Task<Voucher> DeleteVoucher(Guid id);
         List<VoucherViewModel> GetAll();
         VoucherViewModel GetById(Guid id);
         List<VoucherViewModel> GetByCampaignId(Guid campaignId);
@@ -30,18 +36,18 @@ namespace BikeRental.Business.Services
             _mapper = mapper.ConfigurationProvider;
         }
 
-        public async Task<bool> CreateNew(VoucherViewModel voucherRequest)
+        public async Task<Voucher> CreateNew(VoucherCreateRequest voucherRequest)
         {
             try
             {
                 var voucher = (_mapper).CreateMapper().Map<Voucher>(voucherRequest);
                 await CreateAsync(voucher);
 
-                return true;
+                return voucher;
             }
             catch
             {
-                return false;
+                return null;
             }
         }
 
@@ -85,6 +91,29 @@ namespace BikeRental.Business.Services
             return Get().Where(tempVoucher => tempVoucher.DiscountPercent >= startNum && tempVoucher.DiscountPercent <= endNum)
                 .ProjectTo<VoucherViewModel>(_mapper)
                 .ToList();
+        }
+
+        public async Task<Voucher> UpdateVoucher(Guid id, VoucherUpdateRequest voucherRequest)
+        {
+            var voucher = await GetAsync(id);
+            if (voucher == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Voucher not found");
+            
+            var targetVoucher = _mapper.CreateMapper().Map<Voucher>(voucherRequest);
+            await UpdateAsync(targetVoucher);
+
+            return targetVoucher;
+        }
+
+        public async Task<Voucher> DeleteVoucher(Guid id)
+        {
+            var voucher = await GetAsync(id);
+            if (voucher == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Voucher not found");
+
+            voucher.Status = (int)VoucherStatus.DELETE;
+            
+            await UpdateAsync(voucher);
+
+            return voucher;
         }
     }
 }

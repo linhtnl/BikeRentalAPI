@@ -1,4 +1,6 @@
-﻿using BikeRental.Business.Services;
+﻿using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
+using BikeRental.Business.Services;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -21,9 +23,13 @@ namespace BikeRental.API.Controllers
 
         [HttpPost]
         [MapToApiVersion("1")]
-        public async Task<bool> CreateNew([FromBody]VoucherItemViewModel voucherItemRequest)
+        public async Task<IActionResult> CreateNew([FromBody] VoucherItemCreateRequest voucherItemRequest)
         {
-            return await _voucherItemService.CreateNew(voucherItemRequest);
+            var voucherItem = await _voucherItemService.CreateNew(voucherItemRequest);
+
+            return voucherItem != null
+                ? await Task.Run(() => Ok(voucherItem))
+                : await Task.Run(() => StatusCode(ResponseStatusConstants.FORBIDDEN));
         }
 
         [HttpGet]

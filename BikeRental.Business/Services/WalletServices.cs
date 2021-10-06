@@ -2,6 +2,7 @@
 using AutoMapper.Configuration;
 using AutoMapper.QueryableExtensions;
 using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
 using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
@@ -18,6 +19,7 @@ namespace BikeRental.Business.Services
 {
     public interface IWalletService : IBaseService<Wallet>
     {
+        Task<Wallet> CreateNew(WalletCreateRequest walletRequest);
         WalletViewModel GetById(Guid id);
         WalletViewModel GetByMomoId(string momoId);
         WalletViewModel GetByBankId(string bankId);
@@ -29,23 +31,31 @@ namespace BikeRental.Business.Services
     {
         private readonly IConfigurationProvider _mapper;
         private readonly ITransactionHistoryService _transactionHistoryService;
+        private readonly IOwnerService _ownerService;
 
-        private const int groupItemNum = 10;
+        //private const int groupItemNum = 10;
 
-        public WalletService(IUnitOfWork unitOfWork, IWalletRepository repository, IMapper mapper, ITransactionHistoryService transactionHistoryService) : base(unitOfWork, repository)
+        public WalletService(IUnitOfWork unitOfWork, IWalletRepository repository, IMapper mapper, 
+            ITransactionHistoryService transactionHistoryService, 
+            IOwnerService ownerService) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
             _transactionHistoryService = transactionHistoryService;
+            _ownerService = ownerService;
         }
 
         public WalletViewModel GetById(Guid id)
         {
-            return Get().Where(tempWallet => tempWallet.Id.Equals(id)).ProjectTo<WalletViewModel>(_mapper).FirstOrDefault();
+            return Get().Where(tempWallet => tempWallet.Id.Equals(id))
+                .ProjectTo<WalletViewModel>(_mapper)
+                .FirstOrDefault();
         }
 
         public WalletViewModel GetByMomoId(string momoId)
         {
-            return Get().Where(tempWallet => tempWallet.MomoId.Equals(momoId)).ProjectTo<WalletViewModel>(_mapper).FirstOrDefault();
+            return Get().Where(tempWallet => tempWallet.MomoId.Equals(momoId))
+                .ProjectTo<WalletViewModel>(_mapper)
+                .FirstOrDefault();
         }
 
         public WalletViewModel GetByBankId(string bankId)
@@ -102,6 +112,19 @@ namespace BikeRental.Business.Services
             {
                 return await DecreaseAmount(id, amount);
             }
+        }
+
+        public async Task<Wallet> CreateNew(WalletCreateRequest walletRequest)
+        {
+            var ownerView = await _ownerService.GetOwnerById(walletRequest.Id);
+
+            if (ownerView != null && ownerView.ToString().Trim().Length > 0)
+            {
+                Wallet wallet = _mapper.CreateMapper().Map<Wallet>(walletRequest);
+                await CreateAsync(wallet);
+                return wallet;
+            }
+            return null;
         }
     }
 }

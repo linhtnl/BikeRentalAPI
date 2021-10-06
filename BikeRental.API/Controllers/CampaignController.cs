@@ -1,5 +1,6 @@
 ﻿using BikeRental.API.Models.Request;
 using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
@@ -25,9 +26,12 @@ namespace BikeRental.API.Controllers
 
         [HttpPost]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> CreateNew([FromBody] CampaignViewModel campainRequest)
+        public async Task<IActionResult> CreateNew([FromBody] CampaignCreateRequest campainRequest)
         {
-            return Ok(await _campaignService.CreateNew(campainRequest));
+            var campaign = await _campaignService.CreateNew(campainRequest);
+            return campaign != null
+                ? await Task.Run(() => Ok(campaign))
+                : await Task.Run(() => StatusCode(ResponseStatusConstants.FORBIDDEN));
         }
 
         [HttpGet]
@@ -45,7 +49,7 @@ namespace BikeRental.API.Controllers
         }
         [HttpDelete]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete([FromBody] Guid id)
         {
             return Ok(await _campaignService.Delete(id));
         }
