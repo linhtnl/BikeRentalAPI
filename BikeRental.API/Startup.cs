@@ -137,6 +137,39 @@ namespace BikeRental.API
 
                 mc.CreateMap<PriceList, PricelistCreateRequest>();
                 mc.CreateMap<PricelistCreateRequest, PriceList>();
+
+                mc.CreateMap<CampaignCreateRequest, Campaign>();
+                mc.CreateMap<Campaign, CampaignCreateRequest>();
+
+                mc.CreateMap<VoucherItemCreateRequest, VoucherItem>();
+                mc.CreateMap<VoucherItem, VoucherItemCreateRequest>();
+
+                mc.CreateMap<WalletCreateRequest, Wallet>();
+                mc.CreateMap<Wallet, WalletCreateRequest>();
+
+                mc.CreateMap<VoucherCreateRequest, Voucher>();
+                mc.CreateMap<Voucher, VoucherCreateRequest>();
+
+                mc.CreateMap<VoucherUpdateRequest, Voucher>();
+                mc.CreateMap<Voucher, VoucherUpdateRequest>();
+
+                mc.CreateMap<VoucherExchangeHistory, VoucherExchangeHistoryViewModel>();
+                mc.CreateMap<VoucherExchangeHistoryViewModel, VoucherExchangeHistory>();
+
+                mc.CreateMap<VoucherExchangeHistoryCreateRequest, VoucherExchangeHistory>();
+                mc.CreateMap<VoucherExchangeHistory, VoucherExchangeHistoryCreateRequest>();
+
+                mc.CreateMap<VoucherExchangeHistoryUpdateRequest, VoucherExchangeHistory>();
+                mc.CreateMap<VoucherExchangeHistory, VoucherExchangeHistoryUpdateRequest>();
+
+                mc.CreateMap<Payment, PaymentViewModel>();
+                mc.CreateMap<PaymentViewModel, Payment>();
+
+                mc.CreateMap<Payment, PaymentCreateRequest>();
+                mc.CreateMap<PaymentCreateRequest, Payment>();
+
+                mc.CreateMap<Payment, PaymentUpdateRequest>();
+                mc.CreateMap<PaymentUpdateRequest, Payment>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

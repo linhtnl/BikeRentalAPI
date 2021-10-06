@@ -3,6 +3,7 @@ using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using BikeRental.Data.Enums;
+using BikeRental.Data.Models;
 using BikeRental.Data.Responses;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -24,14 +25,22 @@ namespace BikeRental.API.Controllers
         {
             _walletService = walletService;
         }
+        [HttpPost]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> CreateNew([FromBody] WalletCreateRequest walletRequest)
+        {
+            var wallet = _walletService.CreateNew(walletRequest);
 
-        // this should be PUT or POST to make sure user can watch another's wallet
+            return wallet != null 
+                ? await Task.Run(() => Ok(wallet)) 
+                : await Task.Run(() => StatusCode(ResponseStatusConstants.FORBIDDEN));
+        }
+
         [HttpGet("id/{id}")]
         [MapToApiVersion("1")]
-        public WalletViewModel GetById(string id)
+        public WalletViewModel GetById(Guid id)
         {
-            Guid guid = Guid.Parse(id);
-            return _walletService.GetById(guid);
+            return _walletService.GetById(id);
         }
 
         [HttpGet("bankId/{bankId}")]

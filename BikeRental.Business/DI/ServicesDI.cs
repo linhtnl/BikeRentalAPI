@@ -63,6 +63,12 @@ namespace BikeRental.Business.DI
 
             services.AddScoped<IPriceListRepository, PriceListRepository>();
             services.AddScoped<IPriceListService, PriceListService>();
+
+            services.AddScoped<IVoucherExchangeHistoryRepository, VoucherExchangeHistoryRepository>();
+            services.AddScoped<IVoucherExchangeHistoryService, VoucherExchangeHistoryService>();
+
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IPaymentService, PaymentService>();
         }
     }
 }
