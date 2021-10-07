@@ -1,10 +1,14 @@
-﻿using BikeRental.Data.ViewModels;
+﻿using BikeRental.Business.Constants;
+using BikeRental.Data.ViewModels;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,26 +16,86 @@ namespace BikeRental.Business.Services
 {
     public class TokenService
     {
-        public static string GenerateJWTWebToken(OwnerViewModel ownerInfo)
+        private readonly IConfiguration _configuration;
+        private string privateKey;
+        public TokenService(IConfiguration configuration)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("thisisprivatekey"));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            _configuration = configuration;
+            setPrivateKey();
+        }
 
-            var claims = new[]
+        private void setPrivateKey()
+        {
+            privateKey = _configuration.GetSection("Security:PrivateKey").Value;
+        }
+
+        public string GenerateOwnerJWTWebToken(OwnerViewModel ownerInfo) // Owner
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(privateKey));
+
+            var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+
+            var header = new JwtHeader(credential);
+
+            var payload = new JwtPayload
             {
-                new Claim("id", ownerInfo.Id.ToString()),
-                new Claim("fullName", ownerInfo.Fullname),
-                new Claim("idenityNumber", ownerInfo.IdentityNumber),
-                new Claim("mail", ownerInfo.Mail)
+               { PayloadKeyConstants.ID, ownerInfo.Id.ToString()},
+               { PayloadKeyConstants.ROLE, ((int)RoleConstants.Owner).ToString()}
             };
 
-            var token = new JwtSecurityToken("BikeRentalAPI",
-                "BikeRentalAPI",
-                claims,
-                null, 
-                signingCredentials: credentials);
+            var secToken = new JwtSecurityToken(header, payload);
+            var handler = new JwtSecurityTokenHandler();
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return handler.WriteToken(secToken);
+        }
+
+        public string GenerateCustomerJWTWebToken(CustomerViewModel ownerInfo) // Customer
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(privateKey));
+
+            var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+
+            var header = new JwtHeader(credential);
+
+            var payload = new JwtPayload
+            {
+               { PayloadKeyConstants.ID, ownerInfo.Id.ToString()},
+               { PayloadKeyConstants.ROLE, ((int)RoleConstants.Customer).ToString()}
+            };
+
+            var secToken = new JwtSecurityToken(header, payload);
+            var handler = new JwtSecurityTokenHandler();
+
+            return handler.WriteToken(secToken);
+        }
+
+        public string GenerateAdminJWTWebToken(AdminViewModel ownerInfo) // Admin
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(privateKey));
+
+            var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+
+            var header = new JwtHeader(credential);
+
+            var payload = new JwtPayload
+            {
+               { PayloadKeyConstants.ID, ownerInfo.Id.ToString()},
+               { PayloadKeyConstants.ROLE, ((int)RoleConstants.Admin).ToString()}
+            };
+
+            var secToken = new JwtSecurityToken(header, payload);
+            var handler = new JwtSecurityTokenHandler();
+
+            return handler.WriteToken(secToken);
+        }
+
+        public static TokenViewModel ReadJWTTokenToModel(string token)
+        {
+            var result = new JwtSecurityTokenHandler().ReadJwtToken(token);
+
+            Guid id = Guid.Parse(result.Claims.First(claim => claim.Type == PayloadKeyConstants.ID).Value);
+            int role = int.Parse(result.Claims.First(claim => claim.Type == PayloadKeyConstants.ROLE).Value);
+            return new TokenViewModel(id, role);
         }
     }
 }

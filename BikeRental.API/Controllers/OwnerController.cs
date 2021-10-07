@@ -7,6 +7,7 @@ using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,14 +19,17 @@ namespace BikeRental.API.Controllers
     [Route("api/v{version:apiVersion}/owners")]
     [ApiController]
     [ApiVersion("1")]
+    [ApiVersion("2")]
     public class OwnerController : Controller
     {
         private readonly IOwnerService _ownerService;
         private readonly IMapper _mapper;
-        public OwnerController(IOwnerService ownerService, IMapper mapper)
+        private readonly IConfiguration _configuration;
+        public OwnerController(IOwnerService ownerService, IMapper mapper, IConfiguration configuration)
         {
             _ownerService = ownerService;
             _mapper = mapper;
+            _configuration = configuration;
         }
 
         [HttpPost("login")]
@@ -42,7 +46,7 @@ namespace BikeRental.API.Controllers
                 token.Claims.TryGetValue("email", out email); // get email from the above re-check step, then check the email whether it's matched the request email
                 if (userRecord.Email.Equals(email))
                 {
-                    string verifyRequestToken = TokenService.GenerateJWTWebToken(result);
+                    string verifyRequestToken = new TokenService(_configuration).GenerateOwnerJWTWebToken(result);
 
                     return await Task.Run(() => Ok(verifyRequestToken)); // return if everything is done
                 }
@@ -69,7 +73,7 @@ namespace BikeRental.API.Controllers
 
                 if (ownerResult != null)
                 {
-                    string verifyRequestToken = TokenService.GenerateJWTWebToken(ownerResult);
+                    string verifyRequestToken = new TokenService(_configuration).GenerateOwnerJWTWebToken(ownerResult);
 
                     return await Task.Run(() => Ok(verifyRequestToken));
                 }
@@ -95,6 +99,24 @@ namespace BikeRental.API.Controllers
         public async Task<IActionResult> Delete([FromBody] Guid id)
         {
             return Ok(await _ownerService.Delete(id));
+        }
+
+        [HttpPost("Test")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> Test([FromHeader] string token)
+        {
+            var result = TokenService.ReadJWTTokenToModel(token);
+
+            return await Task.Run(() => Ok(result));
+        }
+
+        [HttpPost("TestGenerate")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> TestGenerate(OwnerViewModel ownerInfo)
+        {
+            var result = new TokenService(_configuration).GenerateOwnerJWTWebToken(ownerInfo);
+
+            return await Task.Run(() => Ok(result));
         }
     }
 }
