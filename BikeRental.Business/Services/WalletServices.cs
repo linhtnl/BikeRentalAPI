@@ -7,11 +7,13 @@ using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
+using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,9 +41,10 @@ namespace BikeRental.Business.Services
             ITransactionHistoryService transactionHistoryService, 
             IOwnerService ownerService) : base(unitOfWork, repository)
         {
-            _mapper = mapper.ConfigurationProvider;
+            _ownerService = ownerService;
             _transactionHistoryService = transactionHistoryService;
             _ownerService = ownerService;
+            _mapper = mapper.ConfigurationProvider;
         }
 
         public WalletViewModel GetById(Guid id)

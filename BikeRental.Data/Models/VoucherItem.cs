@@ -13,10 +13,8 @@ namespace BikeRental.Data.Models
         }
 
         public Guid Id { get; set; }
-        public DateTime? TimeUsing { get; set; }
         public int? TimeUsingRemain { get; set; }
         public Guid? CustomerId { get; set; }
-        public int? PointExchange { get; set; }
         public Guid? VoucherId { get; set; }
 
         public virtual Customer Customer { get; set; }

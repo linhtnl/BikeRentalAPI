@@ -15,6 +15,7 @@ namespace BikeRental.API.Controllers
     [Route("api/v{version:apiVersion}/campaigns")]
     [ApiController]
     [ApiVersion("1")]
+    [ApiVersion("2")]
     public class CampaignController : Controller
     {
         private readonly ICampaignService _campaignService;
@@ -22,16 +23,6 @@ namespace BikeRental.API.Controllers
         public CampaignController(ICampaignService campaignService)
         {
             _campaignService = campaignService;
-        }
-
-        [HttpPost]
-        [MapToApiVersion("1")]
-        public async Task<IActionResult> CreateNew([FromBody] CampaignCreateRequest campainRequest)
-        {
-            var campaign = await _campaignService.CreateNew(campainRequest);
-            return campaign != null
-                ? await Task.Run(() => Ok(campaign))
-                : await Task.Run(() => StatusCode(ResponseStatusConstants.FORBIDDEN));
         }
 
         [HttpGet]
@@ -47,6 +38,21 @@ namespace BikeRental.API.Controllers
         {
             return Ok(await _campaignService.GetById(id));
         }
+        [HttpPost]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> CreateNew([FromBody] CampaignCreateRequest campainRequest)
+        {
+            var campaign = await _campaignService.CreateNew(campainRequest);
+            return campaign != null
+                ? await Task.Run(() => Ok(campaign))
+                : await Task.Run(() => StatusCode(ResponseStatusConstants.FORBIDDEN));
+        }
+        [HttpPut]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] CampaignUpdateRequest request)
+        {
+            return Ok(await _campaignService.Update(id, request));
+        }
         [HttpDelete]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Delete([FromBody] Guid id)
@@ -54,22 +60,25 @@ namespace BikeRental.API.Controllers
             return Ok(await _campaignService.Delete(id));
         }
 
-        /*     [HttpGet("areaId/{areaId}")]
-             public List<CampaignViewModel> GetByAreaId(Guid areaId)
-             {
-                 return _campaignService.GetByAreaId(areaId);
-             }*/
+        [HttpGet("areaId/{areaId}")]
+        [MapToApiVersion("2")]
+        public List<CampaignViewModel> GetByAreaId(Guid areaId)
+        {
+            return _campaignService.GetByAreaId(areaId);
+        }
 
-        /*[HttpGet("inRangeDate/start")]
+        [HttpGet("inRangeDate/start")]
+        [MapToApiVersion("2")]
         public List<CampaignViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate)
         {
             return _campaignService.GetStartInRangeDate(startDate, endDate);
         }
 
         [HttpGet("inRangeDate/end")]
+        [MapToApiVersion("2")]
         public List<CampaignViewModel> GetEndInRangeDate(DateTime startDate, DateTime endDate)
         {
             return _campaignService.GetEndInRangeDate(startDate, endDate);
-        }*/
+        }
     }
 }

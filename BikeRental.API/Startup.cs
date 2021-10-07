@@ -30,6 +30,8 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using BikeRental.API.Handler;
+using BikeRental.Business.Extensions;
 
 namespace BikeRental.API
 {
@@ -90,6 +92,10 @@ namespace BikeRental.API
                 mc.CreateMap<Wallet, WalletViewModel>();
                 mc.CreateMap<WalletViewModel, Wallet>();
 
+                mc.CreateMap<Wallet, WalletCreateRequest>();
+                mc.CreateMap<WalletCreateRequest, Wallet>();
+
+
                 mc.CreateMap<TransactionHistory, TransactionHistoryViewModel>();
                 mc.CreateMap<TransactionHistoryViewModel, TransactionHistory>();
 
@@ -114,6 +120,12 @@ namespace BikeRental.API
                 mc.CreateMap<Campaign, CampaignViewModel>();
                 mc.CreateMap<CampaignViewModel, Campaign>();
 
+                mc.CreateMap<CampaignCreateRequest, Campaign>();
+                mc.CreateMap<Campaign, CampaignCreateRequest>();
+
+                mc.CreateMap<Campaign, CampaignUpdateRequest>();
+                mc.CreateMap<CampaignUpdateRequest, Campaign>();
+
                 mc.CreateMap<Voucher, VoucherViewModel>();
                 mc.CreateMap<VoucherViewModel, Voucher>();
 
@@ -126,6 +138,9 @@ namespace BikeRental.API
                 mc.CreateMap<Owner, OwnerRatingViewModel>();
                 mc.CreateMap<OwnerRatingViewModel, Owner>();
 
+                mc.CreateMap<Owner, OwnerDetailViewModel>();
+                mc.CreateMap<OwnerDetailViewModel, Owner>();
+
                 mc.CreateMap<Owner, OwnerRegisterRequest>();
                 mc.CreateMap<OwnerRegisterRequest, Owner>();
 
@@ -137,9 +152,6 @@ namespace BikeRental.API
 
                 mc.CreateMap<PriceList, PricelistCreateRequest>();
                 mc.CreateMap<PricelistCreateRequest, PriceList>();
-
-                mc.CreateMap<CampaignCreateRequest, Campaign>();
-                mc.CreateMap<Campaign, CampaignCreateRequest>();
 
                 mc.CreateMap<VoucherItemCreateRequest, VoucherItem>();
                 mc.CreateMap<VoucherItem, VoucherItemCreateRequest>();
@@ -194,6 +206,8 @@ namespace BikeRental.API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BikeRentalAPI", Version = "v1" });
                 c.SwaggerDoc("v2", new OpenApiInfo { Title = "BikeRentalAPI", Version = "v2" });
             });
+            services.AddSwaggerGenNewtonsoftSupport();
+            services.ConfigureFilter<ErrorHandlingFilter>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

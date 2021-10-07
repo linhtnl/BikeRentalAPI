@@ -28,31 +28,38 @@ namespace BikeRental.API.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        //[ProducesResponseType(typeof(DynamicModelResponse<AreaViewModel>), (int)HttpStatusCode.OK)]
-        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
-        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
-        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
+        [ProducesResponseType(typeof(DynamicModelResponse<AreaViewModel>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Get([FromQuery] AreaViewModel model, int page = CommonConstants.DefaultPage)
         {
-            return Ok(await _areaService.GetAll(model,page));
+            return Ok(await _areaService.GetAll(model, page));
         }
         [HttpGet("{id}")]
         [MapToApiVersion("1")]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetArea(Guid id)
         {
             return Ok(await _areaService.GetById(id));
         }
         [HttpPut]
         [MapToApiVersion("1")]
-        public async Task<Area> Update(Guid id , int postalCode, string name)
+        public async Task<IActionResult> Update([FromQuery]Guid id , [FromQuery] int postalCode, [FromQuery] string name)
         {
-                return await _areaService.Update(id, postalCode, name);
+                return  Ok(await _areaService.Update(id, postalCode, name));
         }
         [HttpPost]
         [MapToApiVersion("1")]
-        public async Task<Area> Create(AreaCreateModel model)
+        public async Task<IActionResult> Create([FromBody]AreaCreateModel model)
         {
-            return await _areaService.Create(model);
+            return Ok(await _areaService.Create(model));
+        }
+        [HttpDelete]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Delete([FromBody] Guid id)
+        {
+            return Ok(await _areaService.Delete(id));
         }
     }
 }

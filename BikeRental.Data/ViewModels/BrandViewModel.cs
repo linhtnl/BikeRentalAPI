@@ -1,4 +1,5 @@
 ﻿using BikeRental.Business.Attributes;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace BikeRental.Data.ViewModels
 {
     public class BrandViewModel
     {
+        [BindNever]
         public Guid? id { get; set; }
         [String]
         public string Name { get; set; }

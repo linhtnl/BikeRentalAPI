@@ -1,4 +1,5 @@
 ﻿using BikeRental.Business.Attributes;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,13 @@ namespace BikeRental.Data.ViewModels
 {
     public class CategoryViewModel
     {
+        [BindNever]
         public Guid? Id { get; set; }
         [String]
         public string Name { get; set; }
-        public int Type { get; set; }
+        public int? Type { get; set; }
+        [BindNever]
         public Guid? BrandId { get; set; }
-        public int Status { get; set; }
+        public int? Status { get; set; }
     }
 }

@@ -22,6 +22,7 @@ namespace BikeRental.Business.Services
     public interface ICampaignService : IBaseService<Campaign>
     {
         Task<Campaign> CreateNew(CampaignCreateRequest campaign);
+        Task<Campaign> Update(Guid id, CampaignUpdateRequest campaign);
         Task<bool> Delete(Guid id);
         Task<DynamicModelResponse<CampaignViewModel>> GetAll(CampaignViewModel model, int pageNum);
         Task<CampaignViewModel> GetById(Guid id);
@@ -54,6 +55,7 @@ namespace BikeRental.Business.Services
         //not yet
         public async Task<DynamicModelResponse<CampaignViewModel>> GetAll(CampaignViewModel model, int pageNum)
         {
+            //user token => userID => areaId => listCampaign base on areaId
             var campaigns = Get().ProjectTo<CampaignViewModel>(_mapper)
                 .DynamicFilter(model)
                 .PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
@@ -114,6 +116,15 @@ namespace BikeRental.Business.Services
             {
                 return false;
             }
+        }
+
+        public async Task<Campaign> Update(Guid id, CampaignUpdateRequest request)
+        {
+            var campaign = await GetAsync(id);
+            if (campaign == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Bike not found");
+            var updateBike = _mapper.CreateMapper().Map(request, campaign);
+            await UpdateAsync(updateBike);
+            return updateBike;
         }
     }
 }

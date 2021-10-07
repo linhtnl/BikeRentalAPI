@@ -40,19 +40,19 @@ namespace BikeRental.API.Controllers
 
         [HttpPost]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Create(BikeCreateRequest request)
+        public async Task<IActionResult> Create([FromBody]BikeCreateRequest request)
         {
             return Ok(await _bikeService.Create(request));
         }
         [HttpPut]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Update(Guid id, BikeUpdateRequest request)
+        public async Task<IActionResult> Update(Guid id, [FromBody] BikeUpdateRequest request)
         {
             return Ok(await _bikeService.Update(id, request));
         }
         [HttpDelete]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete([FromBody] Guid id)
         {
             return Ok(await _bikeService.Delete(id));
         }

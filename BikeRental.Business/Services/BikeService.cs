@@ -25,8 +25,8 @@ namespace BikeRental.Business.Services
     {
         Task<DynamicModelResponse<BikeViewModel>> GetAll(BikeViewModel model, int pageNum);
         Task<BikeViewModel> GetBikeById(Guid id);
-        Task<Bike> Create(BikeCreateRequest request);
-        Task<Bike> Update(Guid id , BikeUpdateRequest request);
+        Task<BikeViewModel> Create(BikeCreateRequest request);
+        Task<BikeViewModel> Update(Guid id , BikeUpdateRequest request);
         Task<Bike> Delete(Guid id);
         Task<List<Bike>> GetBikeByOwnerId(Guid id);
     }
@@ -83,7 +83,7 @@ namespace BikeRental.Business.Services
             return rs;
         }
 
-        public async Task<Bike> Create(BikeCreateRequest request)
+        public async Task<BikeViewModel> Create(BikeCreateRequest request)
         {
             //get id from token
             var bike = _mapper.CreateMapper().Map<Bike>(request);
@@ -97,16 +97,18 @@ namespace BikeRental.Business.Services
                 bike.Status = (int)BikeStatus.Available;
             }
             await CreateAsync(bike);
-            return bike;
+            var result = _mapper.CreateMapper().Map<BikeViewModel>(bike);
+            return result;
         }
 
-        public async Task<Bike> Update(Guid id, BikeUpdateRequest request)
+        public async Task<BikeViewModel> Update(Guid id, BikeUpdateRequest request)
         {
             var bike = await GetAsync(id);
             if (bike == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Bike not found");
             var updateBike = _mapper.CreateMapper().Map(request, bike);
             await UpdateAsync(updateBike);
-            return updateBike;
+            var result = _mapper.CreateMapper().Map<BikeViewModel>(updateBike);
+            return result;
         }
 
         public async Task<Bike> Delete(Guid id)
