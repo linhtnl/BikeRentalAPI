@@ -24,6 +24,7 @@ namespace BikeRental.Business.Services
     {
         private readonly IConfigurationProvider _mapper;
         private readonly IBikeRepository _bikeRepository;
+
         public FeedbackService(IUnitOfWork unitOfWork, IFeedbackRepository repository, IMapper mapper
             ,IBikeRepository bikeRepository) : base(unitOfWork, repository)
         {
@@ -40,6 +41,7 @@ namespace BikeRental.Business.Services
 
         public async Task<Dictionary<int, double?>> GetBikeRating(Guid bikeId)
         {
+            
             var feedbacks = await Get(x => x.IdNavigation.BikeId.Equals(bikeId)).ToListAsync();
             Dictionary<int, double?> result = new Dictionary<int, double?>();
             result.Add(0, null);

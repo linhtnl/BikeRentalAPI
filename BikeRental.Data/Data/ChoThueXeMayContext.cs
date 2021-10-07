@@ -58,14 +58,25 @@ namespace BikeRental.Data.Models
             {
                 entity.ToTable("Area");
 
+                entity.HasIndex(e => e.Name, "name")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.PostalCode, "postalCode")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Name).HasMaxLength(200);
+
+                entity.Property(e => e.Status).HasDefaultValueSql("((0))");
             });
 
             modelBuilder.Entity<Bike>(entity =>
             {
                 entity.ToTable("Bike");
+
+                entity.HasIndex(e => e.LicensePlate, "licensePlate")
+                    .IsUnique();
 
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
@@ -106,6 +117,8 @@ namespace BikeRental.Data.Models
                 entity.Property(e => e.DayReturnExpected).HasColumnType("date");
 
                 entity.Property(e => e.Price).HasColumnType("decimal(8, 0)");
+
+                entity.Property(e => e.Status).HasDefaultValueSql("((0))");
 
                 entity.HasOne(d => d.Bike)
                     .WithMany(p => p.Bookings)
@@ -377,8 +390,6 @@ namespace BikeRental.Data.Models
                 entity.ToTable("VoucherItem");
 
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-
-                entity.Property(e => e.TimeUsing).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.VoucherItems)

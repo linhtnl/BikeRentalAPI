@@ -12,7 +12,7 @@ namespace BikeRental.Data.Models
             Vouchers = new HashSet<Voucher>();
         }
 
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
         public string Description { get; set; }
         public Guid? AreaId { get; set; }
         public DateTime ExpiredDate { get; set; }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BikeRental.API.Models.Request;
 using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
@@ -78,9 +79,9 @@ namespace BikeRental.API.Controllers
         }
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] OwnerRatingViewModel model, int filterOption , int page = CommonConstants.DefaultPage)
         {
-            return Ok(await _ownerService.GetAll());
+            return Ok(await _ownerService.GetAll(model,filterOption, page));
         }
 
         [HttpGet("{id}")]
@@ -88,6 +89,12 @@ namespace BikeRental.API.Controllers
         public async Task<IActionResult> GetById(Guid id)
         {
             return Ok(await _ownerService.GetOwnerById(id));
+        }
+        [HttpDelete]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Delete([FromBody] Guid id)
+        {
+            return Ok(await _ownerService.Delete(id));
         }
     }
 }
