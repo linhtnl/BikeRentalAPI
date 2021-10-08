@@ -21,20 +21,25 @@ namespace BikeRental.Business.Services
     {
         Task<List<BookingViewModel>> GetById(Guid id);
         Task<List<BookingViewModel>> GetAll();
-        Task<BookingSuccessViewModel> CreateNew(BookingCreateRequest model);
+        Task<BookingSuccessViewModel> CreateNew(TokenViewModel tokenModel, BookingCreateRequest model);
     }
     public class BookingService : BaseService<Booking>, IBookingService
     {
         private readonly IConfigurationProvider _mapper;
 
-        public BookingService(IUnitOfWork unitOfWork, IBookingRepository bookingRepository, IMapper mapper) : base(unitOfWork, bookingRepository)
+        public BookingService(IUnitOfWork unitOfWork, IBookingRepository bookingRepository, IMapper mapper,
+            IBikeService bikeService,
+            ICustomerService customerService,
+            IVoucherItemService voucherItemService) : base(unitOfWork, bookingRepository)
         {
             _mapper = mapper.ConfigurationProvider;
         }
 
-        public Task<BookingSuccessViewModel> CreateNew(BookingCreateRequest model)
+        public Task<BookingSuccessViewModel> CreateNew(TokenViewModel tokenModel, BookingCreateRequest model)
         {
-            //token => Customer id
+            Guid id = tokenModel.Id;
+
+
             return null;
 
         }
