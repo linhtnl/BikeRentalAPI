@@ -26,8 +26,8 @@ namespace BikeRental.Business.Services
         Task<DynamicModelResponse<BikeViewModel>> GetAll(BikeViewModel model, int pageNum);
         Task<BikeViewModel> GetBikeById(Guid id);
         Task<BikeViewModel> Create(BikeCreateRequest request);
-        Task<BikeViewModel> Update(Guid id , BikeUpdateRequest request);
-        Task<Bike> Delete(Guid id);
+        Task<BikeViewModel> Update(BikeUpdateRequest request);
+        Task<BikeDeleteSuccessViewModel> Delete(Guid id);
         Task<List<Bike>> GetBikeByOwnerId(Guid id);
     }
     public class BikeService : BaseService<Bike>, IBikeService
@@ -69,7 +69,7 @@ namespace BikeRental.Business.Services
             var result = bikes
                 .DynamicFilter(model)
                 .PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
-            //if (result.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            if (result.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
             var rs = new DynamicModelResponse<BikeViewModel>
             {
                 Metadata = new PagingMetaData
@@ -96,28 +96,53 @@ namespace BikeRental.Business.Services
             {
                 bike.Status = (int)BikeStatus.Available;
             }
-            await CreateAsync(bike);
-            var result = _mapper.CreateMapper().Map<BikeViewModel>(bike);
-            return result;
+            try
+            {
+                await CreateAsync(bike);
+                var result = _mapper.CreateMapper().Map<BikeViewModel>(bike);
+                result.CategoryName = cate.Name;
+                var brand = await _brandService.GetBrandById(cate.BrandId);
+                result.BrandName = brand.Name;
+                return result;
+            }
+            catch(Exception e)
+            {
+                throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid data!");
+            }  
         }
 
-        public async Task<BikeViewModel> Update(Guid id, BikeUpdateRequest request)
+        public async Task<BikeViewModel> Update(BikeUpdateRequest request)
         {
-            var bike = await GetAsync(id);
-            if (bike == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Bike not found");
+            var bike = await GetAsync(request.Id);
+            if (bike == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
             var updateBike = _mapper.CreateMapper().Map(request, bike);
-            await UpdateAsync(updateBike);
-            var result = _mapper.CreateMapper().Map<BikeViewModel>(updateBike);
-            return result;
+            try
+            {
+                await UpdateAsync(updateBike);
+                var result = _mapper.CreateMapper().Map<BikeViewModel>(updateBike);
+                var cate = await _categoryService.GetCateById(bike.CategoryId);
+                result.CategoryName = cate.Name;
+                var brand = await _brandService.GetBrandById(cate.BrandId);
+                result.BrandName = brand.Name;
+                return result;
+            }
+            catch(Exception e)
+            {
+                throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid data!");
+            }
+            
         }
 
-        public async Task<Bike> Delete(Guid id)
+        public async Task<BikeDeleteSuccessViewModel> Delete(Guid id)
         {
             var bike = await GetAsync(id);
-            if (bike == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Bike not found");
+            
+            if (bike == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
+            if (bike.Status == (int)BikeStatus.Rent) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not delete Rented bike!");
             bike.Status = (int)BikeStatus.Delete;
             await UpdateAsync(bike);
-            return bike;
+            var result = _mapper.CreateMapper().Map<BikeDeleteSuccessViewModel>(bike);
+            return result;           
         }
 
         public async Task<List<Bike>> GetBikeByOwnerId(Guid id)

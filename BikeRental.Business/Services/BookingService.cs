@@ -1,11 +1,17 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using BikeRental.Business.RequestModels;
+using BikeRental.Business.Utilities;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
+using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,7 +19,9 @@ namespace BikeRental.Business.Services
 {
     public interface IBookingService : IBaseService<Booking>
     {
-        Task<BookingViewModel> GetAll();
+        Task<List<BookingViewModel>> GetById(Guid id);
+        Task<List<BookingViewModel>> GetAll();
+        Task<BookingSuccessViewModel> CreateNew(BookingCreateRequest model);
     }
     public class BookingService : BaseService<Booking>, IBookingService
     {
@@ -24,16 +32,38 @@ namespace BikeRental.Business.Services
             _mapper = mapper.ConfigurationProvider;
         }
 
-        public Task<BookingViewModel> GetAll()
+        public Task<BookingSuccessViewModel> CreateNew(BookingCreateRequest model)
+        {
+            //token => Customer id
+            return null;
+
+        }
+
+        public async Task<List<BookingViewModel>> GetAll()
+        {
+            var bookings = await Get().ProjectTo<BookingViewModel>(_mapper).ToListAsync();
+            if(bookings.Count==0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            return bookings;
+        }
+
+        public async Task<List<BookingViewModel>> GetById(Guid id)
         {
             // token => role
             //if role = Customer/ Owner => GetAll booking base on that role
             //if role = Admin => Get All booking
-            
-            /*var customer 
-            var bookings = Get(b => b.CustomerId.Equals)*/
 
-            return null;
+            if (Get(b => b.CustomerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).Count()!=0)
+            {
+                var bookings = Get(b => b.CustomerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).ToList();
+                return bookings;
+            }
+            else if(Get(b => b.OwnerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).Count() != 0)
+            {
+                var bookings = Get(b => b.OwnerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).ToList();
+
+                return bookings;
+            }
+            else throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
         }
     }
 }

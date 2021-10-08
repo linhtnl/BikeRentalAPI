@@ -25,6 +25,7 @@ namespace BikeRental.Business.Services
         Task<Category> Update(Guid id, string name, int type);
         Task<Category> Create(CategoryCreateModel model);
         Task<bool> Delete(Guid id);
+        Task<List<Category>> GetCateByBrandId(Guid id);
     }
     public class CategoryService : BaseService<Category>, ICategoryService
     {
@@ -74,6 +75,11 @@ namespace BikeRental.Business.Services
                 Data = await categories.Item2.ToListAsync()
             };
             return rs;
+        }
+
+        public async Task<List<Category>> GetCateByBrandId(Guid id)
+        {
+            return await Get(c => c.BrandId.Equals(id)).ToListAsync();
         }
 
         public async Task<CategoryViewModel> GetCateById(Guid? id)

@@ -31,9 +31,11 @@ namespace BikeRental.Business.Services
     public class BrandService : BaseService<Brand>, IBrandService
     {
         private readonly IConfigurationProvider _mapper;
-        
-        public BrandService(IUnitOfWork unitOfWork, IBrandRepository repository , IMapper mapper) : base(unitOfWork, repository)
+        private readonly ICategoryService _categoryService;
+
+        public BrandService(IUnitOfWork unitOfWork, ICategoryService categoryService, IBrandRepository repository , IMapper mapper) : base(unitOfWork, repository)
         {
+            _categoryService = categoryService;
             _mapper = mapper.ConfigurationProvider;
         }
 
@@ -41,23 +43,39 @@ namespace BikeRental.Business.Services
         {
             var brand = new Brand();
             brand.Name = name;
-            await CreateAsync(brand);
+            try
+            {
+                await CreateAsync(brand);
+            }
+            catch(Exception e)
+            {
+                throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid data");
+            }
+            
             return brand;
         }
 
         public async Task<bool> Delete(Guid id)
         {
+            bool result = false;
             var brand = Get(b => b.Id.Equals(id)).FirstOrDefault();
+            if (brand == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            var cates = await _categoryService.GetCateByBrandId(id);
+            foreach(var cate in cates)
+            {
+                if(cate.Status!=(int)CategoryStatus.Unavailable) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not Delete");
+            }
             brand.Status = (int)BrandStatus.Unavailable;
             try
             {
                 await UpdateAsync(brand);
-                return true;
+                result = true;
             }
             catch
             {
-                return false;
-            }          
+                result = false;
+            }
+            return result;
         }
 
         public async Task<DynamicModelResponse<BrandViewModel>> GetAll(BrandViewModel model, int pageNum)
@@ -82,6 +100,7 @@ namespace BikeRental.Business.Services
         public async Task<BrandViewModel> GetBrandById(Guid? id)
         {
             var brand = await Get(b => b.Id.Equals(id)).ProjectTo<BrandViewModel>(_mapper).FirstOrDefaultAsync();
+            if(brand == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
             return brand;
         }
 

@@ -46,9 +46,9 @@ namespace BikeRental.API.Controllers
         }
         [HttpPut]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] BikeUpdateRequest request)
+        public async Task<IActionResult> Update([FromBody] BikeUpdateRequest request)
         {
-            return Ok(await _bikeService.Update(id, request));
+            return Ok(await _bikeService.Update(request));
         }
         [HttpDelete]
         [MapToApiVersion("1")]

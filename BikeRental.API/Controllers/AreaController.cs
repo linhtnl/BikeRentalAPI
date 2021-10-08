@@ -55,11 +55,5 @@ namespace BikeRental.API.Controllers
         {
             return Ok(await _areaService.Create(model));
         }
-        [HttpDelete]
-        [MapToApiVersion("1")]
-        public async Task<IActionResult> Delete([FromBody] Guid id)
-        {
-            return Ok(await _areaService.Delete(id));
-        }
     }
 }

@@ -43,13 +43,13 @@ namespace BikeRental.API.Controllers
         }
         [HttpPost]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Create(string name)
+        public async Task<IActionResult> Create([FromBody]string name)
         {
             return Ok(await _brandService.Create(name));
         }
         [HttpDelete]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete([FromBody]Guid id)
         {
             return Ok(await _brandService.Delete(id));
         }

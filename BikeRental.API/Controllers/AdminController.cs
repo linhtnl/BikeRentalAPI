@@ -16,7 +16,7 @@ namespace BikeRental.API.Controllers
 {
     [Route("api/v{version:apiVersion}/admins")]
     [ApiController]
-    [ApiVersion("1")]   
+    [ApiVersion("2")]   
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
@@ -64,21 +64,21 @@ namespace BikeRental.API.Controllers
 
         //List Customer
         [HttpGet("customers")]
-        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
         public List<CustomerViewModel> GetAll()
         {
             return _adminService.GetAllCustomer();
         }
 
         [HttpGet("customers/id/{id}")]
-        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
         public CustomerViewModel GetCustomerById(Guid id)
         {
             return _adminService.GetCustomerById(id);
         }
 
         [HttpGet("customers/phone/{phone}")]
-        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
         public CustomerViewModel GetCustomerByPhone(string phone)
         {
             return _adminService.GetCustomerByPhone(phone);

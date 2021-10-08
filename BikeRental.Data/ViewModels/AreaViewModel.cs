@@ -16,7 +16,5 @@ namespace BikeRental.Data.ViewModels
         public string PostalCode { get; set; }
         [String]
         public string Name { get; set; }
-        [BindNever]
-        public int Status { get; set; }
     }
 }

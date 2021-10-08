@@ -13,6 +13,7 @@ namespace BikeRental.API.Controllers
     [Route("api/v{version:apiVersion}/voucherItems")]
     [ApiController]
     [ApiVersion("1")]
+    [ApiVersion("2")]
     public class VoucherItemController : Controller
     {
         private readonly IVoucherItemService _voucherItemService;
@@ -39,7 +40,7 @@ namespace BikeRental.API.Controllers
             return _voucherItemService.GetAll();
         }
 
-        [HttpGet("id/{id}")]
+        [HttpGet("{id}")]
         [MapToApiVersion("1")]
         public VoucherItemViewModel GetById(Guid id)
         {
@@ -47,14 +48,14 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpGet("customerId/{customerId}")]
-        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
         public List<VoucherItemViewModel> GetByCustomerId(Guid customerId)
         {
             return _voucherItemService.GetByCustomerId(customerId);
         }
 
         [HttpGet("voucherId/{voucherId}")]
-        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
         public List<VoucherItemViewModel> GetByVoucherId(Guid voucherId)
         {
             return _voucherItemService.GetByVoucherId(voucherId);

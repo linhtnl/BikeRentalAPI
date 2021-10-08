@@ -29,7 +29,6 @@ namespace BikeRental.Business.Services
         Task<AreaViewModel> Update(Guid id,int postalCode, string name);
 
         Task<AreaViewModel> Create(AreaCreateModel model);
-        Task<AreaViewModel> Delete(Guid id);
     }
     public class AreaService : BaseService<Area>, IAreaService
     {
@@ -45,7 +44,7 @@ namespace BikeRental.Business.Services
             //Admin => all
 
             //customer&owner
-            var areas = Get(a => a.Status == (int)AreaStatus.Available).ProjectTo<AreaViewModel>(_mapper)
+            var areas = Get().ProjectTo<AreaViewModel>(_mapper)
                 .DynamicFilter(model)
                 .PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
             if (areas.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
@@ -68,7 +67,7 @@ namespace BikeRental.Business.Services
             var listArea = Get().ToList();
             foreach (var a in listArea)
             {
-                if (a.Name.Equals(name) || a.PostalCode == postalCode) throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Name and Postal Code Must be Unique");
+                if (a.Name.Equals(name) || a.PostalCode == postalCode) throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid Data");
             }
             Area area = Get(a => a.Id.Equals(id)).First();
             area.PostalCode = postalCode;
@@ -84,10 +83,9 @@ namespace BikeRental.Business.Services
             var listArea = Get().ToList();
             foreach(var a in listArea)
             {
-                if(a.Name.Equals(model.Name)||a.PostalCode==model.PostalCode) throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Name and Postal Code Must be Unique");
+                if(a.Name.Equals(model.Name)||a.PostalCode==model.PostalCode) throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid Data");
             }
             var area = _mapper.CreateMapper().Map<Area>(model);
-            area.Status = (int)AreaStatus.Available;
             await CreateAsync(area);
             var result = _mapper.CreateMapper().Map<AreaViewModel>(area);
             return result;
@@ -95,20 +93,9 @@ namespace BikeRental.Business.Services
 
         public async Task<AreaViewModel> GetById(Guid id)
         {
-            var area = await Get(a => a.Id.Equals(id)&& a.Status==(int)AreaStatus.Available).ProjectTo<AreaViewModel>(_mapper).FirstOrDefaultAsync();
+            var area = await Get(a => a.Id.Equals(id)).ProjectTo<AreaViewModel>(_mapper).FirstOrDefaultAsync();
             if(area == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
             return area;
-        }
-
-        public async Task<AreaViewModel> Delete(Guid id)
-        {
-            //only admin
-            var area = await GetAsync(id);
-            if (area == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Bike not found");
-            area.Status = (int)AreaStatus.Unavailable;
-            await UpdateAsync(area);
-            var result = _mapper.CreateMapper().Map<AreaViewModel>(area);
-            return result;
         }
     }
 }
