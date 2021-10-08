@@ -101,11 +101,11 @@ namespace BikeRental.API.Controllers
             return Ok(await _ownerService.Delete(id));
         }
 
-        [HttpPost("Test")]
+        [HttpPost("TestRead")]
         [MapToApiVersion("2")]
         public async Task<IActionResult> Test([FromHeader] string token)
         {
-            var result = TokenService.ReadJWTTokenToModel(token);
+            var result = new TokenService(_configuration).ReadJWTTokenToModel(token);
 
             return await Task.Run(() => Ok(result));
         }
