@@ -14,6 +14,7 @@ namespace BikeRental.API.Controllers
     [Route("api/v{version:apiVersion}/vouchers")]
     [ApiController]
     [ApiVersion("1")]
+    [ApiVersion("2")]
     public class VoucherController : Controller
     {
         private readonly IVoucherService _voucherService;
@@ -40,7 +41,7 @@ namespace BikeRental.API.Controllers
             return _voucherService.GetAll();
         }
 
-        [HttpGet("id/{id}")]
+        [HttpGet("{id}")]
         [MapToApiVersion("1")]
         public VoucherViewModel GetById(Guid id)
         {
@@ -48,42 +49,42 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpGet("campaignId/{campaignId}")]
-        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
         public List<VoucherViewModel> GetByCampaignId(Guid campaignId)
         {
             return _voucherService.GetByCampaignId(campaignId);
         }
 
         [HttpGet("inRangeDate/start")]
-        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
         public List<VoucherViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate)
         {
             return _voucherService.GetStartInRangeDate(startDate, endDate);
         }
 
         [HttpGet("inRangeDate/end")]
-        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
         public List<VoucherViewModel> GetEndInRangeDate(DateTime startDate, DateTime endDate)
         {
             return _voucherService.GetEndInRangeDate(startDate, endDate);
         }
 
         [HttpGet("inRangeDiscountPercent")]
-        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
         public List<VoucherViewModel> GetInDiscountPercentRange(int startNum, int endNum)
         {
             return _voucherService.GetInDiscountPercentRange(startNum, endNum);
         }
 
         [HttpDelete]
-        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
         public async Task<IActionResult> Delete([FromBody] Guid id)
         {
             return await Task.Run(() => Ok(_voucherService.DeleteVoucher(id)));
         }
 
         [HttpPut]
-        [MapToApiVersion("1")]
+        [MapToApiVersion("2")]
         public async Task<IActionResult> Update(Guid id, VoucherUpdateRequest voucherRequest)
         {
             return await Task.Run(() => Ok(_voucherService.UpdateVoucher(id, voucherRequest)));

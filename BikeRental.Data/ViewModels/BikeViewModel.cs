@@ -25,7 +25,7 @@ namespace BikeRental.Data.ViewModels
         public string Color { get; set; }
         [String]
         public string ModelYear { get; set; }
-        [String]
+        [BindNever]
         public string LicensePlate { get; set; }
         [BindNever]
         public int? Status { get; set; }

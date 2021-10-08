@@ -17,7 +17,6 @@ namespace BikeRental.Data.Models
         public Guid Id { get; set; }
         public int? PostalCode { get; set; }
         public string Name { get; set; }
-        public int? Status { get; set; }
 
         public virtual ICollection<Campaign> Campaigns { get; set; }
         public virtual ICollection<Owner> Owners { get; set; }

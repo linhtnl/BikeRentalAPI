@@ -35,6 +35,7 @@ namespace BikeRental.Data.Models
         public virtual DbSet<VoucherItem> VoucherItems { get; set; }
         public virtual DbSet<Wallet> Wallets { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
@@ -58,17 +59,9 @@ namespace BikeRental.Data.Models
             {
                 entity.ToTable("Area");
 
-                entity.HasIndex(e => e.Name, "name")
-                    .IsUnique();
-
-                entity.HasIndex(e => e.PostalCode, "postalCode")
-                    .IsUnique();
-
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Name).HasMaxLength(200);
-
-                entity.Property(e => e.Status).HasDefaultValueSql("((0))");
             });
 
             modelBuilder.Entity<Bike>(entity =>
@@ -150,11 +143,16 @@ namespace BikeRental.Data.Models
             {
                 entity.ToTable("Brand");
 
+                entity.HasIndex(e => e.Name, "name")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.Status).HasDefaultValueSql("((0))");
             });
 
             modelBuilder.Entity<Campaign>(entity =>
