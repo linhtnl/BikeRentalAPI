@@ -109,7 +109,7 @@ namespace BikeRental.Business.Services
             var voucher = await GetAsync(id);
             if (voucher == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Voucher not found");
 
-            voucher.Status = (int)VoucherStatus.DELETE;
+            voucher.Status = (int)VoucherStatus.Delete;
             
             await UpdateAsync(voucher);
 
