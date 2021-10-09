@@ -18,7 +18,6 @@ using BikeRental.Business.Services;
 using AutoMapper;
 using BikeRental.Data.ViewModels;
 using BikeRental.Business.DI;
-using BikeRental.API.Models.Request;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
@@ -144,8 +143,8 @@ namespace BikeRental.API
                 mc.CreateMap<Owner, OwnerDetailViewModel>();
                 mc.CreateMap<OwnerDetailViewModel, Owner>();
 
-                mc.CreateMap<Owner, OwnerRegisterRequest>();
-                mc.CreateMap<OwnerRegisterRequest, Owner>();
+                mc.CreateMap<Owner, OwnerCreateRequest>();
+                mc.CreateMap<OwnerCreateRequest, Owner>();
 
                 mc.CreateMap<Feedback, FeedbackCreateRequest>();
                 mc.CreateMap<FeedbackCreateRequest, Feedback>();
@@ -188,6 +187,9 @@ namespace BikeRental.API
 
                 mc.CreateMap<Booking, BookingViewModel>();
                 mc.CreateMap<BookingViewModel, Booking>();
+
+                mc.CreateMap<Customer, CustomerCreateRequest>();
+                mc.CreateMap<CustomerCreateRequest, Customer>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

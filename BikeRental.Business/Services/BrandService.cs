@@ -47,7 +47,7 @@ namespace BikeRental.Business.Services
             {
                 await CreateAsync(brand);
             }
-            catch(Exception e)
+            catch
             {
                 throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid data");
             }

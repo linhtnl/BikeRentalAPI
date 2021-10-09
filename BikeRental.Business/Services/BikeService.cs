@@ -105,7 +105,7 @@ namespace BikeRental.Business.Services
                 result.BrandName = brand.Name;
                 return result;
             }
-            catch(Exception e)
+            catch
             {
                 throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid data!");
             }  
@@ -126,7 +126,7 @@ namespace BikeRental.Business.Services
                 result.BrandName = brand.Name;
                 return result;
             }
-            catch(Exception e)
+            catch
             {
                 throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid data!");
             }

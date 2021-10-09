@@ -9,7 +9,10 @@ using BikeRental.Data.Repositories;
 using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
+using FirebaseAdmin.Auth;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +24,8 @@ namespace BikeRental.Business.Services
 {
     public interface IOwnerService : IBaseService<Owner>
     {
+        Task<string> Login(OwnerLoginRequest loginRequest, IConfiguration configuration);
+        Task<string> Register(OwnerRegisterRequest loginRequest, IConfiguration configuration);
         Task<OwnerViewModel> CreateNew(Owner ownerInfo);
         Task<OwnerViewModel> Delete(Guid id);
         Task<OwnerDetailViewModel> GetOwnerById(Guid id);
@@ -30,7 +35,7 @@ namespace BikeRental.Business.Services
     }
     public class OwnerService : BaseService<Owner>, IOwnerService
     {
-        private readonly IConfigurationProvider _mapper;
+        private readonly AutoMapper.IConfigurationProvider _mapper;
         private readonly IBikeService _bikeService;
         private readonly ICategoryService _categoryService;
         private readonly IBrandService _brandService;
@@ -153,6 +158,52 @@ namespace BikeRental.Business.Services
             await UpdateAsync(owner);
             var result = _mapper.CreateMapper().Map<OwnerViewModel>(owner);
             return result;
+        }
+
+        public async Task<string> Login(OwnerLoginRequest loginRequest, IConfiguration configuration)
+        {
+            UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(loginRequest.GoogleId); // get user by request's guid
+            OwnerViewModel result = await GetByMail(userRecord.Email);
+
+            if (result != null) // if email existed in local database
+            {
+                FirebaseToken token = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(loginRequest.AccessToken); // re-check access token with firebase
+                object email;
+                token.Claims.TryGetValue("email", out email); // get email from the above re-check step, then check the email whether it's matched the request email
+                if (userRecord.Email.Equals(email))
+                {
+                    string verifyRequestToken = new TokenService(configuration).GenerateOwnerJWTWebToken(result);
+
+                    return await Task.Run(() => verifyRequestToken); // return if everything is done
+                }
+                throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Email from request and the one from access token is not matched."); // return if this email's not existed yet in database - FE foward to sign up page
+            }
+            var claim = new Dictionary<string, object> { { "email", userRecord.Email } };
+            await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(loginRequest.GoogleId, claim);
+
+            throw new ErrorResponse((int)ResponseStatusConstants.CREATED, "Email's not existed in database yet.");
+        }
+
+        public async Task<string> Register(OwnerRegisterRequest loginRequest, IConfiguration configuration)
+        {
+            FirebaseToken token = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(loginRequest.AccessToken); // get firebase token via request's access token
+            object email;
+            token.Claims.TryGetValue("email", out email); // get email from token above
+
+            if (loginRequest.Owner.Mail.Equals(email)) // re-check if the email in request and email in the token above is match
+            {
+                Owner owner = _mapper.CreateMapper().Map<Owner>(loginRequest.Owner);
+                OwnerViewModel ownerResult = await CreateNew(owner);
+
+                if (ownerResult != null)
+                {
+                    string verifyRequestToken = new TokenService(configuration).GenerateOwnerJWTWebToken(ownerResult);
+
+                    return await Task.Run(() => verifyRequestToken);
+                }
+                throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Something went wrong.");
+            }
+            throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Email from request and the one from access token is not matched.");
         }
     }
 }
