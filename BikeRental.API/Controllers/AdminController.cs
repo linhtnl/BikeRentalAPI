@@ -1,7 +1,4 @@
-﻿using BikeRental.API.Models;
-using BikeRental.API.Models.Request;
-
-using BikeRental.Business.Services;
+﻿using BikeRental.Business.Services;
 using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Http;

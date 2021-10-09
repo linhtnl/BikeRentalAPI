@@ -39,9 +39,4 @@
     <ProjectReference Include="..\BikeRental.Data\BikeRental.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\RequestModels\" />
-    <Folder Include="Models\Response\" />
-  </ItemGroup>
-
 </Project>

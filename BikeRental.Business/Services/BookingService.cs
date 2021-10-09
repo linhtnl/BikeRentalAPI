@@ -27,12 +27,20 @@ namespace BikeRental.Business.Services
     {
         private readonly IConfigurationProvider _mapper;
 
+        private readonly IBikeService _bikeService;
+        private readonly ICustomerService _customerService;
+        private readonly IVoucherItemService _voucherItemService;
+
         public BookingService(IUnitOfWork unitOfWork, IBookingRepository bookingRepository, IMapper mapper,
             IBikeService bikeService,
             ICustomerService customerService,
             IVoucherItemService voucherItemService) : base(unitOfWork, bookingRepository)
         {
             _mapper = mapper.ConfigurationProvider;
+
+            _bikeService = bikeService;
+            _customerService = customerService;
+            _voucherItemService = voucherItemService;
         }
 
         public Task<BookingSuccessViewModel> CreateNew(TokenViewModel tokenModel, BookingCreateRequest model)

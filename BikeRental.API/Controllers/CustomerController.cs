@@ -1,9 +1,14 @@
-﻿using BikeRental.API.Models.Request;
+﻿using AutoMapper;
+using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
+using BikeRental.Data.Models;
+using BikeRental.Data.Responses;
 using BikeRental.Data.ViewModels;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,23 +22,47 @@ namespace BikeRental.API.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerService _customerService;
-        public CustomerController(ICustomerService customerService)
+        private readonly IConfiguration _configuration;
+        public CustomerController(ICustomerService customerService, IConfiguration configuration)
         {
             _customerService = customerService;
+            _configuration = configuration;
         }
 
-        /*[HttpGet("id/{id}")]
+        [HttpPost("login")]
         [MapToApiVersion("1")]
-        public CustomerViewModel GetCustomerById(Guid id)
+        public async Task<IActionResult> Login([FromBody] string phoneNumber)
         {
-            return _customerService.GetCustomerById(id);
+            string token = await _customerService.Login(phoneNumber, _configuration);
+
+            return await Task.Run(() => Ok(token));
         }
 
-        [HttpGet("phone/{phone}")]
+        [HttpPost("register")]
         [MapToApiVersion("1")]
-        public CustomerViewModel GetCustomerByPhone(string phone)
+        public async Task<IActionResult> Register([FromBody] CustomerCreateRequest request)
         {
-            return _customerService.GetCustomerByPhone(phone);
-        }*/
+            string token = await _customerService.Register(request, _configuration);
+
+            return await Task.Run(() => Ok(token));
+        }
+
+        [HttpPut]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Update(CustomerUpdateRequest request)
+        {
+            var updatedCustomer = await _customerService.UpdateCustomer(request);
+
+            return await Task.Run(() => Ok(updatedCustomer));
+        }
+
+        [HttpDelete]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var isDeleted = await _customerService.DeleteCustomer(id);
+
+            return await Task.Run(() => Ok(isDeleted));
+        }
     }
 }

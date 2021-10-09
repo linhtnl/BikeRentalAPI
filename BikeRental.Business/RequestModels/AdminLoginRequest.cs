@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BikeRental.Business.RequestModels
 {
-    public class OwnerRegisterRequest
+    public class AdminLoginRequest
     {
         public string AccessToken { get; set; }
-        public OwnerCreateRequest Owner { get; set; }
+        public string GoogleId { get; set; }
     }
 }
