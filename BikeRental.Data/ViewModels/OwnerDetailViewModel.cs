@@ -11,10 +11,8 @@ namespace BikeRental.Data.ViewModels
         public Guid Id { get; set; }
         public Guid? AreaId { get; set; }
         public string PhoneNumber { get; set; }
-        public string IdentityNumber { get; set; }
         public string Fullname { get; set; }
         public string Address { get; set; }      
-        public string IdentityImg { get; set; }
         public double? Rating { get; set; }
         public int? NumberOfRatings { get; set; }
         public int? BanTimes { get; set; }

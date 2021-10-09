@@ -8,7 +8,7 @@ namespace BikeRental.Data.Enums
 {
     public enum VoucherStatus
     {
-        DELETE,
-        AVAILABLE
+        Available,
+        Delete
     }
 }

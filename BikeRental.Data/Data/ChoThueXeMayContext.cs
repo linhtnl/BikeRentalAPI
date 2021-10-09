@@ -35,6 +35,14 @@ namespace BikeRental.Data.Models
         public virtual DbSet<VoucherItem> VoucherItems { get; set; }
         public virtual DbSet<Wallet> Wallets { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=Database-1.cbycnoudgp62.ap-southeast-1.rds.amazonaws.com,1433;Database=ChoThueXeMay;User Id=admin;Password=admin123;Trusted_Connection=False;");
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -73,11 +81,14 @@ namespace BikeRental.Data.Models
 
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.Color).HasMaxLength(50);
+                entity.Property(e => e.Color)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'-')");
 
                 entity.Property(e => e.LicensePlate)
                     .HasMaxLength(11)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('-')");
 
                 entity.Property(e => e.ModelYear)
                     .HasMaxLength(4)
@@ -197,19 +208,14 @@ namespace BikeRental.Data.Models
 
                 entity.Property(e => e.BanCount).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.Fullname).HasMaxLength(200);
-
-                entity.Property(e => e.IdentityImg)
-                    .HasMaxLength(300)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.IdentityNumber)
-                    .HasMaxLength(12)
-                    .IsUnicode(false);
+                entity.Property(e => e.Fullname)
+                    .HasMaxLength(200)
+                    .HasDefaultValueSql("(N'-')");
 
                 entity.Property(e => e.PhoneNumber)
                     .HasMaxLength(10)
                     .IsUnicode(false)
+                    .HasDefaultValueSql("('-')")
                     .IsFixedLength(true);
 
                 entity.Property(e => e.RewardPoints).HasDefaultValueSql("((0))");
@@ -243,17 +249,15 @@ namespace BikeRental.Data.Models
 
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.Address).HasMaxLength(200);
+                entity.Property(e => e.Address)
+                    .HasMaxLength(200)
+                    .HasDefaultValueSql("(N'-')");
 
-                entity.Property(e => e.Fullname).HasMaxLength(200);
+                entity.Property(e => e.BanTimes).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.IdentityImg)
-                    .HasMaxLength(300)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.IdentityNumber)
-                    .HasMaxLength(12)
-                    .IsUnicode(false);
+                entity.Property(e => e.Fullname)
+                    .HasMaxLength(200)
+                    .HasDefaultValueSql("(N'-')");
 
                 entity.Property(e => e.Mail)
                     .HasMaxLength(255)
@@ -262,7 +266,10 @@ namespace BikeRental.Data.Models
                 entity.Property(e => e.PhoneNumber)
                     .HasMaxLength(10)
                     .IsUnicode(false)
+                    .HasDefaultValueSql("('-')")
                     .IsFixedLength(true);
+
+                entity.Property(e => e.Status).HasDefaultValueSql("((0))");
 
                 entity.HasOne(d => d.Admin)
                     .WithMany(p => p.Owners)
