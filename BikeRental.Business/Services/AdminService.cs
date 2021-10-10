@@ -14,15 +14,15 @@ using FirebaseAdmin.Auth;
 using BikeRental.Data.Responses;
 using BikeRental.Business.Constants;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace BikeRental.Business.Services
 {
     public interface IAdminService : IBaseService<Admin>
     {
         List<CustomerViewModel> GetAllCustomer();
-
         CustomerViewModel GetCustomerById(Guid id);
-
         CustomerViewModel GetCustomerByPhone(string phone);
         Task<string> Login(AdminLoginRequest request, IConfiguration configuration);
     }
@@ -54,26 +54,15 @@ namespace BikeRental.Business.Services
 
         public async Task<string> Login(AdminLoginRequest request, IConfiguration configuration)
         {
-            UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(request.GoogleId); // get user by request's guid
-            OwnerViewModel result = null/*await GetByMail(userRecord.Email)*/; // this should un-commented when fix database
+            string username = request.Username;
+            string password = request.Password;
 
-            if (result != null) // if email existed in local database
-            {
-                FirebaseToken token = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(request.AccessToken); // re-check access token with firebase
-                object email;
-                token.Claims.TryGetValue("email", out email); // get email from the above re-check step, then check the email whether it's matched the request email
-                if (userRecord.Email.Equals(email))
-                {
-                    string verifyRequestToken = new TokenService(configuration).GenerateOwnerJWTWebToken(result);
+            var adminResult = await Get(adminTemp => (adminTemp.UserName.Equals(username) && adminTemp.Password.Equals(password))).ProjectTo<AdminViewModel>(_mapper).FirstOrDefaultAsync();
+            if (adminResult == null) throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Wrong username or password");
 
-                    return await Task.Run(() => verifyRequestToken); // return if everything is done
-                }
-                throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Email from request and the one from access token is not matched."); // return if this email's not existed yet in database - FE foward to sign up page
-            }
-            var claim = new Dictionary<string, object> { { "email", userRecord.Email } };
-            await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(request.GoogleId, claim);
+            string token = new TokenService(configuration).GenerateAdminJWTWebToken(adminResult);
 
-            throw new ErrorResponse((int)ResponseStatusConstants.CREATED, "Email's not existed in database yet.");
+            return await Task.Run(() => token);
         }
     }
 }

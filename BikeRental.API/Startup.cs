@@ -94,7 +94,6 @@ namespace BikeRental.API
                 mc.CreateMap<Wallet, WalletCreateRequest>();
                 mc.CreateMap<WalletCreateRequest, Wallet>();
 
-
                 mc.CreateMap<TransactionHistory, TransactionHistoryViewModel>();
                 mc.CreateMap<TransactionHistoryViewModel, TransactionHistory>();
 
@@ -190,6 +189,15 @@ namespace BikeRental.API
 
                 mc.CreateMap<Customer, CustomerCreateRequest>();
                 mc.CreateMap<CustomerCreateRequest, Customer>();
+
+                mc.CreateMap<Admin, AdminViewModel>();
+                mc.CreateMap<AdminViewModel, Admin>();
+
+                mc.CreateMap<Booking, BookingCreateRequest>();
+                mc.CreateMap<BookingCreateRequest, Booking>();
+
+                mc.CreateMap<Booking, BookingSuccessViewModel>();
+                mc.CreateMap<BookingSuccessViewModel, Booking>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

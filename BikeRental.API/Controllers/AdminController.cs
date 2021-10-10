@@ -1,8 +1,10 @@
-﻿using BikeRental.Business.Services;
+﻿using BikeRental.Business.RequestModels;
+using BikeRental.Business.Services;
 using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,49 +19,14 @@ namespace BikeRental.API.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+        private readonly IConfiguration _configuration;
 
-        public AdminController(IAdminService adminService)
+        public AdminController(IAdminService adminService, IConfiguration configuration)
         {
             _adminService = adminService;
-
+            _configuration = configuration;
         }
 
-        //GET All Admin  
-        /* [HttpGet("GetAllAdmins")]
-         public Object GetAllAdmins()
-         {
-             var data = _adminService.GetAllAdmins();
-             var json = JsonConvert.SerializeObject(data, Formatting.Indented,
-                 new JsonSerializerSettings()
-                 {
-                     ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-                 }
-             );
-             return json;
-         }*/
-
-        // Add Admin
-        /*[HttpPost("AddAdmins")]
-        public async Task<Object> AddAdmin([FromBody] AdminRequest admin)
-        {
-            BikeRental.Data.Models.Admin newAdmin = new BikeRental.Data.Models.Admin
-            {
-                Id = admin.Id,
-                UserName = admin.Username,
-                Password = admin.Password
-            };
-            try
-            {
-                await _adminService.AddAdmin(newAdmin);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }*/
-
-        //List Customer
         [HttpGet("customers")]
         [MapToApiVersion("2")]
         public List<CustomerViewModel> GetAll()
@@ -79,6 +46,15 @@ namespace BikeRental.API.Controllers
         public CustomerViewModel GetCustomerByPhone(string phone)
         {
             return _adminService.GetCustomerByPhone(phone);
+        }
+
+        [HttpPost]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Login([FromBody] AdminLoginRequest request)
+        {
+            string token = await _adminService.Login(request, _configuration);
+
+            return await Task.Run(() => Ok(token));
         }
     }
 }
