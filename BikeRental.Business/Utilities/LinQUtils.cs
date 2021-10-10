@@ -39,10 +39,6 @@ namespace BikeRental.Business.Utilities
                 {
                     source = source.Where($"{item.Name} = \"{((string)propertyVal).Trim()}\"");
                 }
-                else if (item.PropertyType == typeof(Guid))
-                {
-                    source = source.Where($"{item.Name} = \"{((Guid)propertyVal)}\"");
-                }
                 else
                 {
                     source = source.Where($"{item.Name} = {propertyVal}");

@@ -33,13 +33,11 @@ namespace BikeRental.Business.Services
     public class BikeService : BaseService<Bike>, IBikeService
     {
         private readonly IConfigurationProvider _mapper;
-        private readonly IFeedbackService _feedbackService;
         private readonly ICategoryService _categoryService;
         private readonly IBrandService _brandService;
         public BikeService(IUnitOfWork unitOfWork, IBikeRepository repository,
-            IFeedbackService feedbackService, ICategoryService categoryService,IBrandService brandService, IMapper mapper) : base(unitOfWork, repository)
+             ICategoryService categoryService,IBrandService brandService, IMapper mapper) : base(unitOfWork, repository)
         {
-            _feedbackService = feedbackService;
             _categoryService = categoryService;
             _brandService = brandService;
             _mapper = mapper.ConfigurationProvider;

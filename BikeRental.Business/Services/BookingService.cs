@@ -24,6 +24,8 @@ namespace BikeRental.Business.Services
     {
         Task<List<BookingViewModel>> GetById(Guid id);
         Task<List<BookingViewModel>> GetAll();
+        
+        Task<List<Booking>> GetByBikeId(Guid id);
         Task<BookingSuccessViewModel> CreateNew(string token, BookingCreateRequest model);
         Task<BookingSuccessViewModel> UpdateStatus(string token, BookingUpdateStatusRequest request);
     }
@@ -151,6 +153,11 @@ namespace BikeRental.Business.Services
             var bookings = await Get().ProjectTo<BookingViewModel>(_mapper).ToListAsync();
             if(bookings.Count==0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
             return bookings;
+        }
+
+        public async Task<List<Booking>> GetByBikeId(Guid id)
+        {
+            return await Get(b => b.BikeId.Equals(id)).ToListAsync();
         }
 
         public async Task<List<BookingViewModel>> GetById(Guid id)

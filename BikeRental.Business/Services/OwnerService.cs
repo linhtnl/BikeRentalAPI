@@ -72,11 +72,22 @@ namespace BikeRental.Business.Services
                     var brand = await _brandService.GetBrandById(cate.BrandId);
                     owner.ListBike[i].BrandName = brand.Name;
                     var tempRating = await _feedbackService.GetBikeRating(listBike[i].Id);
-                    total += tempRating.FirstOrDefault().Key;
-                    rating += tempRating.FirstOrDefault().Value;
+                    if (tempRating.FirstOrDefault().Value != 0)
+                    {
+                        total += tempRating.FirstOrDefault().Key;
+                        rating += tempRating.FirstOrDefault().Value;
+                    }           
                 }
-                owner.Rating = rating / listBike.Count;
-                owner.NumberOfRatings = total;
+                if (total != 0)
+                {
+                    owner.Rating = rating / total;
+                    owner.NumberOfRatings = total;
+                }
+                else
+                {
+                    owner.Rating = 0;
+                    owner.NumberOfRatings = total;
+                }
             }
             return owner;
         }
@@ -101,23 +112,37 @@ namespace BikeRental.Business.Services
         }
         public async Task<DynamicModelResponse<OwnerRatingViewModel>> GetAll(OwnerRatingViewModel model, int filterOption, int pageNum)
         {
-            double? rating = 0;
-            int total = 0;
-            var owners = Get(o => o.Bikes != null).ProjectTo<OwnerRatingViewModel>(_mapper);
+            var owners = Get(o => o.Bikes != null).ProjectTo<OwnerRatingViewModel>(_mapper).DynamicFilter<OwnerRatingViewModel>(model);
             List<OwnerRatingViewModel> listOwner = owners.ToList();
             if (listOwner.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
             for (int i = 0; i < listOwner.Count; i++)
             {
+                double? rating = 0;
+                int total = 0;
                 var listBike = await _bikeService.GetBikeByOwnerId(Guid.Parse(listOwner[i].Id.ToString()));
                 listOwner[i].NumberOfBikes = listBike.Count();
-                foreach (var bike in listBike)
+                if(listBike.Count() != 0)
                 {
-                    var tempRating = await _feedbackService.GetBikeRating(bike.Id);
-                    total += tempRating.FirstOrDefault().Key;
-                    rating += tempRating.FirstOrDefault().Value;
+                    foreach (var bike in listBike)
+                    {
+                        var tempRating = await _feedbackService.GetBikeRating(bike.Id);
+                        if(tempRating.FirstOrDefault().Value != 0)
+                        {
+                            total += tempRating.FirstOrDefault().Key;
+                            rating += tempRating.FirstOrDefault().Value;
+                        }
+                    }
+                    if(total != 0)
+                    {
+                        listOwner[i].Rating = rating / total;
+                        listOwner[i].NumberOfRatings = total;
+                    }
+                    else
+                    {
+                        listOwner[i].Rating = 0;
+                        listOwner[i].NumberOfRatings = total;
+                    }
                 }
-                listOwner[i].Rating = rating / listBike.Count();
-                listOwner[i].NumberOfRatings = total;
             }
             if (filterOption == (int)OwnerFilterOptions.TotalBike)
             {
@@ -131,9 +156,8 @@ namespace BikeRental.Business.Services
             {
                 owners = listOwner.AsQueryable().OrderByDescending(o => o.Rating).ThenByDescending(o => o.NumberOfBikes);
             }
-            var result = owners
-                .DynamicFilter(model)
-                .PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
+
+            var result = owners.PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
 
             var rs = new DynamicModelResponse<OwnerRatingViewModel>
             {

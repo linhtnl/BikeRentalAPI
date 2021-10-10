@@ -17,6 +17,8 @@ namespace BikeRental.Data.ViewModels
         public int? Type { get; set; }
         [BindNever]
         public Guid? BrandId { get; set; }
+        [String]
+        public string BrandName { get; set; }
         public int? Status { get; set; }
     }
 }

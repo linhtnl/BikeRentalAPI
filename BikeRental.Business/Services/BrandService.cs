@@ -20,7 +20,7 @@ namespace BikeRental.Business.Services
 {
     public interface IBrandService : IBaseService<Brand>
     {
-        Task<DynamicModelResponse<BrandViewModel>> GetAll(BrandViewModel model, int pageNum);
+        Task<List<BrandViewModel>> GetAll(BrandViewModel model);
         Task<BrandViewModel> GetBrandById(Guid? id);
 
         Task<Brand> Update(Guid id, string name);
@@ -77,30 +77,47 @@ namespace BikeRental.Business.Services
             }
             return result;
         }
+        
 
-        public async Task<DynamicModelResponse<BrandViewModel>> GetAll(BrandViewModel model, int pageNum)
+        //not yet
+        public async Task<List<BrandViewModel>> GetAll(BrandViewModel model)
         {
-            var listBrand = Get().ProjectTo<BrandViewModel>(_mapper)
-                .DynamicFilter(model)
-                .PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
-            if (listBrand.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
-            var rs = new DynamicModelResponse<BrandViewModel>
+            var brands = Get(b => b.Status ==(int)BrandStatus.Available).ProjectTo<BrandViewModel>(_mapper);
+            var listBrand = brands.ToList();
+            for (int i = 0; i < listBrand.Count; i++)
             {
-                Metadata = new PagingMetaData
+                var listCateTemp = new List<Category>();
+                var listCate = await _categoryService.GetCateByBrandId(Guid.Parse(listBrand[i].id.ToString()));
+                foreach(var cate in listCate)
                 {
-                    Page = pageNum,
-                    Size = GlobalConstants.GROUP_ITEM_NUM,
-                    Total = listBrand.Item1
-                },
-                Data = await listBrand.Item2.ToListAsync()
-            };
-            return rs;
+                    if (cate.Status == (int)CategoryStatus.Available)
+                    {
+                        listCateTemp.Add(cate);
+                    }
+                }
+                listBrand[i].ListCategory = _mapper.CreateMapper().Map<List<CategoryCustomViewModel>>(listCateTemp);
+            }
+            brands = listBrand.AsQueryable().OrderByDescending(b => b.Name);
+            var result = brands.DynamicFilter(model).ToList();
+            if(result.Count()==0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            return result;
+            
         }
 
         public async Task<BrandViewModel> GetBrandById(Guid? id)
         {
             var brand = await Get(b => b.Id.Equals(id)).ProjectTo<BrandViewModel>(_mapper).FirstOrDefaultAsync();
             if(brand == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            var listCateTemp = new List<Category>();
+            var listCate = await _categoryService.GetCateByBrandId(Guid.Parse(brand.id.ToString()));
+            foreach (var cate in listCate)
+            {
+                if (cate.Status == (int)CategoryStatus.Available)
+                {
+                    listCateTemp.Add(cate);
+                }
+            }
+            brand.ListCategory = _mapper.CreateMapper().Map<List<CategoryCustomViewModel>>(listCateTemp);
             return brand;
         }
 
