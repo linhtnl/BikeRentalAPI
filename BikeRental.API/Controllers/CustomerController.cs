@@ -31,9 +31,9 @@ namespace BikeRental.API.Controllers
 
         [HttpPost("login")]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Login([FromBody] string phoneNumber)
+        public async Task<IActionResult> Login([FromBody] CustomerLoginRequest request)
         {
-            string token = await _customerService.Login(phoneNumber, _configuration);
+            string token = await _customerService.Login(request.PhoneNumber, _configuration);
 
             return await Task.Run(() => Ok(token));
         }
