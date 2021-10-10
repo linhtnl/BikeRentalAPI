@@ -23,13 +23,13 @@ namespace BikeRental.Business.Services
     public class FeedbackService : BaseService<Feedback>, IFeedbackService
     {
         private readonly IConfigurationProvider _mapper;
-        private readonly IBikeRepository _bikeRepository;
+        private readonly IBookingService _bookingService;
 
         public FeedbackService(IUnitOfWork unitOfWork, IFeedbackRepository repository, IMapper mapper
-            ,IBikeRepository bikeRepository) : base(unitOfWork, repository)
+            , IBookingService bookingService) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
-            _bikeRepository = bikeRepository;
+            _bookingService = bookingService;
         }
 
         public async Task<Feedback> Create(FeedbackCreateRequest request)
@@ -41,21 +41,35 @@ namespace BikeRental.Business.Services
 
         public async Task<Dictionary<int, double?>> GetBikeRating(Guid bikeId)
         {
-            
-            var feedbacks = await Get(x => x.IdNavigation.BikeId.Equals(bikeId)).ToListAsync();
             Dictionary<int, double?> result = new Dictionary<int, double?>();
-            result.Add(0, null);
-            if (feedbacks.Count == 0) return result;
+            result.Add(0, 0);
+            var listFeedback = new List<Feedback>();
+            var bookings = await _bookingService.GetByBikeId(bikeId);
+            if(bookings.Count == 0)
+            {
+                return result;
+            }
+            foreach (var booking in bookings)
+            {
+                var feedback = await Get(x => x.Id.Equals(booking.Id)).FirstOrDefaultAsync();
+                listFeedback.Add(feedback);
+            }
+            if (listFeedback.Count == 0) return result;
             result.Clear();
             double rating = 0;
             int total = 0;
-            foreach(var feedback in feedbacks)
+            foreach (var feedback in listFeedback)
             {
-                total++;
-                rating = +(float)feedback.Rating;
+                if(feedback != null)
+                {
+                    total++;
+                    rating += (float)feedback.Rating;
+                }
             }
+
             result.Add(total, rating / total);
             return result;
+
         }
 
         public async Task<Feedback> Update(Guid id, FeedbackCreateRequest request)

@@ -24,9 +24,9 @@ namespace BikeRental.API.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Get([FromQuery] BrandViewModel model, int page = CommonConstants.DefaultPage)
+        public async Task<IActionResult> Get([FromQuery] BrandViewModel model)
         {
-            return Ok(await _brandService.GetAll(model, page));
+            return Ok(await _brandService.GetAll(model));
         }
 
         [HttpGet("{id}")]

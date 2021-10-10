@@ -118,6 +118,9 @@ namespace BikeRental.API
                 mc.CreateMap<Category, CategoryCreateModel>();
                 mc.CreateMap<CategoryCreateModel, Category>();
 
+                mc.CreateMap<Category, CategoryCustomViewModel>();
+                mc.CreateMap<CategoryCustomViewModel, Category>();
+
                 mc.CreateMap<Campaign, CampaignViewModel>();
                 mc.CreateMap<CampaignViewModel, Campaign>();
 

@@ -12,8 +12,8 @@ namespace BikeRental.Data.ViewModels
     {
         [BindNever]
         public Guid? Id { get; set; }
-        [String]
-        public string PostalCode { get; set; }
+        [BindNever]
+        public int? PostalCode { get; set; }
         [String]
         public string Name { get; set; }
     }
