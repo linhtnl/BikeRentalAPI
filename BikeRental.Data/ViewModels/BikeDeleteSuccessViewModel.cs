@@ -9,6 +9,7 @@ namespace BikeRental.Data.ViewModels
     public class BikeDeleteSuccessViewModel
     {
         public Guid Id { get; set; }
+        public Guid OwnerId { get; set; }
         public string LicensePlate { get; set; }
         public string Color { get; set; }
         public string ModelYear { get; set; }

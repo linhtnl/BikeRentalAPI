@@ -58,6 +58,7 @@ namespace BikeRental.Business.Services
 
         public async Task<BookingSuccessViewModel> CreateNew(string token, BookingCreateRequest request)
         {
+            //price lấy từ pricelist
             Voucher voucher = null;
             decimal? newPrice = null;
             bool isVoucherUsed = false;
@@ -182,6 +183,8 @@ namespace BikeRental.Business.Services
 
         public async Task<BookingSuccessViewModel> UpdateStatus(string token, BookingUpdateStatusRequest request)
         {
+            //customer update status => cancel booking 
+            //owner update status => cancel booking / finish booking(lấy time hiện tại set làm day return actual)
             TokenViewModel tokenModel = new TokenService(_configuration).ReadJWTTokenToModel(token);
 
             if (tokenModel.Role != (int)RoleConstants.Customer && tokenModel.Role != (int)RoleConstants.Owner)

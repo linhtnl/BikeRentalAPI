@@ -13,7 +13,7 @@ namespace BikeRental.API.Controllers
     [Route("api/v{version:apiVersion}/bookings")]
     [ApiController]
     [ApiVersion("1")]
-    [ApiVersion("2")]
+   
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
@@ -23,15 +23,15 @@ namespace BikeRental.API.Controllers
         }
 
         [HttpGet()]
-        [MapToApiVersion("2")]
+        [MapToApiVersion("1")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _bookingService.GetAll());
         }
 
         [HttpGet("{id}")]
-        [MapToApiVersion("2")]
-        public async Task<IActionResult> GetById([FromQuery] Guid id)
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> GetById(Guid id)
         {
             return Ok(await _bookingService.GetById(id));
         }

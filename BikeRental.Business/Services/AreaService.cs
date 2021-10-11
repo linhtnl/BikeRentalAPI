@@ -64,31 +64,36 @@ namespace BikeRental.Business.Services
         public async Task<AreaViewModel> Update(Guid id, int postalCode, string name)
         {
             //only admin
-            var listArea = Get().ToList();
-            foreach (var a in listArea)
-            {
-                if (a.Name.Equals(name) || a.PostalCode == postalCode) throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid Data");
-            }
+            
             Area area = Get(a => a.Id.Equals(id)).First();
             area.PostalCode = postalCode;
             area.Name = name;
-            await UpdateAsync(area);
-            var result = _mapper.CreateMapper().Map<AreaViewModel>(area);
-            return result;
+            try
+            {
+                await UpdateAsync(area);
+                var result = _mapper.CreateMapper().Map<AreaViewModel>(area);
+                return result;
+            }
+            catch(Exception e)
+            {
+                throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid Data");
+            }
         }
 
         public async Task<AreaViewModel> Create(AreaCreateModel model)
         {
             //only admin
-            var listArea = Get().ToList();
-            foreach(var a in listArea)
-            {
-                if(a.Name.Equals(model.Name)||a.PostalCode==model.PostalCode) throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid Data");
-            }
             var area = _mapper.CreateMapper().Map<Area>(model);
-            await CreateAsync(area);
-            var result = _mapper.CreateMapper().Map<AreaViewModel>(area);
-            return result;
+            try
+            {
+                await CreateAsync(area);
+                var result = _mapper.CreateMapper().Map<AreaViewModel>(area);
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid Data");
+            }    
         }
 
         public async Task<AreaViewModel> GetById(Guid id)
