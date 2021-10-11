@@ -88,17 +88,33 @@ namespace BikeRental.Business.Services
             {
                 var listCateTemp = new List<Category>();
                 var listCate = await _categoryService.GetCateByBrandId(Guid.Parse(listBrand[i].id.ToString()));
-                foreach(var cate in listCate)
+                if (listCate.Count != 0)
                 {
-                    if (cate.Status == (int)CategoryStatus.Available)
+                    foreach (var cate in listCate)
                     {
-                        listCateTemp.Add(cate);
+                        if (cate.Status == (int)CategoryStatus.Available)
+                        {
+                            listCateTemp.Add(cate);
+                        }
                     }
+                    listBrand[i].ListCategory = _mapper.CreateMapper().Map<List<CategoryCustomViewModel>>(listCateTemp);
                 }
-                listBrand[i].ListCategory = _mapper.CreateMapper().Map<List<CategoryCustomViewModel>>(listCateTemp);
             }
             brands = listBrand.AsQueryable().OrderByDescending(b => b.Name);
             var result = brands.DynamicFilter(model).ToList();
+            for(int i = 0; i < result.Count; i++)
+            {
+                if (result[i].ListCategory == null)
+                {
+                    result.RemoveAt(i);
+                    i--;
+                }
+            }
+            if (result[0].ListCategory == null)
+            {
+                result.RemoveAt(0);
+            }
+
             if(result.Count()==0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
             return result;
             
