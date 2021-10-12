@@ -56,6 +56,13 @@ namespace BikeRental.API.Controllers
             return Ok(await _ownerService.GetAll(model,filterOption, page));
         }
 
+        [HttpGet("areaid")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Get(Guid id)
+        {
+            return Ok(await _ownerService.GetListOwnerByAreaId(id));
+        }
+
         [HttpGet("{id}")]
         [MapToApiVersion("1")]
         public async Task<IActionResult> GetById(Guid id)
