@@ -278,6 +278,8 @@ namespace BikeRental.Business.Services
 
             if (isUpdated)
             {
+                targetBooking.DayReturnActual = DateTime.Today;
+
                 await _bikeService.UpdateAsync(targetBike);
                 await UpdateAsync(targetBooking);
             }
