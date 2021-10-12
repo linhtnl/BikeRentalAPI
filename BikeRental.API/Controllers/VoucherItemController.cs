@@ -28,9 +28,7 @@ namespace BikeRental.API.Controllers
         {
             var voucherItem = await _voucherItemService.CreateNew(voucherItemRequest);
 
-            return voucherItem != null
-                ? await Task.Run(() => Ok(voucherItem))
-                : await Task.Run(() => StatusCode(ResponseStatusConstants.FORBIDDEN));
+            return await Task.Run(() => Ok(voucherItem));
         }
 
         [HttpGet]

@@ -180,9 +180,6 @@ namespace BikeRental.API
                 mc.CreateMap<VoucherExchangeHistory, VoucherExchangeHistoryViewModel>();
                 mc.CreateMap<VoucherExchangeHistoryViewModel, VoucherExchangeHistory>();
 
-                mc.CreateMap<VoucherExchangeHistoryCreateRequest, VoucherExchangeHistory>();
-                mc.CreateMap<VoucherExchangeHistory, VoucherExchangeHistoryCreateRequest>();
-
                 mc.CreateMap<VoucherExchangeHistoryUpdateRequest, VoucherExchangeHistory>();
                 mc.CreateMap<VoucherExchangeHistory, VoucherExchangeHistoryUpdateRequest>();
 
@@ -209,6 +206,9 @@ namespace BikeRental.API
 
                 mc.CreateMap<Booking, BookingSuccessViewModel>();
                 mc.CreateMap<BookingSuccessViewModel, Booking>();
+
+                mc.CreateMap<VoucherItemCreateRequest, VoucherItemCreateSuccessViewModel>();
+                mc.CreateMap<VoucherItemCreateSuccessViewModel, VoucherItemCreateRequest>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

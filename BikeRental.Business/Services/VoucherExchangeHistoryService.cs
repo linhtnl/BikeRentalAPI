@@ -18,24 +18,32 @@ namespace BikeRental.Business.Services
 {
     public interface IVoucherExchangeHistoryService : IBaseService<VoucherExchangeHistory>
     {
-        Task<VoucherExchangeHistory> CreateNew(Guid voucherId, VoucherExchangeHistoryCreateRequest request);
+        Task<VoucherExchangeHistory> CreateNew(Guid voucherId, Guid customerId);
         Task<VoucherExchangeHistory> UpdateVoucherExchangeHistory(Guid id, VoucherExchangeHistoryUpdateRequest request);
         Task<VoucherExchangeHistoryViewModel> GetById(Guid id);
     }
     public class VoucherExchangeHistoryService : BaseService<VoucherExchangeHistory>, IVoucherExchangeHistoryService
     {
         private readonly IConfigurationProvider _mapper;
-        private readonly IVoucherItemService _voucherItemService;
-        public VoucherExchangeHistoryService(IUnitOfWork unitOfWork, IVoucherExchangeHistoryRepository voucherExchangeHistoryRepository, IVoucherItemService voucherItemService, IMapper mapper) 
+        public VoucherExchangeHistoryService(IUnitOfWork unitOfWork, IVoucherExchangeHistoryRepository voucherExchangeHistoryRepository, IMapper mapper) 
             : base(unitOfWork, voucherExchangeHistoryRepository)
         {
             _mapper = mapper.ConfigurationProvider;
-            _voucherItemService = voucherItemService;
         }
 
-        public async Task<VoucherExchangeHistory> CreateNew(Guid voucherId, VoucherExchangeHistoryCreateRequest request)
+        public async Task<VoucherExchangeHistory> CreateNew(Guid voucherId, Guid customerId)
         {
-            return null;
+            VoucherExchangeHistory targetVoucherExchange = new VoucherExchangeHistory()
+            {
+                Id = voucherId,
+                VoucherCode = voucherId,
+                CustomerId = customerId,
+                ActionDate = DateTime.Today
+            };
+
+            await CreateAsync(targetVoucherExchange);
+
+            return await Task.Run(() => targetVoucherExchange);
         }
 
         public async Task<VoucherExchangeHistoryViewModel> GetById(Guid id)
