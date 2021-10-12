@@ -15,23 +15,19 @@ using System.Threading.Tasks;
 
 namespace BikeRental.Business.Services
 {
-    public class TokenService
+    public static class TokenService
     {
-        private readonly IConfiguration _configuration;
-        private string secretKey;
-        public TokenService(IConfiguration configuration)
+        private static string secretKey;
+
+        private static void setPrivateKey(IConfiguration configuration)
         {
-            _configuration = configuration;
-            setPrivateKey();
+            secretKey = configuration.GetSection("Security:SecretKey").Value;
         }
 
-        private void setPrivateKey()
+        public static string GenerateOwnerJWTWebToken(OwnerViewModel ownerInfo, IConfiguration configuration) // Owner
         {
-            secretKey = _configuration.GetSection("Security:SecretKey").Value;
-        }
+            setPrivateKey(configuration);
 
-        public string GenerateOwnerJWTWebToken(OwnerViewModel ownerInfo) // Owner
-        {
             var securityKey = new SymmetricSecurityKey(Convert.FromBase64String(secretKey));
 
             var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -50,8 +46,10 @@ namespace BikeRental.Business.Services
             return handler.WriteToken(secToken);
         }
 
-        public string GenerateCustomerJWTWebToken(CustomerViewModel ownerInfo) // Customer
+        public static string GenerateCustomerJWTWebToken(CustomerViewModel ownerInfo, IConfiguration configuration) // Customer
         {
+            setPrivateKey(configuration);
+
             var securityKey = new SymmetricSecurityKey(Convert.FromBase64String(secretKey));
 
             var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
@@ -70,8 +68,10 @@ namespace BikeRental.Business.Services
             return handler.WriteToken(secToken);
         }
 
-        public string GenerateAdminJWTWebToken(AdminViewModel ownerInfo) // Admin
+        public static string GenerateAdminJWTWebToken(AdminViewModel ownerInfo, IConfiguration configuration) // Admin
         {
+            setPrivateKey(configuration);
+
             var securityKey = new SymmetricSecurityKey(Convert.FromBase64String(secretKey));
 
             var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
@@ -90,8 +90,10 @@ namespace BikeRental.Business.Services
             return handler.WriteToken(secToken);
         }
 
-        public TokenViewModel ReadJWTTokenToModel(string token)
+        public static TokenViewModel ReadJWTTokenToModel(string token, IConfiguration configuration)
         {
+            setPrivateKey(configuration);
+
             bool isValid = IsTokenValid(token);
 
             if (!isValid)
@@ -106,13 +108,13 @@ namespace BikeRental.Business.Services
             return new TokenViewModel(id, role);
         }
 
-        private SecurityKey GetSymmetricSecurityKey()
+        private static SecurityKey GetSymmetricSecurityKey()
         {
             byte[] symmetricKey = Convert.FromBase64String(secretKey);
             return new SymmetricSecurityKey(symmetricKey);
         }
 
-        private TokenValidationParameters GetTokenValidationParameters()
+        private static TokenValidationParameters GetTokenValidationParameters()
         {
             return new TokenValidationParameters()
             {
@@ -123,7 +125,7 @@ namespace BikeRental.Business.Services
             };
         }
 
-        private bool IsTokenValid(string token)
+        private static bool IsTokenValid(string token)
         {
             try
             {

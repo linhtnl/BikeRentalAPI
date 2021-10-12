@@ -23,6 +23,7 @@ namespace BikeRental.Business.Services
         Task<PriceList> Create(PricelistCreateRequest request);
         Task<PriceList> Update(Guid areaId, Guid cateId, decimal? price);
         Task<List<PriceListViewModel>> GetListByAreaId(Guid areaId);
+        Task<decimal> GetPriceByAreaIdAndCategoryId(Guid areaId, Guid categoryId);
     }
     public class PriceListService : BaseService<PriceList>, IPriceListService
     {
@@ -64,6 +65,18 @@ namespace BikeRental.Business.Services
         {
             var priceList = await Get(a => a.AreaId.Equals(areaId)).ProjectTo<PriceListViewModel>(_mapper).ToListAsync();
             return priceList;
+        }
+
+        public async Task<decimal> GetPriceByAreaIdAndCategoryId(Guid areaId, Guid categoryId)
+        {
+            var priceList = await Get()
+                .Where(priceTemp => (priceTemp.CategoryId.Equals(categoryId) && priceTemp.AreaId.Equals(areaId)))
+                .FirstOrDefaultAsync();
+
+            if (priceList == null)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Price of this area and category is not found.");
+
+            return await Task.Run(() => priceList.Price.Value);
         }
 
         public async Task<PriceList> Update(Guid areaId, Guid cateId, decimal? price)

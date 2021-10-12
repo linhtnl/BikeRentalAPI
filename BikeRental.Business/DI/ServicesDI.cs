@@ -72,6 +72,10 @@ namespace BikeRental.Business.DI
 
             services.AddScoped<IBookingRepository, BookingRepository>();
             services.AddScoped<IBookingService, BookingService>();
+
+            services.AddScoped<IUtilService, UtilService>();
+            services.AddScoped<IBookingUtilService, BookingUtilService>();
+            services.AddScoped<IFeedbackUtilService, FeedbackUtilService>();
         }
     }
 }

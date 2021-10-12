@@ -24,7 +24,6 @@ namespace BikeRental.Business.Services
     {
         Task<List<BookingViewModel>> GetById(Guid id);
         Task<List<BookingViewModel>> GetAll();
-        
         Task<List<Booking>> GetByBikeId(Guid id);
         Task<BookingSuccessViewModel> CreateNew(string token, BookingCreateRequest model);
         Task<BookingSuccessViewModel> UpdateStatus(string token, BookingUpdateStatusRequest request);
@@ -35,96 +34,130 @@ namespace BikeRental.Business.Services
         private readonly IConfiguration _configuration;
 
         private readonly IBikeService _bikeService;
-        private readonly ICustomerService _customerService;
         private readonly IVoucherItemService _voucherItemService;
         private readonly IVoucherService _voucherService;
+        private readonly IPriceListService _priceListService;
+        private readonly ICategoryService _categoryService;
+        private readonly IUtilService _utilService;
 
         public BookingService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration,
             IBookingRepository bookingRepository,
             IBikeService bikeService,
-            ICustomerService customerService,
             IVoucherItemService voucherItemService,
-            IVoucherService voucherService
+            IVoucherService voucherService,
+            IPriceListService priceListService,
+            ICategoryService categoryService, 
+            IUtilService utilService
             ) : base(unitOfWork, bookingRepository)
         {
             _mapper = mapper.ConfigurationProvider;
             _configuration = configuration;
 
             _bikeService = bikeService;
-            _customerService = customerService;
             _voucherItemService = voucherItemService;
             _voucherService = voucherService;
+            _priceListService = priceListService;
+            _categoryService = categoryService;
+            _utilService = utilService;
         }
 
         public async Task<BookingSuccessViewModel> CreateNew(string token, BookingCreateRequest request)
         {
-            //price lấy từ pricelist
-            Voucher voucher = null;
             decimal? newPrice = null;
-            bool isVoucherUsed = false;
+            bool isDiscounted = false;
 
-            TokenViewModel tokenModel = new TokenService(_configuration).ReadJWTTokenToModel(token);
+            Booking targetBooking = _mapper.CreateMapper().Map<Booking>(request);
 
-            Guid customerId = tokenModel.Id;
-            int role = tokenModel.Role;
-            if (role != (int)RoleConstants.Customer) throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This role cannot use this feature");
+            List<OwnerByAreaViewModel> owners = await _utilService.GetListOwnerByAreaId(request.AreaId);
+
+            var sortedOwners = from ownerTemp in owners
+                               orderby ownerTemp.Rating descending
+                               select ownerTemp;
+
+            BikeViewModel suiteableBike = null;
+
+            foreach (var ownerTemp in sortedOwners)
+            {
+                bool isGotten = false;
+                foreach (var bikeTemp in ownerTemp.ListBike)
+                {
+                    if (bikeTemp.CategoryName.Equals(request.CategoryName) && bikeTemp.Status == (int)BikeStatus.Available)
+                    {
+                        suiteableBike = bikeTemp;
+                        isGotten = true;
+                        break;
+                    }
+                }
+
+                if (isGotten)
+                {
+                    break;
+                }
+            }
+
+            if (suiteableBike == null)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "The suiteable bike with these options is not found.");
+
+            var category = await _categoryService.Get()
+                .Where(cateTemp => cateTemp.Name.Equals(request.CategoryName))
+                .FirstOrDefaultAsync();
+
+            if (category == null)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "The category name is not found.");
+
+            decimal price = await _priceListService.GetPriceByAreaIdAndCategoryId(request.AreaId, category.Id);
+
+            targetBooking.Price = price;
+
+            if (price == 0)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot find the price for this area and this category.");
 
             if (request.VoucherCode != null)
             {
                 var voucherItem = await _voucherItemService.GetAsync(request.VoucherCode);
+
                 if (voucherItem == null)
-                {
                     throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Voucher code is not existed.");
-                }
-                else if (voucherItem.TimeUsingRemain <= 0)
-                {
+
+                if (voucherItem.TimeUsingRemain <= 0)
                     throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Voucher is out of using time.");
+
+
+                var voucher = await _voucherService.GetAsync(voucherItem.VoucherId);
+
+                if (voucher == null)
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is not found.");
+
+                if (DateTime.Compare(voucher.StartingDate, DateTime.Today) > 0)
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is not started yet.");
+
+                if (DateTime.Compare(voucher.ExpiredDate, DateTime.Today) < 0)
+                {
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is expired.");
                 }
 
-                voucher = await _voucherService.GetAsync(voucherItem.VoucherId);
-            }
-
-            if (voucher != null)
-            {
-                if (DateTime.Compare(DateTime.Today, voucher.ExpiredDate) > 0)
-                {
-                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Voucher is expired.");
-                } else if (DateTime.Compare(DateTime.Today, voucher.StartingDate) < 0)
-                {
-                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Voucher's not started yet.");
-                }
-
-                newPrice = DiscountBooking(request.Price.Value, voucher.DiscountPercent.Value, voucher.DiscountAmount.Value);
+                newPrice = DiscountBooking(price, voucher.DiscountPercent.Value, voucher.DiscountAmount.Value);
             }
 
             if (newPrice != null)
             {
-                request.Price = newPrice;
-                isVoucherUsed = true;
+                targetBooking.Price = newPrice;
+                isDiscounted = true;
             }
 
-            if (request.DayRent == null)
+            targetBooking.OwnerId = suiteableBike.OwnerId;
+            targetBooking.BikeId = suiteableBike.Id;
+
+            if (isDiscounted)
             {
-                request.DayRent = DateTime.Today;
+                var voucherItemUsed = await _voucherItemService.GetAsync(request.VoucherCode);
+                voucherItemUsed.TimeUsingRemain -= 1;
+                await _voucherItemService.UpdateAsync(voucherItemUsed);
             }
 
-            if (isVoucherUsed)
-            {
-                var voucherItem = await _voucherItemService.GetAsync(request.VoucherCode);
-                voucherItem.TimeUsingRemain -= 1;
-                await _voucherItemService.UpdateAsync(voucherItem);
-            }
+            var chosenBike = await _bikeService.GetAsync(suiteableBike.Id);
+            chosenBike.Status = (int)BikeStatus.Pending;
 
-            var bikeTarget = await _bikeService.GetAsync(request.BikeId);
-            if (bikeTarget == null) throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Bike is not existed.");
-
-            bikeTarget.Status = (int)BikeStatus.Pending;
-
-            await _bikeService.UpdateAsync(bikeTarget);
-
-            var targetBooking = _mapper.CreateMapper().Map<Booking>(request);
-
-            targetBooking.OwnerId = bikeTarget.OwnerId;
             targetBooking.Status = (int)BookingStatus.Pending;
 
             await CreateAsync(targetBooking);
@@ -185,20 +218,73 @@ namespace BikeRental.Business.Services
         {
             //customer update status => cancel booking 
             //owner update status => cancel booking / finish booking(lấy time hiện tại set làm day return actual)
-            TokenViewModel tokenModel = new TokenService(_configuration).ReadJWTTokenToModel(token);
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
 
-            if (tokenModel.Role != (int)RoleConstants.Customer && tokenModel.Role != (int)RoleConstants.Owner)
-                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This role cannot use this feature");
+            int role = tokenModel.Role;
 
-            var booking = await GetAsync(request.Id);
+            if (role != (int)RoleConstants.Customer && role != (int)RoleConstants.Owner)
+                throw new ErrorResponse((int)HttpStatusCode.NotAcceptable, "This role cannot use this feature");
 
-            if (booking == null) throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Booking is not existed.");
+            Guid userId = tokenModel.Id;
 
-            booking.Status = request.Status;
-            await UpdateAsync(booking);
+            int requestStatus = request.Status;
 
-            BookingSuccessViewModel bookingResult = _mapper.CreateMapper().Map<BookingSuccessViewModel>(booking);
-            return await Task.Run(() => bookingResult);
+            if (!Enum.IsDefined(typeof(BookingStatus), requestStatus))
+                throw new ErrorResponse((int)HttpStatusCode.NotImplemented, "This status is not supported yet.");
+
+            var targetBooking = await GetAsync(request.Id);
+
+            if ((role == (int)RoleConstants.Customer && !targetBooking.CustomerId.Equals(userId))
+                || (role == (int)RoleConstants.Owner && !targetBooking.OwnerId.Equals(userId)))
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "You can not edit other's booking.");
+
+            if (targetBooking == null)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This booking is not found.");
+
+            if (targetBooking.Status == (int)BookingStatus.Finished || targetBooking.Status == (int)BookingStatus.Canceled)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This booking has done, so that, it can not be updated anymore.");
+
+            targetBooking.Status = request.Status;
+
+            Bike targetBike = await _bikeService.GetAsync(targetBooking.BikeId);
+            bool isUpdated = false;
+
+            switch (request.Status)
+            {
+                case (int)BookingStatus.Pending:
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot update booking status to pending.");
+
+                case (int)BookingStatus.Inprocess:
+                    targetBike.Status = (int)BikeStatus.Rent;
+
+                    isUpdated = true;
+                    break;
+
+                case (int)BookingStatus.Finished:
+                    targetBike.Status = (int)BikeStatus.Available;
+
+                    isUpdated = true;
+                    break;
+
+                case (int)BookingStatus.Canceled:
+                    targetBike.Status = (int)BikeStatus.Available;
+
+                    isUpdated = true;
+                    break;
+
+                default:
+                    throw new ErrorResponse((int)HttpStatusCode.NotImplemented, "This status has not implemented yet.");
+            }
+
+            if (isUpdated)
+            {
+                await _bikeService.UpdateAsync(targetBike);
+                await UpdateAsync(targetBooking);
+            }
+
+            BookingSuccessViewModel resultBooking = _mapper.CreateMapper().Map<BookingSuccessViewModel>(targetBooking);
+
+            return await Task.Run(() => resultBooking);
         }
     }
 }
