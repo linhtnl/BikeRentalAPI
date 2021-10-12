@@ -5,6 +5,7 @@ using BikeRental.Business.Services;
 using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
 using FirebaseAdmin.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -76,11 +77,12 @@ namespace BikeRental.API.Controllers
             return Ok(await _ownerService.Delete(id));
         }
 
+        [Authorize]
         [HttpPost("TestRead")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> Test([FromHeader] string token)
+        public async Task<IActionResult> Test(string token)
         {
-            var result = new TokenService(_configuration).ReadJWTTokenToModel(token);
+            var result = TokenService.ReadJWTTokenToModel(token, _configuration);
 
             return await Task.Run(() => Ok(result));
         }
@@ -89,7 +91,7 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("2")]
         public async Task<IActionResult> TestGenerate(OwnerViewModel ownerInfo)
         {
-            var result = new TokenService(_configuration).GenerateOwnerJWTWebToken(ownerInfo);
+            var result = TokenService.GenerateOwnerJWTWebToken(ownerInfo, _configuration);
 
             return await Task.Run(() => Ok(result));
         }

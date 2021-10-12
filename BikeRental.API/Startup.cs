@@ -31,6 +31,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using BikeRental.API.Handler;
 using BikeRental.Business.Extensions;
+using BikeRental.API.Config;
 
 namespace BikeRental.API
 {
@@ -47,6 +48,8 @@ namespace BikeRental.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //AuthConfig.ConfigAuthentication(services, _configuration);
+
             services.AddDbContext<ChoThueXeMayContext>(options => options.UseSqlServer(_configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
             services.AddHttpClient();
@@ -62,20 +65,22 @@ namespace BikeRental.API
             });
             services.AddRouting();
 
-            services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = "https://securetoken.google.com/chothuexemay-35838";
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidIssuer = "https://securetoken.google.com/chothuexemay-35838",
-                        ValidateAudience = true,
-                        ValidAudience = "chothuexemay-35838",
-                        ValidateLifetime = true
-                    };
-                });
+            AuthConfig.ConfigAuthentication(services, _configuration);
+
+            //services
+            //    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //    .AddJwtBearer(options =>
+            //    {
+            //        options.Authority = "https://securetoken.google.com/chothuexemay-35838";
+            //        options.TokenValidationParameters = new TokenValidationParameters
+            //        {
+            //            ValidateIssuer = true,
+            //            ValidIssuer = "https://securetoken.google.com/chothuexemay-35838",
+            //            ValidateAudience = true,
+            //            ValidAudience = "chothuexemay-35838",
+            //            ValidateLifetime = true
+            //        };
+            //    });
 
             var mappingConfig = new MapperConfiguration(mc =>
             {
@@ -243,6 +248,8 @@ namespace BikeRental.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
