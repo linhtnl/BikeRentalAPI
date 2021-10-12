@@ -83,7 +83,7 @@ namespace BikeRental.Business.Services
             {
                 throw new ErrorResponse((int)ResponseStatusConstants.CREATED, "Phone number not existed in database yet.");
             }
-            string token = new TokenService(configuration).GenerateCustomerJWTWebToken(customer);
+            string token = TokenService.GenerateCustomerJWTWebToken(customer, configuration);
 
             return await Task.Run(() => token);
         }
@@ -100,7 +100,7 @@ namespace BikeRental.Business.Services
 
             targetCustomer = _mapper.CreateMapper().Map<CustomerViewModel>(newCustomer);
 
-            string token = new TokenService(configuration).GenerateCustomerJWTWebToken(targetCustomer);
+            string token = TokenService.GenerateCustomerJWTWebToken(targetCustomer, configuration);
 
             return await Task.Run(() => token);
         }

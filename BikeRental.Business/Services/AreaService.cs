@@ -74,7 +74,7 @@ namespace BikeRental.Business.Services
                 var result = _mapper.CreateMapper().Map<AreaViewModel>(area);
                 return result;
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid Data");
             }
@@ -90,7 +90,7 @@ namespace BikeRental.Business.Services
                 var result = _mapper.CreateMapper().Map<AreaViewModel>(area);
                 return result;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid Data");
             }    

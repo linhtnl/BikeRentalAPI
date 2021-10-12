@@ -43,7 +43,6 @@ namespace BikeRental.Business.Services
         {
             _ownerService = ownerService;
             _transactionHistoryService = transactionHistoryService;
-            _ownerService = ownerService;
             _mapper = mapper.ConfigurationProvider;
         }
 

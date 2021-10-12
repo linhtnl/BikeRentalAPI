@@ -60,7 +60,7 @@ namespace BikeRental.Business.Services
             var adminResult = await Get(adminTemp => (adminTemp.UserName.Equals(username) && adminTemp.Password.Equals(password))).ProjectTo<AdminViewModel>(_mapper).FirstOrDefaultAsync();
             if (adminResult == null) throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Wrong username or password");
 
-            string token = new TokenService(configuration).GenerateAdminJWTWebToken(adminResult);
+            string token = TokenService.GenerateAdminJWTWebToken(adminResult, configuration);
 
             return await Task.Run(() => token);
         }

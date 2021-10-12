@@ -41,14 +41,19 @@ namespace BikeRental.Business.Services
         private readonly ICategoryService _categoryService;
         private readonly IBrandService _brandService;
         private readonly IFeedbackService _feedbackService;
-        public OwnerService(IUnitOfWork unitOfWork,IBikeService bikeService,IFeedbackService feedbackService,
-            ICategoryService categoryService, IBrandService brandService, IOwnerRepository repository, IMapper mapper) : base(unitOfWork, repository)
+        private readonly IBookingUtilService _bookingUtilService;
+
+        public OwnerService(IMapper mapper, IUnitOfWork unitOfWork,IBikeService bikeService,IFeedbackService feedbackService,
+            ICategoryService categoryService, IBrandService brandService, IOwnerRepository repository, 
+            IBookingUtilService bookingUtilService) : base(unitOfWork, repository)
         {
+            _mapper = mapper.ConfigurationProvider;
+
             _bikeService = bikeService;
             _feedbackService = feedbackService;
             _categoryService = categoryService;
             _brandService = brandService;
-            _mapper = mapper.ConfigurationProvider;
+            _bookingUtilService = bookingUtilService;
         }
 
         public async Task<Owner> GetOwner(Guid id)
@@ -197,7 +202,7 @@ namespace BikeRental.Business.Services
                 token.Claims.TryGetValue("email", out email); // get email from the above re-check step, then check the email whether it's matched the request email
                 if (userRecord.Email.Equals(email))
                 {
-                    string verifyRequestToken = new TokenService(configuration).GenerateOwnerJWTWebToken(result);
+                    string verifyRequestToken = TokenService.GenerateOwnerJWTWebToken(result, configuration);
 
                     return await Task.Run(() => verifyRequestToken); // return if everything is done
                 }
@@ -222,7 +227,7 @@ namespace BikeRental.Business.Services
 
                 if (ownerResult != null)
                 {
-                    string verifyRequestToken = new TokenService(configuration).GenerateOwnerJWTWebToken(ownerResult);
+                    string verifyRequestToken =TokenService.GenerateOwnerJWTWebToken(ownerResult, configuration);
 
                     return await Task.Run(() => verifyRequestToken);
                 }
@@ -250,7 +255,7 @@ namespace BikeRental.Business.Services
                         listOwner[i].ListBike[j].CategoryName = cate.Name;
                         var brand = await _brandService.GetBrandById(cate.BrandId);
                         listOwner[i].ListBike[j].BrandName = brand.Name;
-                        var tempRating = await _feedbackService.GetBikeRating(listBike[j].Id);
+                        var tempRating = await _bookingUtilService.GetBikeRating(listBike[j].Id);
                         if (tempRating.FirstOrDefault().Value != 0)
                         {
                             total += tempRating.FirstOrDefault().Key;
