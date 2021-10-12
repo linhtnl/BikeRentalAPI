@@ -8,9 +8,7 @@ namespace BikeRental.Business.RequestModels
 {
     public class VoucherItemCreateRequest
     {
-        public int? TimeUsingRemain { get; set; }
         public Guid? CustomerId { get; set; }
-        public int? PointExchange { get; set; }
         public Guid? VoucherId { get; set; }
     }
 }
