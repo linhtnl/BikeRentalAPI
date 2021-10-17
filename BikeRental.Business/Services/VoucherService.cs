@@ -50,7 +50,7 @@ namespace BikeRental.Business.Services
             var voucher = (_mapper).CreateMapper().Map<Voucher>(voucherRequest);
             await CreateAsync(voucher);
 
-            return voucher;
+            return await Task.Run(() => voucher);
         }
 
         public List<VoucherViewModel> GetAll()
