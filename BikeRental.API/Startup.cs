@@ -240,6 +240,7 @@ namespace BikeRental.API
                 c.SwaggerDoc("v2", new OpenApiInfo { Title = "BikeRentalAPI", Version = "v2" });
             });
             services.AddSwaggerGenNewtonsoftSupport();
+            services.AddCors();
             services.ConfigureFilter<ErrorHandlingFilter>();
         }
 
@@ -259,10 +260,16 @@ namespace BikeRental.API
 
             app.UseAuthorization();
 
+            app.UseCors(builder =>
+            {
+                builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+            
             app.UseSwaggerUI(
             options =>
             {
@@ -271,6 +278,8 @@ namespace BikeRental.API
                     options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
                 }
             });
+
+            
         }
     }
 }
