@@ -13,8 +13,6 @@ namespace BikeRental.Data.ViewModels
     {
         [BindNever]
         public Guid MotorTypeId { get; set; }
-        [String]
-        public string TypeName { get; set; }
         [BindNever]
         public Guid? AreaId { get; set; }
         [BindNever]
