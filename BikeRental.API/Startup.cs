@@ -114,6 +114,9 @@ namespace BikeRental.API
                 mc.CreateMap<Bike, BikeDeleteSuccessViewModel>();
                 mc.CreateMap<BikeDeleteSuccessViewModel, Bike>();
 
+                mc.CreateMap<Bike, BikeFindingViewModel>();
+                mc.CreateMap<BikeFindingViewModel, Bike>();
+
                 mc.CreateMap<Brand, BrandViewModel>();
                 mc.CreateMap<BrandViewModel, Brand>();
 
@@ -209,6 +212,9 @@ namespace BikeRental.API
 
                 mc.CreateMap<VoucherItemCreateRequest, VoucherItemCreateSuccessViewModel>();
                 mc.CreateMap<VoucherItemCreateSuccessViewModel, VoucherItemCreateRequest>();
+
+                mc.CreateMap<MotorType, MotorTypeViewModel>();
+                mc.CreateMap<MotorTypeViewModel, MotorType>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

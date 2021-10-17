@@ -31,8 +31,10 @@ namespace BikeRental.Business.Services
         Task<OwnerDetailViewModel> GetOwnerById(Guid id);
         Task<Owner> GetOwner(Guid id);
         Task<OwnerViewModel> GetByMail(string mail);
-        Task<DynamicModelResponse<OwnerRatingViewModel>> GetAll(OwnerRatingViewModel model, int filterOption, int pageNum);
-        Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaId(Guid id);
+        Task<DynamicModelResponse<OwnerRatingViewModel>> GetAll(OwnerRatingViewModel model, int filterOption, int size, int pageNum);
+        Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId,Guid typeId);
+
+        //thieu update
     }
     public class OwnerService : BaseService<Owner>, IOwnerService
     {
@@ -42,10 +44,12 @@ namespace BikeRental.Business.Services
         private readonly IBrandService _brandService;
         private readonly IFeedbackService _feedbackService;
         private readonly IBookingUtilService _bookingUtilService;
+        private readonly IBikeUtilService _bikeUtilService;
 
         public OwnerService(IMapper mapper, IUnitOfWork unitOfWork,IBikeService bikeService,IFeedbackService feedbackService,
             ICategoryService categoryService, IBrandService brandService, IOwnerRepository repository, 
-            IBookingUtilService bookingUtilService) : base(unitOfWork, repository)
+            IBookingUtilService bookingUtilService
+            , IBikeUtilService bikeUtilService) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
 
@@ -54,6 +58,7 @@ namespace BikeRental.Business.Services
             _categoryService = categoryService;
             _brandService = brandService;
             _bookingUtilService = bookingUtilService;
+            _bikeUtilService = bikeUtilService;
         }
 
         public async Task<Owner> GetOwner(Guid id)
@@ -116,7 +121,7 @@ namespace BikeRental.Business.Services
                 return null;
             }
         }
-        public async Task<DynamicModelResponse<OwnerRatingViewModel>> GetAll(OwnerRatingViewModel model, int filterOption, int pageNum)
+        public async Task<DynamicModelResponse<OwnerRatingViewModel>> GetAll(OwnerRatingViewModel model, int filterOption,int size, int pageNum)
         {
             var owners = Get(o => o.Bikes != null).ProjectTo<OwnerRatingViewModel>(_mapper).DynamicFilter<OwnerRatingViewModel>(model);
             List<OwnerRatingViewModel> listOwner = owners.ToList();
@@ -163,14 +168,14 @@ namespace BikeRental.Business.Services
                 owners = listOwner.AsQueryable().OrderByDescending(o => o.Rating).ThenByDescending(o => o.NumberOfBikes);
             }
 
-            var result = owners.PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
+            var result = owners.PagingIQueryable(pageNum, size, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
 
             var rs = new DynamicModelResponse<OwnerRatingViewModel>
             {
                 Metadata = new PagingMetaData
                 {
                     Page = pageNum,
-                    Size = GlobalConstants.GROUP_ITEM_NUM,
+                    Size = size,
                     Total = result.Item1
                 },
                 Data = result.Item2.ToList()
@@ -236,56 +241,22 @@ namespace BikeRental.Business.Services
             throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Email from request and the one from access token is not matched.");
         }
 
-        public async Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaId(Guid id)
+        public async Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId)
         {
-            int total = 0;
-            double? rating = 0;
-            var owners = Get(x => x.AreaId.Equals(id)).ProjectTo<OwnerByAreaViewModel>(_mapper);
+            var listSuitableBike = new List<Bike>();
+            var owners = Get(x => x.AreaId.Equals(areaId)).ProjectTo<OwnerByAreaViewModel>(_mapper);
             var listOwner = owners.ToList();
-            if(listOwner.Count==0) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not found");
-            for (int i = 0; i < listOwner.Count;i++)
+            if (listOwner.Count == 0) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not found");
+            for (int i = 0; i < listOwner.Count; i++)
             {
-                var listBike = await _bikeService.GetBikeByOwnerId(listOwner[i].Id);
-                if (listBike.Count != 0)
-                {
-                    listOwner[i].ListBike = _mapper.CreateMapper().Map<List<BikeViewModel>>(listBike);
-                    for (int j = 0; j < listBike.Count; j++)
-                    {
-                        var cate = await _categoryService.GetCateById(listBike[j].CategoryId);
-                        listOwner[i].ListBike[j].CategoryName = cate.Name;
-                        var brand = await _brandService.GetBrandById(cate.BrandId);
-                        listOwner[i].ListBike[j].BrandName = brand.Name;
-                        var tempRating = await _bookingUtilService.GetBikeRating(listBike[j].Id);
-                        if (tempRating.FirstOrDefault().Value != 0)
-                        {
-                            total += tempRating.FirstOrDefault().Key;
-                            rating += tempRating.FirstOrDefault().Value;
-                        }
-                    }
-                    if (total != 0)
-                    {
-                        listOwner[i].Rating = rating / total;
-                    }
-                    else
-                    {
-                        listOwner[i].Rating = 0;
-                    }
-                }
+                var bike = await _bikeUtilService.FindBike(listOwner[i].Id, typeId);
+                if(bike==null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not found");
+                listOwner[i].Bike = bike;
+                listOwner[i].Rating = bike.Rating;
             }
-            var result = listOwner.ToList();
-            for (int i = 0; i < result.Count; i++)
-            {
-                if (result[i].ListBike == null)
-                {
-                    result.RemoveAt(i);
-                    i--;
-                }
-            }
-            if (result[0].ListBike == null)
-            {
-                result.RemoveAt(0);
-            }
-            return result;
+            var result = listOwner.AsQueryable().OrderByDescending(o => o.Rating);
+            var rs = result.ToList();
+            return rs;
         }
     }
 }

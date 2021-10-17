@@ -20,7 +20,7 @@ namespace BikeRental.Business.Services
 {
     public interface ICategoryService : IBaseService<Category>
     {
-        Task<DynamicModelResponse<CategoryViewModel>> GetAll(CategoryViewModel model, int pageNum);
+        Task<DynamicModelResponse<CategoryViewModel>> GetAll(CategoryViewModel model,int size, int pageNum);
         Task<CategoryViewModel> GetCateById(Guid? id);
         Task<Category> Update(Guid id, string name, int type);
         Task<Category> Create(CategoryCreateModel model);
@@ -58,18 +58,18 @@ namespace BikeRental.Business.Services
             }
         }
 
-        public async Task<DynamicModelResponse<CategoryViewModel>> GetAll(CategoryViewModel model, int pageNum)
+        public async Task<DynamicModelResponse<CategoryViewModel>> GetAll(CategoryViewModel model,int size, int pageNum)
         {
             var categories = Get().ProjectTo<CategoryViewModel>(_mapper)
                  .DynamicFilter(model)
-                 .PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
+                 .PagingIQueryable(pageNum, size, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
             if (categories.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
             var rs = new DynamicModelResponse<CategoryViewModel>
             {
                 Metadata = new PagingMetaData
                 {
                     Page = pageNum,
-                    Size = GlobalConstants.GROUP_ITEM_NUM,
+                    Size = size,
                     Total = categories.Item1
                 },
                 Data = await categories.Item2.ToListAsync()
@@ -90,11 +90,12 @@ namespace BikeRental.Business.Services
 
         public async Task<Category> Update(Guid id, string name, int type)
         {
-            var cate = Get(g => g.Id.Equals(id)).FirstOrDefault();
+            /*var cate = Get(g => g.Id.Equals(id)).FirstOrDefault();
             cate.Name = name;
             cate.Type = type;
             await UpdateAsync(cate);
-            return cate;
+            return cate;*/
+            return null;
         }
     }
 }

@@ -22,7 +22,6 @@ namespace BikeRental.Business.Services
         Task<Customer> CreateNew(CustomerCreateRequest request);
         CustomerViewModel GetCustomerById(Guid id);
         CustomerViewModel GetCustomerByPhone(string phone);
-        Task<BikeViewModel> ViewBike(Guid id);
         Task<string> Login(string phoneNumber, IConfiguration configuration);
         Task<string> Register(CustomerCreateRequest request, IConfiguration configuration);
         Task<bool> DeleteCustomer(Guid id);
@@ -31,12 +30,10 @@ namespace BikeRental.Business.Services
     public class CustomerService : BaseService<Customer>, ICustomerService
     {
         private readonly AutoMapper.IConfigurationProvider _mapper;
-        private readonly IBikeService _bikeService;
-        public CustomerService(IUnitOfWork unitOfWork, IBikeService bikeService, ICustomerRepository repository, 
+        public CustomerService(IUnitOfWork unitOfWork, ICustomerRepository repository, 
             IMapper mapper) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
-            _bikeService = bikeService;
         }
 
         public async Task<Customer> CreateNew(CustomerCreateRequest request)
@@ -120,11 +117,6 @@ namespace BikeRental.Business.Services
             {
                 throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Something went wrong.");
             }
-        }
-
-        public async Task<BikeViewModel> ViewBike(Guid id)
-        {
-            return await _bikeService.GetBikeById(id);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace BikeRental.Business.Services
         Task<Campaign> CreateNew(CampaignCreateRequest campaign);
         Task<Campaign> Update(Guid id, CampaignUpdateRequest campaign);
         Task<bool> Delete(Guid id);
-        Task<DynamicModelResponse<CampaignViewModel>> GetAll(CampaignViewModel model, int pageNum);
+        Task<DynamicModelResponse<CampaignViewModel>> GetAll(CampaignViewModel model,int size, int pageNum);
         Task<CampaignViewModel> GetById(Guid id);
         List<CampaignViewModel> GetByAreaId(Guid areaId);
         List<CampaignViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate); // this method is used to get all campaign that start in the range time
@@ -53,19 +53,19 @@ namespace BikeRental.Business.Services
         }
 
         //not yet
-        public async Task<DynamicModelResponse<CampaignViewModel>> GetAll(CampaignViewModel model, int pageNum)
+        public async Task<DynamicModelResponse<CampaignViewModel>> GetAll(CampaignViewModel model,int size, int pageNum)
         {
             //user token => userID => areaId => listCampaign base on areaId
             var campaigns = Get().ProjectTo<CampaignViewModel>(_mapper)
                 .DynamicFilter(model)
-                .PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
+                .PagingIQueryable(pageNum, size, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
             if (campaigns.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
             var rs = new DynamicModelResponse<CampaignViewModel>
             {
                 Metadata = new PagingMetaData
                 {
                     Page = pageNum,
-                    Size = GlobalConstants.GROUP_ITEM_NUM,
+                    Size = size,
                     Total = campaigns.Item1
                 },
                 Data = await campaigns.Item2.ToListAsync()

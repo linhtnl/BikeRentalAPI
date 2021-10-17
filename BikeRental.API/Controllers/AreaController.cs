@@ -31,9 +31,9 @@ namespace BikeRental.API.Controllers
         [ProducesResponseType(typeof(DynamicModelResponse<AreaViewModel>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> Get([FromQuery] AreaViewModel model, int page = CommonConstants.DefaultPage)
+        public async Task<IActionResult> Get([FromQuery] AreaViewModel model)
         {
-            return Ok(await _areaService.GetAll(model, page));
+            return Ok(await _areaService.GetAll(model));
         }
         [HttpGet("{id}")]
         [MapToApiVersion("1")]

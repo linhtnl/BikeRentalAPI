@@ -23,7 +23,6 @@ namespace BikeRental.Business.Services
     public class UtilService : BaseService<Owner>, IUtilService
     {
         private readonly IConfigurationProvider _mapper;
-
         private readonly IBikeService _bikeService;
         private readonly ICategoryService _categoryService;
         private readonly IBrandService _brandService;
@@ -45,7 +44,7 @@ namespace BikeRental.Business.Services
 
         public async Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaId(Guid id)
         {
-            int total = 0;
+            /*int total = 0;
             double? rating = 0;
             var owners = Get(x => x.AreaId.Equals(id)).ProjectTo<OwnerByAreaViewModel>(_mapper);
             var listOwner = owners.ToList();
@@ -92,7 +91,8 @@ namespace BikeRental.Business.Services
             {
                 result.RemoveAt(0);
             }
-            return result;
+            return result;*/
+            return null;
         }
     }
 }

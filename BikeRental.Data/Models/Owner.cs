@@ -22,6 +22,7 @@ namespace BikeRental.Data.Models
         public Guid? AdminId { get; set; }
         public Guid? AreaId { get; set; }
         public string Mail { get; set; }
+        public string ImgPath { get; set; }
 
         public virtual Admin Admin { get; set; }
         public virtual Area Area { get; set; }

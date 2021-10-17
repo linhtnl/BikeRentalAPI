@@ -26,6 +26,7 @@ namespace BikeRental.Data.Models
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
         public virtual DbSet<Feedback> Feedbacks { get; set; }
+        public virtual DbSet<MotorType> MotorTypes { get; set; }
         public virtual DbSet<Owner> Owners { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
         public virtual DbSet<PriceList> PriceLists { get; set; }
@@ -58,6 +59,12 @@ namespace BikeRental.Data.Models
             {
                 entity.ToTable("Area");
 
+                entity.HasIndex(e => e.Name, "ARE_NAME")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.PostalCode, "POSTALCODE")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Name).HasMaxLength(200);
@@ -75,6 +82,8 @@ namespace BikeRental.Data.Models
                 entity.Property(e => e.Color)
                     .HasMaxLength(50)
                     .HasDefaultValueSql("(N'-')");
+
+                entity.Property(e => e.ImgPath).HasMaxLength(255);
 
                 entity.Property(e => e.LicensePlate)
                     .HasMaxLength(11)
@@ -189,6 +198,11 @@ namespace BikeRental.Data.Models
                     .WithMany(p => p.Categories)
                     .HasForeignKey(d => d.BrandId)
                     .HasConstraintName("FK__Category__Branch__22AA2996");
+
+                entity.HasOne(d => d.MotorType)
+                    .WithMany(p => p.Categories)
+                    .HasForeignKey(d => d.MotorTypeId)
+                    .HasConstraintName("FK__Category__MotorT__339FAB6E");
             });
 
             modelBuilder.Entity<Customer>(entity =>
@@ -234,6 +248,15 @@ namespace BikeRental.Data.Models
                     .HasConstraintName("FK__Feedback__Id__52593CB8");
             });
 
+            modelBuilder.Entity<MotorType>(entity =>
+            {
+                entity.ToTable("MotorType");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Name).HasMaxLength(50);
+            });
+
             modelBuilder.Entity<Owner>(entity =>
             {
                 entity.ToTable("Owner");
@@ -249,6 +272,8 @@ namespace BikeRental.Data.Models
                 entity.Property(e => e.Fullname)
                     .HasMaxLength(200)
                     .HasDefaultValueSql("(N'-')");
+
+                entity.Property(e => e.ImgPath).HasMaxLength(255);
 
                 entity.Property(e => e.Mail)
                     .HasMaxLength(255)
@@ -288,24 +313,24 @@ namespace BikeRental.Data.Models
 
             modelBuilder.Entity<PriceList>(entity =>
             {
-                entity.HasKey(e => new { e.CategoryId, e.AreaId })
-                    .HasName("PK__PriceLis__8E02B80F05EC1EBC");
+                entity.HasKey(e => new { e.AreaId, e.MotorTypeId })
+                    .HasName("PK__PriceLis__EA20FB07DF926C41");
 
                 entity.ToTable("PriceList");
 
-                entity.Property(e => e.Price).HasColumnType("decimal(8, 0)");
+                entity.Property(e => e.Price).HasColumnType("numeric(8, 0)");
 
                 entity.HasOne(d => d.Area)
                     .WithMany(p => p.PriceLists)
                     .HasForeignKey(d => d.AreaId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__PriceList__AreaI__2E1BDC42");
+                    .HasConstraintName("FK__PriceList__AreaI__4C6B5938");
 
-                entity.HasOne(d => d.Category)
+                entity.HasOne(d => d.MotorType)
                     .WithMany(p => p.PriceLists)
-                    .HasForeignKey(d => d.CategoryId)
+                    .HasForeignKey(d => d.MotorTypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__PriceList__Categ__2D27B809");
+                    .HasConstraintName("FK__PriceList__Motor__4D5F7D71");
             });
 
             modelBuilder.Entity<TransactionHistory>(entity =>
