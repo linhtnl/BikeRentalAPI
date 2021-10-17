@@ -22,8 +22,7 @@ namespace BikeRental.Business.Services
         Task<List<PriceListViewModel>> GetAll();
         Task<PriceList> Create(PricelistCreateRequest request);
         Task<PriceList> Update(Guid areaId, Guid cateId, decimal? price);
-        Task<List<PriceListViewModel>> GetListByAreaIdAndTypeId(Guid areaId,Guid typeId);
-        Task<decimal> GetPriceByAreaIdAndCategoryId(Guid areaId, Guid categoryId);
+        Task<decimal> GetPriceByAreaIdAndTypeId(Guid areaId,Guid typeId);
     }
     public class PriceListService : BaseService<PriceList>, IPriceListService
     {
@@ -51,24 +50,13 @@ namespace BikeRental.Business.Services
             return priceList;
         }
 
-        public async Task<List<PriceListViewModel>> GetListByAreaIdAndTypeId(Guid areaId, Guid typeId)
+        public async Task<decimal> GetPriceByAreaIdAndTypeId(Guid areaId, Guid typeId)
         {
-            var priceList = await Get(a => a.AreaId.Equals(areaId )&& a.MotorTypeId.Equals(typeId)).ProjectTo<PriceListViewModel>(_mapper).ToListAsync();
-            if (priceList.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
-            return priceList;
-        }
-
-        public async Task<decimal> GetPriceByAreaIdAndCategoryId(Guid areaId, Guid categoryId)
-        {
-            /*var priceList = await Get()
-                .Where(priceTemp => (priceTemp.CategoryId.Equals(categoryId) && priceTemp.AreaId.Equals(areaId)))
+            PriceList priceList = await Get()
+                .Where(priceTemp => (priceTemp.AreaId.Equals(areaId) && priceTemp.MotorTypeId.Equals(typeId)))
                 .FirstOrDefaultAsync();
 
-            if (priceList == null)
-                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Price of this area and category is not found.");
-
-            return await Task.Run(() => priceList.Price.Value);*/
-            return 0;
+            return await Task.Run(() => priceList.Price.Value);
         }
 
         public async Task<PriceList> Update(Guid areaId, Guid cateId, decimal? price)

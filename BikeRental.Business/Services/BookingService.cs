@@ -2,7 +2,6 @@
 using AutoMapper.QueryableExtensions;
 using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
-using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
@@ -15,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BikeRental.Business.Services
@@ -64,111 +62,92 @@ namespace BikeRental.Business.Services
 
         public async Task<BookingSuccessViewModel> CreateNew(string token, BookingCreateRequest request)
         {
-            //decimal? newPrice = null;
-            //bool isDiscounted = false;
+            bool isDiscounted = false;
 
-            //Booking targetBooking = _mapper.CreateMapper().Map<Booking>(request);
+            Booking targetBooking = _mapper.CreateMapper().Map<Booking>(request);
 
-            //List<OwnerByAreaViewModel> owners = await _utilService.GetListOwnerByAreaId(request.AreaId);
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
 
-            //var sortedOwners = from ownerTemp in owners
-            //                   orderby ownerTemp.Rating descending
-            //                   select ownerTemp;
+            int role = tokenModel.Role;
+            if (role != (int)RoleConstants.Customer)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature");
 
-            //BikeViewModel suiteableBike = null;
+            Guid customerId = tokenModel.Id;
 
-            //foreach (var ownerTemp in sortedOwners)
-            //{
-            //    bool isGotten = false;
-            //    foreach (var bikeTemp in ownerTemp.ListBike)
-            //    {
-            //        if (bikeTemp.CategoryName.Equals(request.CategoryName) && bikeTemp.Status == (int)BikeStatus.Available)
-            //        {
-            //            suiteableBike = bikeTemp;
-            //            isGotten = true;
-            //            break;
-            //        }
-            //    }
+            Owner owner = await _utilService.GetOwnerByOwnerId(request.OwnerId);
 
-            //    if (isGotten)
-            //    {
-            //        break;
-            //    }
-            //}
+            decimal originalPrice = await _priceListService.GetPriceByAreaIdAndTypeId(owner.AreaId.Value, request.TypeId);
 
-            //if (suiteableBike == null)
-            //    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "The suiteable bike with these options is not found.");
+            if (originalPrice <= 0)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot find the price for this area and this category.");
 
-            //var category = await _categoryService.Get()
-            //    .Where(cateTemp => cateTemp.Name.Equals(request.CategoryName))
-            //    .FirstOrDefaultAsync();
-
-            //if (category == null)
-            //    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "The category name is not found.");
-
-            //decimal price = await _priceListService.GetPriceByAreaIdAndCategoryId(request.AreaId, category.Id);
-
-            //targetBooking.Price = price;
-
-            //if (price == 0)
-            //    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot find the price for this area and this category.");
-
-            //if (request.VoucherCode != null)
-            //{
-            //    var voucherItem = await _voucherItemService.GetAsync(request.VoucherCode);
-
-            //    if (voucherItem == null)
-            //        throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Voucher code is not existed.");
-
-            //    if (voucherItem.TimeUsingRemain <= 0)
-            //        throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Voucher is out of using time.");
+            decimal finalPrice = originalPrice;
 
 
-            //    var voucher = await _voucherService.GetAsync(voucherItem.VoucherId);
+            if (request.VoucherCode != null)
+            {
+                var voucherItem = await _voucherItemService.GetAsync(request.VoucherCode);
 
-            //    if (voucher == null)
-            //        throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is not found.");
+                if (voucherItem == null)
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Voucher code is not existed.");
 
-            //    if (DateTime.Compare(voucher.StartingDate, DateTime.Today) > 0)
-            //        throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is not started yet.");
+                if (voucherItem.TimeUsingRemain <= 0)
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Voucher is out of using time.");
 
-            //    if (DateTime.Compare(voucher.ExpiredDate, DateTime.Today) < 0)
-            //    {
-            //        throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is expired.");
-            //    }
 
-            //    newPrice = DiscountBooking(price, voucher.DiscountPercent.Value, voucher.DiscountAmount.Value);
-            //}
+                var voucher = await _voucherService.GetAsync(voucherItem.VoucherId);
 
-            //if (newPrice != null)
-            //{
-            //    targetBooking.Price = newPrice;
-            //    isDiscounted = true;
-            //}
+                if (voucher == null)
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is not found.");
 
-            //targetBooking.OwnerId = suiteableBike.OwnerId;
-            //targetBooking.BikeId = suiteableBike.Id;
+                if (DateTime.Compare(voucher.StartingDate, DateTime.Today) > 0)
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is not started yet.");
 
-            //if (isDiscounted)
-            //{
-            //    var voucherItemUsed = await _voucherItemService.GetAsync(request.VoucherCode);
-            //    voucherItemUsed.TimeUsingRemain -= 1;
-            //    await _voucherItemService.UpdateAsync(voucherItemUsed);
-            //}
+                if (DateTime.Compare(voucher.ExpiredDate, DateTime.Today) < 0)
+                {
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is expired.");
+                }
 
-            //var chosenBike = await _bikeService.GetAsync(suiteableBike.Id);
-            //chosenBike.Status = (int)BikeStatus.Pending;
+                finalPrice = DiscountBooking(originalPrice, voucher.DiscountPercent.Value, voucher.DiscountAmount.Value).Value;
 
-            //targetBooking.Status = (int)BookingStatus.Pending;
+                if (finalPrice <= 0)
+                {
+                    finalPrice = originalPrice;
+                } else
+                {
+                    isDiscounted = true;
+                }
+            }
 
-            //await CreateAsync(targetBooking);
+            if (!isDiscounted && request.VoucherCode != null)
+            {
+                targetBooking.VoucherCode = null;
+            }
 
-            //var bookingResult = _mapper.CreateMapper().Map<BookingSuccessViewModel>(targetBooking);
+            targetBooking.Price = finalPrice;
 
-            //return await Task.Run(() => bookingResult);
-            return null;
+            if (isDiscounted)
+            {
+                var voucherItemUsed = await _voucherItemService.GetAsync(request.VoucherCode);
+                voucherItemUsed.TimeUsingRemain -= 1;
+                await _voucherItemService.UpdateAsync(voucherItemUsed);
+            }
+
+            var chosenBike = await _bikeService.GetAsync(request.BikeId);
+            chosenBike.Status = (int)BikeStatus.Rent;
+            await _bikeService.UpdateAsync(chosenBike);
+
+            if (DateTime.Compare(request.DayRent, DateTime.Today) > 0)
+            {
+                targetBooking.Status = (int)BookingStatus.Pending;
+            }
+
+            await CreateAsync(targetBooking);
+
+            var bookingResult = _mapper.CreateMapper().Map<BookingSuccessViewModel>(targetBooking);
+            return await Task.Run(() => bookingResult);
         }
-        
+
         private decimal? DiscountBooking(decimal originalPrice, int discountPercent, decimal maxDiscountAmount)
         {
             decimal discountPercentDecimal = discountPercent;
