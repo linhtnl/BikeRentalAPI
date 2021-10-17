@@ -243,19 +243,41 @@ namespace BikeRental.Business.Services
 
         public async Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId)
         {
-            var listSuitableBike = new List<Bike>();
             var owners = Get(x => x.AreaId.Equals(areaId)).ProjectTo<OwnerByAreaViewModel>(_mapper);
             var listOwner = owners.ToList();
             if (listOwner.Count == 0) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not found");
+
+            int flag = 0;
             for (int i = 0; i < listOwner.Count; i++)
             {
                 var bike = await _bikeUtilService.FindBike(listOwner[i].Id, typeId);
-                if(bike==null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not found");
-                listOwner[i].Bike = bike;
-                listOwner[i].Rating = bike.Rating;
+
+                if (bike == null)
+                {
+                    flag++;
+                }
+                else
+                {
+                    listOwner[i].Bike = bike;
+                    listOwner[i].Rating = bike.Rating;
+                }
             }
+
+            if (flag == listOwner.Count)
+                throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not found");
+
             var result = listOwner.AsQueryable().OrderByDescending(o => o.Rating);
             var rs = result.ToList();
+
+            for (int i = 0; i < rs.Count; i++)
+            {
+                if (rs[i].Bike == null)
+                {
+                    rs.RemoveAt(i);
+                    i--;
+                }
+            }
+
             return rs;
         }
     }

@@ -39,7 +39,7 @@ namespace BikeRental.Business.Services
         public async Task<BikeFindingViewModel> FindBike(Guid ownerId, Guid typeId)
         {
             var listBike = await Get(b => b.OwnerId.Equals(ownerId) && b.Status == (int)BikeStatus.Available).ProjectTo<BikeFindingViewModel>(_mapper).ToListAsync();
-            if (listBike.Count() != 0)
+            if (listBike.Count != 0)
             {
                 foreach (var bike in listBike)
                 {                        
