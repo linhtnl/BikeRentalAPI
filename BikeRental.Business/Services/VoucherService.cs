@@ -38,17 +38,19 @@ namespace BikeRental.Business.Services
 
         public async Task<Voucher> CreateNew(VoucherCreateRequest voucherRequest)
         {
-            try
-            {
-                var voucher = (_mapper).CreateMapper().Map<Voucher>(voucherRequest);
-                await CreateAsync(voucher);
+            if (DateTime.Compare(voucherRequest.StartingDate, voucherRequest.ExpiredDate) >= 0)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Starting date must earlier than expired date.");
 
-                return voucher;
-            }
-            catch
-            {
-                return null;
-            }
+            if (DateTime.Compare(voucherRequest.ExpiredDate, DateTime.Today) < 0)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Expired date must same or later than today.");
+
+            if (DateTime.Compare(voucherRequest.StartingDate, DateTime.Today) < 0)
+                throw new ErrorResponse((int) HttpStatusCode.Forbidden, "Starting date must same or later than today.");
+
+            var voucher = (_mapper).CreateMapper().Map<Voucher>(voucherRequest);
+            await CreateAsync(voucher);
+
+            return await Task.Run(() => voucher);
         }
 
         public List<VoucherViewModel> GetAll()
