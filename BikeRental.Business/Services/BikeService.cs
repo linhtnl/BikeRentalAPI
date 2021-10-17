@@ -60,7 +60,7 @@ namespace BikeRental.Business.Services
             //if user = admin BikeStatus : show all
             //if user = owner BikeStatus : Available, Rent base on ownerID
 
-            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token.Split(" ")[1], _configuration);
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
             int role = tokenModel.Role;
             if (role == (int)RoleConstants.Admin)
             {
@@ -129,7 +129,7 @@ namespace BikeRental.Business.Services
         {
             //get id from token
 
-            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token.Split(" ")[1], _configuration);
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
             int role = tokenModel.Role;
             if (role == (int)RoleConstants.Owner)
             {
@@ -171,7 +171,7 @@ namespace BikeRental.Business.Services
 
         public async Task<BikeViewModel> Update(BikeUpdateRequest request, string token)
         {
-            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token.Split(" ")[1], _configuration);
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
             int role = tokenModel.Role;
             if (role == (int)RoleConstants.Owner||role == (int)RoleConstants.Admin)
             {
@@ -203,7 +203,7 @@ namespace BikeRental.Business.Services
 
         public async Task<BikeDeleteSuccessViewModel> Delete(Guid id, string token)
         {
-            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token.Split(" ")[1], _configuration);
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
             int role = tokenModel.Role;
             if (role == (int)RoleConstants.Owner || role == (int)RoleConstants.Admin)
             {

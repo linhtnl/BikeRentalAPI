@@ -92,6 +92,13 @@ namespace BikeRental.Business.Services
 
         public static TokenViewModel ReadJWTTokenToModel(string token, IConfiguration configuration)
         {
+            string tempToken = token;
+
+            if (token.Contains("Bearer"))
+            {
+                token = tempToken.Split(' ')[1];
+            }
+
             setPrivateKey(configuration);
 
             bool isValid = IsTokenValid(token);
@@ -132,7 +139,7 @@ namespace BikeRental.Business.Services
                 ClaimsPrincipal tokenValid = new JwtSecurityTokenHandler().ValidateToken(token, GetTokenValidationParameters(), out SecurityToken validatedToken);
                 return true;
             }
-            catch(Exception e)
+            catch
             {
                 return false;
             }
