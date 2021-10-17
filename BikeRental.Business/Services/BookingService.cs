@@ -74,6 +74,8 @@ namespace BikeRental.Business.Services
 
             Guid customerId = tokenModel.Id;
 
+            targetBooking.CustomerId = customerId;
+
             Owner owner = await _utilService.GetOwnerByOwnerId(request.OwnerId);
 
             decimal originalPrice = await _priceListService.GetPriceByAreaIdAndTypeId(owner.AreaId.Value, request.TypeId);
@@ -225,7 +227,7 @@ namespace BikeRental.Business.Services
             if (targetBooking.Status == (int)BookingStatus.Finished || targetBooking.Status == (int)BookingStatus.Canceled)
                 throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This booking has done, so that, it can not be updated anymore.");
 
-            targetBooking.Status = request.Status;
+            //targetBooking.Status = request.Status;
 
             Bike targetBike = await _bikeService.GetAsync(targetBooking.BikeId);
             bool isUpdated = false;
@@ -236,18 +238,27 @@ namespace BikeRental.Business.Services
                     throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot update booking status to pending.");
 
                 case (int)BookingStatus.Inprocess:
+                    if (role == (int)RoleConstants.Customer)
+                        throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+
                     targetBike.Status = (int)BikeStatus.Rent;
 
                     isUpdated = true;
                     break;
 
                 case (int)BookingStatus.Finished:
+                    if (role == (int)RoleConstants.Customer)
+                        throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+
                     targetBike.Status = (int)BikeStatus.Available;
 
                     isUpdated = true;
                     break;
 
                 case (int)BookingStatus.Canceled:
+                    if (role == (int)RoleConstants.Customer && targetBooking.Status != (int)BookingStatus.Pending)
+                        throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+
                     targetBike.Status = (int)BikeStatus.Available;
 
                     isUpdated = true;
@@ -260,6 +271,7 @@ namespace BikeRental.Business.Services
             if (isUpdated)
             {
                 targetBooking.DayReturnActual = DateTime.Today;
+                targetBooking.Status = request.Status;
 
                 await _bikeService.UpdateAsync(targetBike);
                 await UpdateAsync(targetBooking);

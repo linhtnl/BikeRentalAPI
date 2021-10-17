@@ -40,8 +40,14 @@ namespace BikeRental.API.Controllers
         [HttpPost]
         [MapToApiVersion("1")]
         [Authorize]
-        public async Task<IActionResult> Create([FromHeader] string token, [FromBody] BookingCreateRequest request)
+        public async Task<IActionResult> Create([FromBody] BookingCreateRequest request)
         {
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+
             var bookingResult = await _bookingService.CreateNew(token, request);
 
             return await Task.Run(() => Ok(bookingResult));
@@ -50,8 +56,13 @@ namespace BikeRental.API.Controllers
         [HttpPut]
         [MapToApiVersion("1")]
         [Authorize]
-        public async Task<IActionResult> UpdateStatus([FromHeader] string token, [FromBody] BookingUpdateStatusRequest request)
+        public async Task<IActionResult> UpdateStatus([FromBody] BookingUpdateStatusRequest request)
         {
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
             var bookingResult = await _bookingService.UpdateStatus(token, request);
 
             return await Task.Run(() => Ok(bookingResult));
