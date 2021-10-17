@@ -12,15 +12,13 @@ namespace BikeRental.Data.ViewModels
     public class PriceListViewModel
     {
         [BindNever]
-        public Guid? CategoryId { get; set; }
+        public Guid MotorTypeId { get; set; }
+        [String]
+        public string TypeName { get; set; }
         [BindNever]
         public Guid? AreaId { get; set; }
-        [String]
-        public string CateName { get; set; }
-        [BindNever]
-        public string BrandName { get; set; }
         [BindNever]
         public decimal? Price { get; set; }
-        
+
     }
 }

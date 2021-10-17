@@ -8,7 +8,7 @@ namespace BikeRental.Business.RequestModels
 {
     public class PricelistCreateRequest
     {    
-        public Guid CategoryId { get; set; }
+        public Guid MotorTypeId { get; set; }
         public decimal? Price { get; set; }
         public Guid AreaId { get; set; }
     }

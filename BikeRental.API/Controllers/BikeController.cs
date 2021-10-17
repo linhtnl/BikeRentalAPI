@@ -4,8 +4,10 @@ using BikeRental.Business.Services;
 
 using BikeRental.Data.Responses;
 using BikeRental.Data.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,9 +22,11 @@ namespace BikeRental.API.Controllers
     public class BikeController : ControllerBase
     {
         private readonly IBikeService _bikeService;
-        public BikeController(IBikeService bikeService)
+        private readonly IBikeUtilService _bikeUtilService;
+        public BikeController(IBikeService bikeService, IBikeUtilService bikeUtilService)
         {
             _bikeService = bikeService;
+            _bikeUtilService = bikeUtilService;
         }
         [HttpGet("{id}")]
         [MapToApiVersion("1")]
@@ -33,28 +37,53 @@ namespace BikeRental.API.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Get([FromQuery] BikeViewModel model, int page = CommonConstants.DefaultPage)
+        [Authorize]
+        public async Task<IActionResult> Get([FromQuery] BikeViewModel model,int size, int page = CommonConstants.DefaultPage)
         {
-            return Ok(await _bikeService.GetAll(model, page));
+            string token = null;
+            if (Request.Headers["Authorization"].Count>0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+            return Ok(await _bikeService.GetAll(model, size, page, token));
         }
 
         [HttpPost]
         [MapToApiVersion("1")]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody]BikeCreateRequest request)
         {
-            return Ok(await _bikeService.Create(request));
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+            return Ok(await _bikeService.Create(request, token));
         }
         [HttpPut]
         [MapToApiVersion("1")]
+        [Authorize]
         public async Task<IActionResult> Update([FromBody] BikeUpdateRequest request)
         {
-            return Ok(await _bikeService.Update(request));
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+            return Ok(await _bikeService.Update(request,token));
         }
         [HttpDelete]
         [MapToApiVersion("1")]
+        [Authorize]
         public async Task<IActionResult> Delete([FromBody] Guid id)
         {
-            return Ok(await _bikeService.Delete(id));
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+            return Ok(await _bikeService.Delete(id,token));
         }
+        
     }
 }

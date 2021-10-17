@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace BikeRental.Data.ViewModels
 {
-    public class OwnerByAreaViewModel
+    public class MotorTypeViewModel
     {
         public Guid Id { get; set; }
-        public double? Rating { get; set; }
-        public BikeFindingViewModel Bike { get; set; }
+        public string Name { get; set; }
     }
 }

@@ -19,10 +19,10 @@ namespace BikeRental.Business.Services
 {
     public interface IPriceListService : IBaseService<PriceList>
     {
-        Task<List<PriceListViewModel>> GetAll(PriceListViewModel model);
+        Task<List<PriceListViewModel>> GetAll();
         Task<PriceList> Create(PricelistCreateRequest request);
         Task<PriceList> Update(Guid areaId, Guid cateId, decimal? price);
-        Task<List<PriceListViewModel>> GetListByAreaId(Guid areaId);
+        Task<List<PriceListViewModel>> GetListByAreaIdAndTypeId(Guid areaId,Guid typeId);
         Task<decimal> GetPriceByAreaIdAndCategoryId(Guid areaId, Guid categoryId);
     }
     public class PriceListService : BaseService<PriceList>, IPriceListService
@@ -44,47 +44,40 @@ namespace BikeRental.Business.Services
             return priceList;
         }
 
-        public async Task<List<PriceListViewModel>> GetAll(PriceListViewModel model)
+        public async Task<List<PriceListViewModel>> GetAll()
         {
-            var priceList = Get().ProjectTo<PriceListViewModel>(_mapper);
-            List<PriceListViewModel> list = priceList.ToList();
-            if (list.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
-            for(int i = 0; i < list.Count; i++)
-            {
-                var cate = await _categoryService.GetCateById(list[i].CategoryId);
-                list[i].CateName = cate.Name;
-                var brand = await _brandService.GetBrandById(cate.BrandId);
-                list[i].BrandName = brand.Name;
-            }
-            priceList = list.AsQueryable().OrderByDescending(p => p.Price);
-            var result = priceList.DynamicFilter(model);
-            return result.ToList();
+            var priceList = await Get().ProjectTo<PriceListViewModel>(_mapper).ToListAsync();
+            if (priceList.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
+            return priceList;
         }
 
-        public async Task<List<PriceListViewModel>> GetListByAreaId(Guid areaId)
+        public async Task<List<PriceListViewModel>> GetListByAreaIdAndTypeId(Guid areaId, Guid typeId)
         {
-            var priceList = await Get(a => a.AreaId.Equals(areaId)).ProjectTo<PriceListViewModel>(_mapper).ToListAsync();
+            var priceList = await Get(a => a.AreaId.Equals(areaId )&& a.MotorTypeId.Equals(typeId)).ProjectTo<PriceListViewModel>(_mapper).ToListAsync();
+            if (priceList.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
             return priceList;
         }
 
         public async Task<decimal> GetPriceByAreaIdAndCategoryId(Guid areaId, Guid categoryId)
         {
-            var priceList = await Get()
+            /*var priceList = await Get()
                 .Where(priceTemp => (priceTemp.CategoryId.Equals(categoryId) && priceTemp.AreaId.Equals(areaId)))
                 .FirstOrDefaultAsync();
 
             if (priceList == null)
                 throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Price of this area and category is not found.");
 
-            return await Task.Run(() => priceList.Price.Value);
+            return await Task.Run(() => priceList.Price.Value);*/
+            return 0;
         }
 
         public async Task<PriceList> Update(Guid areaId, Guid cateId, decimal? price)
         {
-            var priceList = await Get(pl => pl.AreaId.Equals(areaId) && pl.CategoryId.Equals(cateId)).FirstOrDefaultAsync();
+            /*var priceList = await Get(pl => pl.AreaId.Equals(areaId) && pl.CategoryId.Equals(cateId)).FirstOrDefaultAsync();
             priceList.Price = price;
             await UpdateAsync(priceList);
-            return priceList;
+            return priceList;*/
+            return null;
         }
     }
 }

@@ -10,17 +10,16 @@ namespace BikeRental.Data.Models
         public Category()
         {
             Bikes = new HashSet<Bike>();
-            PriceLists = new HashSet<PriceList>();
         }
 
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public int? Type { get; set; }
         public Guid? BrandId { get; set; }
         public int? Status { get; set; }
+        public Guid? MotorTypeId { get; set; }
 
         public virtual Brand Brand { get; set; }
+        public virtual MotorType MotorType { get; set; }
         public virtual ICollection<Bike> Bikes { get; set; }
-        public virtual ICollection<PriceList> PriceLists { get; set; }
     }
 }

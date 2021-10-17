@@ -14,7 +14,8 @@ namespace BikeRental.Data.ViewModels
         public Guid? Id { get; set; }
         [String]
         public string Name { get; set; }
-        public int? Type { get; set; }
+        
+        public Guid? MotorTypeId { get; set; }
         [BindNever]
         public Guid? BrandId { get; set; }
         [String]

@@ -64,6 +64,9 @@ namespace BikeRental.Business.DI
             services.AddScoped<IPriceListRepository, PriceListRepository>();
             services.AddScoped<IPriceListService, PriceListService>();
 
+            services.AddScoped<IMotorTypeRepository, MotorTypeRepository>();
+            services.AddScoped<IMotorTypeService, MotorTypeService>();
+
             services.AddScoped<IVoucherExchangeHistoryRepository, VoucherExchangeHistoryRepository>();
             services.AddScoped<IVoucherExchangeHistoryService, VoucherExchangeHistoryService>();
 
@@ -76,6 +79,8 @@ namespace BikeRental.Business.DI
             services.AddScoped<IUtilService, UtilService>();
             services.AddScoped<IBookingUtilService, BookingUtilService>();
             services.AddScoped<IFeedbackUtilService, FeedbackUtilService>();
+
+            services.AddScoped<IBikeUtilService, BikeUtilService>();
         }
     }
 }

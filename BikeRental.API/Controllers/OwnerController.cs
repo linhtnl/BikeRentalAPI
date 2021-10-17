@@ -52,16 +52,16 @@ namespace BikeRental.API.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Get([FromQuery] OwnerRatingViewModel model, int filterOption , int page = CommonConstants.DefaultPage)
+        public async Task<IActionResult> Get([FromQuery] OwnerRatingViewModel model, int filterOption ,int size, int page = CommonConstants.DefaultPage)
         {
-            return Ok(await _ownerService.GetAll(model,filterOption, page));
+            return Ok(await _ownerService.GetAll(model,filterOption, size, page));
         }
 
-        [HttpGet("areaid")]
-        [MapToApiVersion("1")]
-        public async Task<IActionResult> Get(Guid id)
+        [HttpGet("find")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> Get(Guid areaId, Guid typeId)
         {
-            return Ok(await _ownerService.GetListOwnerByAreaId(id));
+            return Ok(await _ownerService.GetListOwnerByAreaIdAndTypeId(areaId, typeId));
         }
 
         [HttpGet("{id}")]
@@ -77,7 +77,6 @@ namespace BikeRental.API.Controllers
             return Ok(await _ownerService.Delete(id));
         }
 
-        [Authorize]
         [HttpPost("TestRead")]
         [MapToApiVersion("2")]
         public async Task<IActionResult> Test(string token)

@@ -13,6 +13,8 @@ namespace BikeRental.Data.Models
         [BindNever]
         public Guid? Id { get; set; }
         [BindNever]
+        public Guid? AreaId { get; set; }
+        [BindNever]
         public string PhoneNumber { get; set; }
         [String]
         public string Fullname { get; set; }
@@ -25,6 +27,7 @@ namespace BikeRental.Data.Models
         [BindNever]
         public int? NumberOfRatings { get; set; }
         [BindNever]
-        public Guid? AreaId { get; set; }
+        public string ImgPath { get; set; }
+       
     }
 }

@@ -24,9 +24,9 @@ namespace BikeRental.API.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Get([FromQuery] CategoryViewModel model, int page = CommonConstants.DefaultPage)
+        public async Task<IActionResult> Get([FromQuery] CategoryViewModel model,int size, int page = CommonConstants.DefaultPage)
         {
-            return Ok(await _categoryService.GetAll(model, page));
+            return Ok(await _categoryService.GetAll(model, size, page));
         }
 
         [HttpGet("{id}")]

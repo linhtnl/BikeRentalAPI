@@ -19,6 +19,7 @@ namespace BikeRental.Data.Models
         public Guid? OwnerId { get; set; }
         public Guid? CategoryId { get; set; }
         public int? Status { get; set; }
+        public string ImgPath { get; set; }
 
         public virtual Category Category { get; set; }
         public virtual Owner Owner { get; set; }

@@ -26,9 +26,9 @@ namespace BikeRental.API.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> GetAll([FromQuery] PriceListViewModel model)
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(await _priceListService.GetAll(model));
+            return Ok(await _priceListService.GetAll());
         }
         [HttpPost]
         [MapToApiVersion("1")]
@@ -46,9 +46,9 @@ namespace BikeRental.API.Controllers
 
         [HttpGet("{id}")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> GetByAreaId(Guid id)
+        public async Task<IActionResult> GetByAreaId(Guid id, Guid typeId)
         {
-            return Ok(await _priceListService.GetListByAreaId(id));
+            return Ok(await _priceListService.GetListByAreaIdAndTypeId(id,typeId));
         }
     }
 }

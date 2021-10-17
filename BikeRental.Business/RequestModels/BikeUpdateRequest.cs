@@ -12,5 +12,7 @@ namespace BikeRental.Business.RequestModels
         public string LicensePlate { get; set; }
         public string Color { get; set; }
         public string ModelYear { get; set; }
+        public string ImgPath { get; set; }
+        public int? Status { get; set; }
     }
 }

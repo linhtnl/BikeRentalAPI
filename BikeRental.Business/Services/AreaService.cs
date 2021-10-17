@@ -24,7 +24,7 @@ namespace BikeRental.Business.Services
     {
         Task<AreaViewModel> GetById(Guid id);
 
-        Task<DynamicModelResponse<AreaViewModel>> GetAll(AreaViewModel model, int pageNum);
+        Task<List<AreaViewModel>> GetAll(AreaViewModel model);
 
         Task<AreaViewModel> Update(Guid id,int postalCode, string name);
 
@@ -38,26 +38,15 @@ namespace BikeRental.Business.Services
             _mapper = mapper.ConfigurationProvider;
         }
 
-        public async Task<DynamicModelResponse<AreaViewModel>> GetAll(AreaViewModel model, int pageNum)
+        public async Task<List<AreaViewModel>> GetAll(AreaViewModel model)
         {
             //customer&owner => Status = Available
             //Admin => all
 
             //customer&owner
             var areas = Get().ProjectTo<AreaViewModel>(_mapper)
-                .DynamicFilter(model)
-                .PagingIQueryable(pageNum, GlobalConstants.GROUP_ITEM_NUM, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
-            if (areas.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
-            var rs = new DynamicModelResponse<AreaViewModel>
-            {
-                Metadata = new PagingMetaData
-                {
-                    Page = pageNum,
-                    Size = GlobalConstants.GROUP_ITEM_NUM,
-                    Total = areas.Item1
-                },
-                Data = await areas.Item2.ToListAsync()
-            };
+                .DynamicFilter(model);
+            var rs = await areas.ToListAsync();
             return rs;
         }
 

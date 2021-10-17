@@ -132,7 +132,7 @@ namespace BikeRental.Business.Services
                 ClaimsPrincipal tokenValid = new JwtSecurityTokenHandler().ValidateToken(token, GetTokenValidationParameters(), out SecurityToken validatedToken);
                 return true;
             }
-            catch
+            catch(Exception e)
             {
                 return false;
             }
