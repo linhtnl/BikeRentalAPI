@@ -44,8 +44,8 @@ namespace BikeRental.API.Controllers
             return Ok(await _priceListService.Update(areaId,cateId,price));
         }
 
-        [HttpGet("{id}")]
-        [MapToApiVersion("2")]
+        [HttpGet("suitablePriceList")]
+        [MapToApiVersion("1")]
         public async Task<IActionResult> GetByAreaId(Guid id, Guid typeId)
         {
             return Ok(await _priceListService.GetPriceByAreaIdAndTypeId(id, typeId));

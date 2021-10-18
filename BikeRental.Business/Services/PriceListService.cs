@@ -55,7 +55,7 @@ namespace BikeRental.Business.Services
             PriceList priceList = await Get()
                 .Where(priceTemp => (priceTemp.AreaId.Equals(areaId) && priceTemp.MotorTypeId.Equals(typeId)))
                 .FirstOrDefaultAsync();
-
+            if(priceList == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
             return await Task.Run(() => priceList.Price.Value);
         }
 

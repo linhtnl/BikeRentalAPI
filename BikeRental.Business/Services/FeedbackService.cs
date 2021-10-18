@@ -52,7 +52,10 @@ namespace BikeRental.Business.Services
             foreach (var booking in bookings)
             {
                 var feedback = await Get(x => x.Id.Equals(booking.Id)).FirstOrDefaultAsync();
-                listFeedback.Add(feedback);
+                if(feedback != null)
+                {
+                    listFeedback.Add(feedback);
+                }
             }
             if (listFeedback.Count == 0) return result;
             result.Clear();
