@@ -168,6 +168,9 @@ namespace BikeRental.API
                 mc.CreateMap<PriceList, PricelistCreateRequest>();
                 mc.CreateMap<PricelistCreateRequest, PriceList>();
 
+                mc.CreateMap<PriceList, PriceListByAreaViewModel>();
+                mc.CreateMap<PriceListByAreaViewModel, PriceList>();
+
                 mc.CreateMap<VoucherItemCreateRequest, VoucherItem>();
                 mc.CreateMap<VoucherItem, VoucherItemCreateRequest>();
 

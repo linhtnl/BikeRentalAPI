@@ -16,6 +16,7 @@ namespace BikeRental.Business.Services
     public interface IMotorTypeService : IBaseService<MotorType>
     {
         Task<List<MotorTypeViewModel>> GetAll();
+        Task<MotorTypeViewModel> GetById(Guid id);
     }
     public class MotorTypeService : BaseService<MotorType>, IMotorTypeService
     {
@@ -28,6 +29,11 @@ namespace BikeRental.Business.Services
         public async Task<List<MotorTypeViewModel>> GetAll()
         {
             return await Get().ProjectTo<MotorTypeViewModel>(_mapper).ToListAsync();
+        }
+
+        public async Task<MotorTypeViewModel> GetById(Guid id)
+        {
+            return await Get(t => t.Id.Equals(id)).ProjectTo<MotorTypeViewModel>(_mapper).FirstOrDefaultAsync();
         }
     }
 }

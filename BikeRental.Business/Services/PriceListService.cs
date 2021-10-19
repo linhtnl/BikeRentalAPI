@@ -23,14 +23,17 @@ namespace BikeRental.Business.Services
         Task<PriceList> Create(PricelistCreateRequest request);
         Task<PriceList> Update(Guid areaId, Guid cateId, decimal? price);
         Task<decimal> GetPriceByAreaIdAndTypeId(Guid areaId,Guid typeId);
+        Task<List<PriceListByAreaViewModel>> GetPriceByArea(Guid areaId);
     }
     public class PriceListService : BaseService<PriceList>, IPriceListService
     {
         private readonly IConfigurationProvider _mapper;
+        private readonly IMotorTypeService _motorTypeService;
         private readonly ICategoryService _categoryService;
         private readonly IBrandService _brandService;
-        public PriceListService(IUnitOfWork unitOfWork, IPriceListRepository repository, ICategoryService categoryService, IBrandService brandService, IMapper mapper) : base(unitOfWork, repository)
+        public PriceListService(IUnitOfWork unitOfWork, IPriceListRepository repository, IMotorTypeService motorTypeService, ICategoryService categoryService, IBrandService brandService, IMapper mapper) : base(unitOfWork, repository)
         {
+            _motorTypeService = motorTypeService;
             _categoryService = categoryService;
             _brandService = brandService;
             _mapper = mapper.ConfigurationProvider;
@@ -66,6 +69,19 @@ namespace BikeRental.Business.Services
             await UpdateAsync(priceList);
             return priceList;*/
             return null;
+        }
+
+        public async Task<List<PriceListByAreaViewModel>> GetPriceByArea(Guid areaId)
+        {
+            var priceList = Get(p => p.AreaId.Equals(areaId)).ProjectTo<PriceListByAreaViewModel>(_mapper);
+            var list = priceList.ToList();
+            if(list.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
+            foreach (var price in list)
+            {
+                var type = await _motorTypeService.GetById(price.MotorTypeId);
+                price.TypeName = type.Name;
+            }
+            return list;          
         }
     }
 }
