@@ -48,24 +48,42 @@ namespace BikeRental.Business.Services
 
         public static string GenerateCustomerJWTWebToken(CustomerViewModel ownerInfo, IConfiguration configuration) // Customer
         {
+            //setPrivateKey(configuration);
+
+            //var securityKey = new SymmetricSecurityKey(Convert.FromBase64String(secretKey));
+
+            //var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+
+            //var header = new JwtHeader(credential);
+
+            //var payload = new JwtPayload
+            //{
+            //   { PayloadKeyConstants.ID, ownerInfo.Id.ToString()},
+            //   { PayloadKeyConstants.ROLE, ((int)RoleConstants.Customer).ToString()}
+            //};
+
+            //var secToken = new JwtSecurityToken(header, payload);
+            //var handler = new JwtSecurityTokenHandler();
+
+            //return handler.WriteToken(secToken);
+
             setPrivateKey(configuration);
 
             var securityKey = new SymmetricSecurityKey(Convert.FromBase64String(secretKey));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
-
-            var header = new JwtHeader(credential);
-
-            var payload = new JwtPayload
-            {
-               { PayloadKeyConstants.ID, ownerInfo.Id.ToString()},
-               { PayloadKeyConstants.ROLE, ((int)RoleConstants.Customer).ToString()}
+            var claims = new[] {
+                        new Claim(PayloadKeyConstants.ID, ownerInfo.Id.ToString()),
+                        new Claim(PayloadKeyConstants.ROLE, ((int)RoleConstants.Customer).ToString())
             };
 
-            var secToken = new JwtSecurityToken(header, payload);
-            var handler = new JwtSecurityTokenHandler();
+            var token = new JwtSecurityToken("",
+                "",
+                claims,
+                expires: DateTime.Now.AddMinutes(1),
+                signingCredentials: credentials);
 
-            return handler.WriteToken(secToken);
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         public static string GenerateAdminJWTWebToken(AdminViewModel ownerInfo, IConfiguration configuration) // Admin

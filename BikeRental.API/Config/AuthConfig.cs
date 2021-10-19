@@ -21,14 +21,14 @@ namespace BikeRental.API.Config
                 .AddJwtBearer(options =>
                 {
                     options.RequireHttpsMetadata = false;
-                    options.SaveToken = true;
-                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                    //options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String("QTlGODc1RzRKNjVTRDZHQUZJSFVLV0hRUjc5MTJVUkFJR05KVA==")),
-                        ValidateLifetime = false
+                        IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(configuration.GetSection("Security:SecretKey").Value)),
+                        ValidateLifetime = true
                     };
                 });
         }
