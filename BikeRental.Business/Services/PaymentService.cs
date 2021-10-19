@@ -54,7 +54,7 @@ namespace BikeRental.Business.Services
         public async Task<Payment> UpdatePayment(Guid id, PaymentUpdateRequest request)
         {
             var tempPayment = await GetById(id);
-            if (tempPayment == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Payment not found.");
+            if (tempPayment == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Payment not found.");
 
             var targetPayment = _mapper.CreateMapper().Map<Payment>(request);
             await UpdateAsync(targetPayment);

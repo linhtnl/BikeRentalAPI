@@ -78,7 +78,7 @@ namespace BikeRental.Business.Services
         public async Task<Feedback> Update(Guid id, FeedbackCreateRequest request)
         {
             var feedback = await GetAsync(id);
-            if (feedback == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Feedback not found");
+            if (feedback == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Feedback not found");
             var updateFeedback = _mapper.CreateMapper().Map(request, feedback);
             await UpdateAsync(updateFeedback);
             return updateFeedback;

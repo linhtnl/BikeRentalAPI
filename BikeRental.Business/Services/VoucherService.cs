@@ -98,7 +98,7 @@ namespace BikeRental.Business.Services
         public async Task<Voucher> UpdateVoucher(Guid id, VoucherUpdateRequest voucherRequest)
         {
             var voucher = await GetAsync(id);
-            if (voucher == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Voucher not found");
+            if (voucher == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Voucher not found");
             
             var targetVoucher = _mapper.CreateMapper().Map<Voucher>(voucherRequest);
             await UpdateAsync(targetVoucher);
@@ -109,7 +109,7 @@ namespace BikeRental.Business.Services
         public async Task<Voucher> DeleteVoucher(Guid id)
         {
             var voucher = await GetAsync(id);
-            if (voucher == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Voucher not found");
+            if (voucher == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Voucher not found");
 
             voucher.Status = (int)VoucherStatus.Delete;
             

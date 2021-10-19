@@ -56,7 +56,7 @@ namespace BikeRental.Business.Services
         public async Task<VoucherExchangeHistory> UpdateVoucherExchangeHistory(Guid id, VoucherExchangeHistoryUpdateRequest request)
         {
             var tempVoucherExchangeHistory = await GetById(id);
-            if (tempVoucherExchangeHistory == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Voucher Exchange History not found.");
+            if (tempVoucherExchangeHistory == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Voucher Exchange History not found.");
 
             var targetVoucherExchangeHistory = _mapper.CreateMapper().Map<VoucherExchangeHistory>(request);
             await UpdateAsync(targetVoucherExchangeHistory);

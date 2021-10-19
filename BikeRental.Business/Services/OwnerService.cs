@@ -187,7 +187,7 @@ namespace BikeRental.Business.Services
         {
             //only admin
             var owner = await GetAsync(id);
-            if (owner == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not found");
+            if (owner == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
             owner.Status = (int)UserStatus.Deactive;
             owner.BanTimes++;
             await UpdateAsync(owner);
@@ -251,7 +251,7 @@ namespace BikeRental.Business.Services
         {
             var owners = Get(x => x.AreaId.Equals(areaId)).ProjectTo<OwnerByAreaViewModel>(_mapper);
             var listOwner = owners.ToList();
-            if (listOwner.Count == 0) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not found");
+            if (listOwner.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
 
             int flag = 0;
             for (int i = 0; i < listOwner.Count; i++)
@@ -270,7 +270,7 @@ namespace BikeRental.Business.Services
             }
 
             if (flag == listOwner.Count)
-                throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not found");
+                throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
 
             var result = listOwner.AsQueryable().OrderByDescending(o => o.Rating);
             var rs = result.ToList();

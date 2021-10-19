@@ -121,7 +121,7 @@ namespace BikeRental.Business.Services
         public async Task<Campaign> Update(Guid id, CampaignUpdateRequest request)
         {
             var campaign = await GetAsync(id);
-            if (campaign == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Bike not found");
+            if (campaign == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Bike not found");
             var updateBike = _mapper.CreateMapper().Map(request, campaign);
             await UpdateAsync(updateBike);
             return updateBike;

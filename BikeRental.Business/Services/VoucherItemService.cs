@@ -79,7 +79,7 @@ namespace BikeRental.Business.Services
         //public async Task<VoucherItem> DeleteVoucherItem(Guid id)
         //{
         //    var voucherItem = await GetAsync(id);
-        //    if (voucherItem == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Voucher Item not found");
+        //    if (voucherItem == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Voucher Item not found");
 
         //    voucherItem.s
         //}
@@ -113,7 +113,7 @@ namespace BikeRental.Business.Services
         public async Task<VoucherItem> UpdateVoucherItem(Guid id, VoucherItemUpdateRequest voucherItemRequest)
         {
             var voucherItem = await GetAsync(id);
-            if (voucherItem == null) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Voucher Item not found");
+            if (voucherItem == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Voucher Item not found");
 
             var targetVoucherItem = _mapper.CreateMapper().Map<VoucherItem>(voucherItem);
             await UpdateAsync(targetVoucherItem);
