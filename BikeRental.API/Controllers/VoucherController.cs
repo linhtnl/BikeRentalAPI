@@ -3,6 +3,7 @@ using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -23,15 +24,14 @@ namespace BikeRental.API.Controllers
             _voucherService = voucherService;
         }
 
+        [Authorize]
         [HttpPost]
         [MapToApiVersion("1")]
         public async Task<IActionResult> CreateNew([FromBody] VoucherCreateRequest voucherRequest)
         {
             Voucher voucher = await _voucherService.CreateNew(voucherRequest);
 
-            return voucher != null
-                ? await Task.Run(() => Ok(voucher))
-                : await Task.Run(() => StatusCode(ResponseStatusConstants.FORBIDDEN));
+            return await Task.Run(() => Ok(voucher));
         }
 
         [HttpGet]

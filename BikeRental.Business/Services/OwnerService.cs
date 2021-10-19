@@ -209,6 +209,9 @@ namespace BikeRental.Business.Services
                 {
                     string verifyRequestToken = TokenService.GenerateOwnerJWTWebToken(result, configuration);
 
+                    TrackingOnlineUtil trackingOnlineUtil = new TrackingOnlineUtil();
+                    await trackingOnlineUtil.TrackNewUserLogin(result.Id);
+
                     return await Task.Run(() => verifyRequestToken); // return if everything is done
                 }
                 throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Email from request and the one from access token is not matched."); // return if this email's not existed yet in database - FE foward to sign up page
@@ -216,7 +219,7 @@ namespace BikeRental.Business.Services
             var claim = new Dictionary<string, object> { { "email", userRecord.Email } };
             await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(loginRequest.GoogleId, claim);
 
-            throw new ErrorResponse((int)ResponseStatusConstants.CREATED, "Email's not existed in database yet.");
+            throw new ErrorResponse((int)ResponseStatusConstants.NOT_FOUND, "Email's not existed in database yet.");
         }
 
         public async Task<string> Register(OwnerRegisterRequest loginRequest, IConfiguration configuration)
@@ -233,6 +236,9 @@ namespace BikeRental.Business.Services
                 if (ownerResult != null)
                 {
                     string verifyRequestToken =TokenService.GenerateOwnerJWTWebToken(ownerResult, configuration);
+
+                    TrackingOnlineUtil trackingOnlineUtil = new TrackingOnlineUtil();
+                    await trackingOnlineUtil.TrackNewUserLogin(ownerResult.Id);
 
                     return await Task.Run(() => verifyRequestToken);
                 }
@@ -271,7 +277,10 @@ namespace BikeRental.Business.Services
 
             for (int i = 0; i < rs.Count; i++)
             {
-                if (rs[i].Bike == null)
+                TrackingOnlineUtil trackingOnlineUtil = new TrackingOnlineUtil();
+                DateTime? expiredTime = await trackingOnlineUtil.GetUserExpiredTime(rs[i].Id);
+
+                if (expiredTime == null || TrackingOnlineUtil.IsExpired(expiredTime) || rs[i].Bike == null)
                 {
                     rs.RemoveAt(i);
                     i--;

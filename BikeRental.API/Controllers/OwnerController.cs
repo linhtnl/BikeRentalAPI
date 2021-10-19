@@ -2,7 +2,9 @@
 using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
+using BikeRental.Business.Utilities;
 using BikeRental.Data.Models;
+using BikeRental.Data.Responses;
 using BikeRental.Data.ViewModels;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -93,6 +96,37 @@ namespace BikeRental.API.Controllers
             var result = TokenService.GenerateOwnerJWTWebToken(ownerInfo, _configuration);
 
             return await Task.Run(() => Ok(result));
+        }
+
+        [HttpGet("TestWriteFirebase")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> TestWriteFirebase(Guid id)
+        {
+            TrackingOnlineUtil trackingOnlineUtil = new TrackingOnlineUtil();
+
+            var result = await trackingOnlineUtil.TrackNewUserLogin(id);
+
+            return await Task.Run(() => Ok(result));
+        }
+
+        [HttpGet("TestGetExpiredTime")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> TestGetExpiredTime(Guid id)
+        {
+            TrackingOnlineUtil trackingOnlineUtil = new TrackingOnlineUtil();
+
+            var result = await trackingOnlineUtil.GetUserExpiredTime(id);
+
+            return await Task.Run(() => Ok(result));
+        }
+
+        [Authorize]
+        [HttpGet("testAuthen")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> TestAuthen()
+        {
+
+            return await Task.Run(() => Ok(true));
         }
     }
 }
