@@ -11,5 +11,6 @@ namespace BikeRental.Data.ViewModels
         public Guid Id { get; set; }
         public double? Rating { get; set; }
         public BikeFindingViewModel Bike { get; set; }
+        public DistanceViewModel? LocationInfo { get; set; }
     }
 }

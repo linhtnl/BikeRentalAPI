@@ -115,7 +115,7 @@ namespace BikeRental.Business.Services
             
             await UpdateAsync(voucher);
 
-            return voucher;
+            return await Task.Run(() => voucher);
         }
     }
 }

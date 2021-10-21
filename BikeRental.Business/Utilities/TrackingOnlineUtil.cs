@@ -44,7 +44,7 @@ namespace BikeRental.Business.Utilities
                 .OnceSingleAsync<TrackingOnlineViewModel>();
 
             if (ownerLogins == null)
-                throw new ErrorResponse((int)HttpStatusCode.NotFound, "Cannot find any login sessions of this user");
+                return null;
 
             return await Task.Run(() => ownerLogins.ExpiredTime);
         }
