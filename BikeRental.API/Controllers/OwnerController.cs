@@ -128,5 +128,16 @@ namespace BikeRental.API.Controllers
 
             return await Task.Run(() => Ok(true));
         }
+
+        [HttpGet("testDistance")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> TestDistance(Guid areaId, Guid typeId, Guid customerId)
+        {
+            List<OwnerByAreaViewModel> suitableOwners = await _ownerService.GetListOwnerByAreaIdAndTypeId(areaId, typeId);
+
+            var result = await DistanceUtil.OrderByDistance(suitableOwners, customerId);
+
+            return await Task.Run(() => Ok(result));
+        }
     }
 }
