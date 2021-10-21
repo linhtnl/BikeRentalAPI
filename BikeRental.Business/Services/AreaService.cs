@@ -29,13 +29,16 @@ namespace BikeRental.Business.Services
         Task<AreaViewModel> Update(Guid id,int postalCode, string name);
 
         Task<AreaViewModel> Create(AreaCreateModel model);
+        Task<AreaViewModel> GetAreaByOwnerId(Guid id);
     }
     public class AreaService : BaseService<Area>, IAreaService
     {
         private readonly IConfigurationProvider _mapper;
-        public AreaService(IUnitOfWork unitOfWork, IAreaRepository repository, IMapper mapper) : base(unitOfWork, repository)
+        private readonly IOwnerService _ownerService;
+        public AreaService(IUnitOfWork unitOfWork, IAreaRepository repository, IMapper mapper, IOwnerService ownerService) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
+            _ownerService = ownerService;
         }
 
         public async Task<List<AreaViewModel>> GetAll(AreaViewModel model)
@@ -47,6 +50,7 @@ namespace BikeRental.Business.Services
             var areas = Get().ProjectTo<AreaViewModel>(_mapper)
                 .DynamicFilter(model);
             var rs = await areas.ToListAsync();
+            if(rs.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
             return rs;
         }
 
@@ -90,6 +94,13 @@ namespace BikeRental.Business.Services
             var area = await Get(a => a.Id.Equals(id)).ProjectTo<AreaViewModel>(_mapper).FirstOrDefaultAsync();
             if(area == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
             return area;
+        }
+
+        public async Task<AreaViewModel> GetAreaByOwnerId(Guid id)
+        {
+            var owner = await _ownerService.GetOwnerById(id);
+            if(owner == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            return await Get(a => a.Id.Equals(owner.AreaId)).ProjectTo<AreaViewModel>(_mapper).FirstOrDefaultAsync();
         }
     }
 }

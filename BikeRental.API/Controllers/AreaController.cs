@@ -28,20 +28,28 @@ namespace BikeRental.API.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        [ProducesResponseType(typeof(DynamicModelResponse<AreaViewModel>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
+        //[ProducesResponseType(typeof(DynamicModelResponse<AreaViewModel>), (int)HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
+        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Get([FromQuery] AreaViewModel model)
         {
             return Ok(await _areaService.GetAll(model));
         }
         [HttpGet("{id}")]
         [MapToApiVersion("1")]
-        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
+        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
+        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetArea(Guid id)
         {
             return Ok(await _areaService.GetById(id));
+        }
+        [HttpGet("areaByOwnerId")]
+        [MapToApiVersion("1")]
+        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
+        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetAreaByOwnerId(Guid id)
+        {
+            return Ok(await _areaService.GetAreaByOwnerId(id));
         }
         [HttpPut]
         [MapToApiVersion("1")]
