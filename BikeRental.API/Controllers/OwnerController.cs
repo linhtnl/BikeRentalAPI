@@ -62,9 +62,15 @@ namespace BikeRental.API.Controllers
 
         [HttpGet("find")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> Get(Guid areaId, Guid typeId)
+        [Authorize]
+        public async Task<IActionResult> Get(Guid areaId, Guid typeId, DateTime dateRent, DateTime dateReturn)
         {
-            return Ok(await _ownerService.GetListOwnerByAreaIdAndTypeId(areaId, typeId));
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+            return Ok(await _ownerService.GetListOwnerByAreaIdAndTypeId(areaId, typeId, token, dateRent, dateReturn));
         }
 
         [HttpGet("{id}")]
@@ -131,13 +137,26 @@ namespace BikeRental.API.Controllers
 
         [HttpGet("testDistance")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> TestDistance(Guid areaId, Guid typeId, Guid customerId)
+        [Authorize]
+        public async Task<IActionResult> TestDistance(Guid areaId, Guid typeId, Guid customerId, DateTime dateRent, DateTime dateReturn)
         {
-            List<OwnerByAreaViewModel> suitableOwners = await _ownerService.GetListOwnerByAreaIdAndTypeId(areaId, typeId);
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+            List<OwnerByAreaViewModel> suitableOwners = await _ownerService.GetListOwnerByAreaIdAndTypeId(areaId, typeId,token, dateRent, dateReturn);
 
             var result = await DistanceUtil.OrderByDistance(suitableOwners, customerId);
 
             return await Task.Run(() => Ok(result));
+        }
+
+        [HttpGet("testSendNoti")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> SendNoti(string id, string licensePlate, DateTime dateRent, DateTime dateReturn)
+        {
+            return Ok(await _ownerService.SendNoti(id,licensePlate,dateRent,dateReturn));
         }
     }
 }
