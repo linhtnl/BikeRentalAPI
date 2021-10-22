@@ -185,12 +185,12 @@ namespace BikeRental.Business.Services
 
             if (Get(b => b.CustomerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).Count()!=0)
             {
-                var bookings = Get(b => b.CustomerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).ToList();
+                var bookings = await Get(b => b.CustomerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).ToListAsync();
                 return bookings;
             }
             else if(Get(b => b.OwnerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).Count() != 0)
             {
-                var bookings = Get(b => b.OwnerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).ToList();
+                var bookings = await Get(b => b.OwnerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).ToListAsync();
 
                 return bookings;
             }

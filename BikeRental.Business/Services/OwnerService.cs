@@ -32,12 +32,14 @@ namespace BikeRental.Business.Services
         Task<Owner> GetOwner(Guid id);
         Task<OwnerViewModel> GetByMail(string mail);
         Task<DynamicModelResponse<OwnerRatingViewModel>> GetAll(OwnerRatingViewModel model, int filterOption, int size, int pageNum);
-        Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId,Guid typeId);
+        Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn);
+        Task<bool> SendNoti(string id, string licensePlate, DateTime dateRent, DateTime dateReturn);
 
         //thieu update
     }
     public class OwnerService : BaseService<Owner>, IOwnerService
     {
+        private readonly IConfiguration _configuration;
         private readonly AutoMapper.IConfigurationProvider _mapper;
         private readonly IBikeService _bikeService;
         private readonly ICategoryService _categoryService;
@@ -46,12 +48,14 @@ namespace BikeRental.Business.Services
         private readonly IBookingUtilService _bookingUtilService;
         private readonly IBikeUtilService _bikeUtilService;
 
-        public OwnerService(IMapper mapper, IUnitOfWork unitOfWork,IBikeService bikeService,IFeedbackService feedbackService,
+
+        public OwnerService(IMapper mapper, IConfiguration configuration, IUnitOfWork unitOfWork,IBikeService bikeService,IFeedbackService feedbackService,
             ICategoryService categoryService, IBrandService brandService, IOwnerRepository repository, 
             IBookingUtilService bookingUtilService
             , IBikeUtilService bikeUtilService) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
+            _configuration = configuration;
 
             _bikeService = bikeService;
             _feedbackService = feedbackService;
@@ -247,8 +251,12 @@ namespace BikeRental.Business.Services
             throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Email from request and the one from access token is not matched.");
         }
 
-        public async Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId)
+        public async Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn)
         {
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+            int role = tokenModel.Role;
+            if (role != (int)RoleConstants.Customer)
+                throw new ErrorResponse((int)HttpStatusCode.Unauthorized, "This role cannot use this feature.");
             var owners = Get(x => x.AreaId.Equals(areaId)).ProjectTo<OwnerByAreaViewModel>(_mapper);
             var listOwner = owners.ToList();
             if (listOwner.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
@@ -273,21 +281,31 @@ namespace BikeRental.Business.Services
                 throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
 
             var result = listOwner.AsQueryable().OrderByDescending(o => o.Rating);
-            var rs = result.ToList();
+            var listTemp = result.ToList();
 
-            for (int i = 0; i < rs.Count; i++)
+            for (int i = 0; i < listTemp.Count; i++)
             {
                 TrackingOnlineUtil trackingOnlineUtil = new TrackingOnlineUtil();
-                DateTime? expiredTime = await trackingOnlineUtil.GetUserExpiredTime(rs[i].Id);
+                DateTime? expiredTime = await trackingOnlineUtil.GetUserExpiredTime(listTemp[i].Id);
 
-                if (expiredTime == null || TrackingOnlineUtil.IsExpired(expiredTime) || rs[i].Bike == null)
+                if (expiredTime == null || TrackingOnlineUtil.IsExpired(expiredTime) || listTemp[i].Bike == null)
                 {
-                    rs.RemoveAt(i);
+                    listTemp.RemoveAt(i);
                     i--;
                 }
             }
-
+            var rs = await DistanceUtil.OrderByDistance(listTemp, tokenModel.Id);
+            //get registrationID of rs[0]
+            //get LicensePlate of rs[0]
+            //var checkSendNoti = NotificationUtil.SendNotification()
+            //if(checkSendNoti == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");
             return rs;
+        }
+
+        public Task<bool> SendNoti(string id, string licensePlate, DateTime dateRent, DateTime dateReturn)
+        {  
+            var send = NotificationUtil.SendNotification(id, licensePlate, dateRent, dateReturn);
+            return send;
         }
     }
 }

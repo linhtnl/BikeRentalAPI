@@ -94,8 +94,8 @@ namespace BikeRental.Business.Utilities
                 }
             }
             var result = suitableOwners.AsQueryable().OrderBy(temp => temp.LocationInfo.Distance);
-
-            return await Task.Run(() => result.ToList());
+            return result.ToList();
+            /*return await Task.Run(() => result.ToList());*/
         }
 
         //private static async Task<List<OwnerByAreaViewModel>> OrderByDistance(List<OwnerByAreaViewModel> suitableOwners)
