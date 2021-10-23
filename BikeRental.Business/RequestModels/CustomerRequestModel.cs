@@ -11,5 +11,6 @@ namespace BikeRental.Business.RequestModels
         public string LicensePlate { get; set; }
         public DateTime DateRent { get; set; }
         public DateTime DateReturn { get; set; }
+        public bool IsRentedByDate { get; set; }
     }
 }

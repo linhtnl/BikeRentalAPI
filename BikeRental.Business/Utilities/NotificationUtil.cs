@@ -22,11 +22,15 @@ namespace BikeRental.Business.Utilities
             {
                 var message = new Message
                 {
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"json",jsonConvert },
+                    },
                     RegistrationIds = new List<string> { registrationId },
                     Notification = new Notification
                     {
                         Title = "You got a new Order!",
-                        Body = jsonConvert
+                        Body = "Check it now"
                     }
                 };
                 var result = await sender.SendAsync(message);
