@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,10 @@ namespace BikeRental.Data.ViewModels
     {
         public int BookingTimes { get; set; }
         public int DeniedTimes { get; set; }
+
+        [JsonConstructor]
+        public TrackingBookingViewModel()
+        {
+        }
     }
 }
