@@ -158,5 +158,26 @@ namespace BikeRental.API.Controllers
         {
             return Ok(await _ownerService.SendNoti(id,licensePlate,dateRent,dateReturn));
         }
+
+        [HttpGet("testGetTrackingBooking")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> GetTrackingBookingByDate(Guid ownerId, DateTime date)
+        {
+            return Ok(await TrackingBookingUtil.GetTrackingBookingByDate(ownerId, date));
+        }
+
+        [HttpGet("testUpdateTrackingBooking")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> TestUpdateTrackingBooking(Guid ownerId, DateTime date)
+        {
+            return Ok(await TrackingBookingUtil.UpdateTrackingBooking(ownerId, date));
+        }
+
+        [HttpGet("testUpdateTrackingBookingDays")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> TestUpdateTrackingBookingDays(Guid ownerId, DateTime dayRent, DateTime dayReturn)
+        {
+            return Ok(await TrackingBookingUtil.UpdateTrackingBooking(ownerId, dayRent, dayReturn));
+        }
     }
 }
