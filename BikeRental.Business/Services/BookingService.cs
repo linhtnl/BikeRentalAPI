@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
+using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
@@ -62,8 +63,6 @@ namespace BikeRental.Business.Services
 
         public async Task<BookingSuccessViewModel> CreateNew(string token, BookingCreateRequest request)
         {
-            bool isDiscounted = false;
-
             Booking targetBooking = _mapper.CreateMapper().Map<Booking>(request);
 
             TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
@@ -78,59 +77,15 @@ namespace BikeRental.Business.Services
 
             Owner owner = await _utilService.GetOwnerByOwnerId(request.OwnerId);
 
-            decimal originalPrice = await _priceListService.GetPriceByAreaIdAndTypeId(owner.AreaId.Value, request.TypeId);
-
-            if (originalPrice <= 0)
-                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot find the price for this area and this category.");
-
-            decimal finalPrice = originalPrice;
-
+            targetBooking.Price = request.Price;
 
             if (request.VoucherCode != null)
             {
-                var voucherItem = await _voucherItemService.GetAsync(request.VoucherCode);
-
-                if (voucherItem == null)
-                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Voucher code is not existed.");
-
-                if (voucherItem.TimeUsingRemain <= 0)
-                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Voucher is out of using time.");
-
-
-                var voucher = await _voucherService.GetAsync(voucherItem.VoucherId);
-
-                if (voucher == null)
-                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is not found.");
-
-                if (DateTime.Compare(voucher.StartingDate, DateTime.Today) > 0)
-                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is not started yet.");
-
-                if (DateTime.Compare(voucher.ExpiredDate, DateTime.Today) < 0)
-                {
-                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher is expired.");
-                }
-
-                finalPrice = DiscountBooking(originalPrice, voucher.DiscountPercent.Value, voucher.DiscountAmount.Value).Value;
-
-                if (finalPrice <= 0)
-                {
-                    finalPrice = originalPrice;
-                } else
-                {
-                    isDiscounted = true;
-                }
-            }
-
-            if (!isDiscounted && request.VoucherCode != null)
-            {
-                targetBooking.VoucherCode = null;
-            }
-
-            targetBooking.Price = finalPrice;
-
-            if (isDiscounted)
-            {
                 var voucherItemUsed = await _voucherItemService.GetAsync(request.VoucherCode);
+
+                if (voucherItemUsed.TimeUsingRemain <= 0)
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher code is out of using time.");
+
                 voucherItemUsed.TimeUsingRemain -= 1;
                 await _voucherItemService.UpdateAsync(voucherItemUsed);
             }
@@ -148,21 +103,6 @@ namespace BikeRental.Business.Services
 
             var bookingResult = _mapper.CreateMapper().Map<BookingSuccessViewModel>(targetBooking);
             return await Task.Run(() => bookingResult);
-        }
-
-        private decimal? DiscountBooking(decimal originalPrice, int discountPercent, decimal maxDiscountAmount)
-        {
-            decimal discountPercentDecimal = discountPercent;
-
-            var discountAmount = Decimal.Multiply(originalPrice, (Decimal.Divide(discountPercentDecimal, 100)));
-
-            if (discountAmount >= maxDiscountAmount)
-            {
-                return maxDiscountAmount;
-            } else
-            {
-                return originalPrice - discountAmount;
-            }
         }
 
         public async Task<List<BookingViewModel>> GetAll()

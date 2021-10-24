@@ -21,7 +21,7 @@ namespace BikeRental.Business.Services
         Task<VoucherItem> UpdateVoucherItem(Guid id, VoucherItemUpdateRequest voucherItemRequest);
         List<VoucherItemViewModel> GetAll();
         VoucherItemViewModel GetById(Guid id);
-        List<VoucherItemViewModel> GetByCustomerId(Guid customerId);
+        Task<List<VoucherItemViewModel>> GetByCustomerId(Guid customerId);
         List<VoucherItemViewModel> GetByVoucherId(Guid voucherId);
     }
     public class VoucherItemService : BaseService<VoucherItem>, IVoucherItemService
@@ -76,24 +76,46 @@ namespace BikeRental.Business.Services
             return await Task.Run(() => voucherItemResult);
         }
 
-        //public async Task<VoucherItem> DeleteVoucherItem(Guid id)
-        //{
-        //    var voucherItem = await GetAsync(id);
-        //    if (voucherItem == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Voucher Item not found");
-
-        //    voucherItem.s
-        //}
-
         public List<VoucherItemViewModel> GetAll()
         {
             return Get().ProjectTo<VoucherItemViewModel>(_mapper).ToList();
         }
 
-        public List<VoucherItemViewModel> GetByCustomerId(Guid customerId)
+        public async Task<List<VoucherItemViewModel>> GetByCustomerId(Guid customerId)
         {
-            return Get().Where(tempVoucherItem => tempVoucherItem.CustomerId.Equals(customerId))
+            List<VoucherItemViewModel> voucherItems = Get().Where(tempVoucherItem => tempVoucherItem.CustomerId.Equals(customerId))
                 .ProjectTo<VoucherItemViewModel>(_mapper)
                 .ToList();
+
+            for (int i = 0; i < voucherItems.Count; i++)
+            {
+                var voucherTemp = await _voucherService.GetById(voucherItems[i].VoucherId.Value);
+
+                if (!IsVoucherItemInUse(voucherTemp.StartingDate, voucherTemp.ExpiredDate)
+                    || !IsVoucherItemRemainUsingTime(voucherItems[i]))
+                {
+                    voucherItems.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            return await Task.Run(() => voucherItems);
+        }
+
+        private static bool IsVoucherItemInUse(DateTime startingDate, DateTime expireDate)
+        {
+            if (DateTime.Compare(startingDate, DateTime.Now) > 0 || DateTime.Compare(expireDate, DateTime.Now) <= 0)
+                return false;
+
+            return true;
+        }
+
+        private static bool IsVoucherItemRemainUsingTime(VoucherItemViewModel voucherItem)
+        {
+            if (voucherItem.TimeUsingRemain <= 0)
+                return false;
+
+            return true;
         }
 
         public VoucherItemViewModel GetById(Guid id)
