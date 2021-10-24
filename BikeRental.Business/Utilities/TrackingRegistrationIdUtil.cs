@@ -17,7 +17,7 @@ namespace BikeRental.Business.Utilities
             FirebaseClient firebaseClient = new FirebaseClient("https://chothuexemay-35838-default-rtdb.asia-southeast1.firebasedatabase.app/");
 
             var registrationId = await firebaseClient
-                .Child("TrackingRegistrationId/owner" + id)
+                .Child("TrackingRegistrationId/owner/" + id)
                 .OnceSingleAsync<TrackingRegistrationIdViewModel>();
 
             if (registrationId == null)
