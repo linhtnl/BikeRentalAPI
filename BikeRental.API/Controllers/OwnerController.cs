@@ -179,5 +179,12 @@ namespace BikeRental.API.Controllers
         {
             return Ok(await TrackingBookingUtil.UpdateTrackingBooking(ownerId, dayRent, dayReturn));
         }
+
+        [HttpGet("testGetOwnerRegistrationId")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> TestGetOwnerRegistrationId(Guid ownerId)
+        {
+            return Ok(await TrackingRegistrationIdUtil.GetOwnerRegistrationId(ownerId));
+        }
     }
 }
