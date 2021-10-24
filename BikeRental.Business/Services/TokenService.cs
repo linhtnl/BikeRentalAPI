@@ -45,7 +45,7 @@ namespace BikeRental.Business.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public static string GenerateCustomerJWTWebToken(CustomerViewModel ownerInfo, IConfiguration configuration) // Customer
+        public static string GenerateCustomerJWTWebToken(CustomerViewModel customerInfo, IConfiguration configuration) // Customer
         {
             //setPrivateKey(configuration);
 
@@ -72,8 +72,10 @@ namespace BikeRental.Business.Services
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[] {
-                        new Claim(PayloadKeyConstants.ID, ownerInfo.Id.ToString()),
-                        new Claim(PayloadKeyConstants.ROLE, ((int)RoleConstants.Customer).ToString())
+                        new Claim(PayloadKeyConstants.ID, customerInfo.Id.ToString()),
+                        new Claim(PayloadKeyConstants.ROLE, ((int)RoleConstants.Customer).ToString()),
+                        new Claim(PayloadKeyConstants.NAME, customerInfo.Fullname),
+                        new Claim(PayloadKeyConstants.PHONE_NUMBER, customerInfo.PhoneNumber)
             };
 
             var token = new JwtSecurityToken("",
@@ -128,7 +130,10 @@ namespace BikeRental.Business.Services
 
             Guid id = Guid.Parse(result.Claims.First(claim => claim.Type == PayloadKeyConstants.ID).Value);
             int role = int.Parse(result.Claims.First(claim => claim.Type == PayloadKeyConstants.ROLE).Value);
-            return new TokenViewModel(id, role);
+            string name = result.Claims.First(claim => claim.Type == PayloadKeyConstants.NAME).Value;
+            string phoneNumber = result.Claims.First(claim => claim.Type == PayloadKeyConstants.PHONE_NUMBER).Value;
+
+            return new TokenViewModel(id, role, name, phoneNumber);
         }
 
         private static SecurityKey GetSymmetricSecurityKey()

@@ -10,5 +10,7 @@ namespace BikeRental.Business.Constants
     {
         public static string ID = "id";
         public static string ROLE = "role";
+        public static string NAME = "name";
+        public static string PHONE_NUMBER = "phoneNumber";
     }
 }
