@@ -39,7 +39,7 @@ namespace BikeRental.Business.Services
             var token = new JwtSecurityToken("",
                 "",
                 claims,
-                expires: DateTime.Now.AddMinutes(1),
+                expires: DateTime.Now.AddHours(2),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -47,25 +47,6 @@ namespace BikeRental.Business.Services
 
         public static string GenerateCustomerJWTWebToken(CustomerViewModel customerInfo, IConfiguration configuration) // Customer
         {
-            //setPrivateKey(configuration);
-
-            //var securityKey = new SymmetricSecurityKey(Convert.FromBase64String(secretKey));
-
-            //var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
-
-            //var header = new JwtHeader(credential);
-
-            //var payload = new JwtPayload
-            //{
-            //   { PayloadKeyConstants.ID, ownerInfo.Id.ToString()},
-            //   { PayloadKeyConstants.ROLE, ((int)RoleConstants.Customer).ToString()}
-            //};
-
-            //var secToken = new JwtSecurityToken(header, payload);
-            //var handler = new JwtSecurityTokenHandler();
-
-            //return handler.WriteToken(secToken);
-
             setPrivateKey(configuration);
 
             var securityKey = new SymmetricSecurityKey(Convert.FromBase64String(secretKey));
@@ -81,7 +62,7 @@ namespace BikeRental.Business.Services
             var token = new JwtSecurityToken("",
                 "",
                 claims,
-                expires: DateTime.Now.AddMinutes(1),
+                expires: DateTime.Now.AddHours(2),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -102,7 +83,7 @@ namespace BikeRental.Business.Services
             var token = new JwtSecurityToken("",
                 "",
                 claims,
-                expires: DateTime.Now.AddMinutes(1),
+                expires: DateTime.Now.AddHours(2),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
