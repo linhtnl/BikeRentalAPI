@@ -138,7 +138,7 @@ namespace BikeRental.API.Controllers
         [HttpGet("testDistance")]
         [MapToApiVersion("2")]
         [Authorize]
-        public async Task<IActionResult> TestDistance(Guid areaId, Guid typeId, Guid customerId, DateTime dateRent, DateTime dateReturn)
+        public async Task<IActionResult> TestDistance(Guid areaId, Guid typeId, string customerLocation, DateTime dateRent, DateTime dateReturn)
         {
             string token = null;
             if (Request.Headers["Authorization"].Count > 0)
@@ -147,7 +147,7 @@ namespace BikeRental.API.Controllers
             }
             List<OwnerByAreaViewModel> suitableOwners = await _ownerService.GetListOwnerByAreaIdAndTypeId(areaId, typeId,token, dateRent, dateReturn);
 
-            var result = await DistanceUtil.OrderByDistance(suitableOwners, customerId);
+            var result = await DistanceUtil.OrderByDistance(suitableOwners, customerLocation);
 
             return await Task.Run(() => Ok(result));
         }

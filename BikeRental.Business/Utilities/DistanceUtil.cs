@@ -38,29 +38,9 @@ namespace BikeRental.Business.Utilities
             return await Task.Run(() => suitableOwners);
         }
 
-        private static async Task<string> GetCustomerLocation(Guid customerId)
-        {
-            FirebaseClient firebaseClient = new FirebaseClient("https://chothuexemay-35838-default-rtdb.asia-southeast1.firebasedatabase.app/");
-
-            var customerLocations = await firebaseClient
-                .Child("locations/customers/" + customerId)
-                .OnceSingleAsync<DistanceViewModel>();
-
-            if (customerLocations != null)
-            {
-                string locationString = customerLocations.Latitude + "," + customerLocations.Longitude;
-
-                return await Task.Run(() => locationString);
-            }
-
-            return await Task.Run(() => String.Empty);
-        }
-
-        public static async Task<List<OwnerByAreaViewModel>> OrderByDistance(List<OwnerByAreaViewModel> suitableOwners, Guid customerId)
+        public static async Task<List<OwnerByAreaViewModel>> OrderByDistance(List<OwnerByAreaViewModel> suitableOwners, string customerLocation) // customerLocation is formated by "latitude,longitude"
         {
             suitableOwners = await GetUserLocations(suitableOwners);
-
-            string customerLocation = await GetCustomerLocation(customerId);
 
             if (String.IsNullOrEmpty(customerLocation))
                 throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This customer haven't had location yet.");
@@ -95,33 +75,6 @@ namespace BikeRental.Business.Utilities
             }
             var result = suitableOwners.AsQueryable().OrderBy(temp => temp.LocationInfo.Distance);
             return result.ToList();
-            /*return await Task.Run(() => result.ToList());*/
         }
-
-        //private static async Task<List<OwnerByAreaViewModel>> OrderByDistance(List<OwnerByAreaViewModel> suitableOwners)
-        //{
-        //    List<OwnerByAreaViewModel> sortedSuitableOwners = new List<OwnerByAreaViewModel>();
-
-        //    for (int i = 0; i < suitableOwners.Count; i++)
-        //    {
-        //        if (suitableOwners[i].LocationInfo == null)
-        //            continue;
-
-        //        bool isNearestOwner = true;
-        //        for (int j = 0; j < suitableOwners.Count; j++)
-        //        {
-        //            if (i == j || suitableOwners[j].LocationInfo == null)
-        //                continue;
-
-        //            if (suitableOwners[i].LocationInfo.Distance > suitableOwners[j].LocationInfo.Distance)
-        //                isNearestOwner = false;
-        //        }
-
-        //        if (isNearestOwner)
-        //            sortedSuitableOwners.Add(suitableOwners[i]);
-        //    }
-
-        //    return await Task.Run(() => sortedSuitableOwners);
-        //}
     }
 }
