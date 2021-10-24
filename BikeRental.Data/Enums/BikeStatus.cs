@@ -5,6 +5,7 @@
         Available,
         Rent,
         Delete,
-        Pending
+        Pending,
+        Unavailable
     }
 }
