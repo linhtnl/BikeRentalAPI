@@ -29,13 +29,9 @@ namespace BikeRental.Business.Services
     {
         private readonly IConfigurationProvider _mapper;
         private readonly IMotorTypeService _motorTypeService;
-        private readonly ICategoryService _categoryService;
-        private readonly IBrandService _brandService;
-        public PriceListService(IUnitOfWork unitOfWork, IPriceListRepository repository, IMotorTypeService motorTypeService, ICategoryService categoryService, IBrandService brandService, IMapper mapper) : base(unitOfWork, repository)
+        public PriceListService(IUnitOfWork unitOfWork, IPriceListRepository repository, IMotorTypeService motorTypeService, IMapper mapper) : base(unitOfWork, repository)
         {
             _motorTypeService = motorTypeService;
-            _categoryService = categoryService;
-            _brandService = brandService;
             _mapper = mapper.ConfigurationProvider;
         }
 

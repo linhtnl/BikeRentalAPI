@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BikeRental.Business.RequestModels;
+using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
 using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,18 +24,26 @@ namespace BikeRental.Business.Services
         Task<Voucher> UpdateVoucher(Guid id, VoucherUpdateRequest voucherRequest);
         Task<Voucher> DeleteVoucher(Guid id);
         List<VoucherViewModel> GetAll();
-        VoucherViewModel GetById(Guid id);
+        Task<VoucherViewModel> GetById(Guid id);
         List<VoucherViewModel> GetByCampaignId(Guid campaignId);
         List<VoucherViewModel> GetInDiscountPercentRange(int startNum, int endNum);
         List<VoucherViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate); // this method is used to get all campaign that start in the range time
         List<VoucherViewModel> GetEndInRangeDate(DateTime startDate, DateTime endDate); // this method is used to get all campaign that end in the range time
+        Task<decimal> GetDiscountedPrice(decimal originalPrice, Guid voucherCode);
     }
     public class VoucherService : BaseService<Voucher>, IVoucherService
     {
         private readonly IConfigurationProvider _mapper;
-        public VoucherService(IUnitOfWork unitOfWork, IVoucherRepository voucherRepository, IMapper mapper) : base(unitOfWork, voucherRepository)
+
+        private readonly IVoucherItemRepository _voucherItemRepository;
+        public VoucherService(IUnitOfWork unitOfWork, IMapper mapper, 
+            IVoucherRepository voucherRepository, 
+            IVoucherItemRepository voucherItemRepository
+            ) : base(unitOfWork, voucherRepository)
         {
             _mapper = mapper.ConfigurationProvider;
+
+            _voucherItemRepository = voucherItemRepository;
         }
 
         public async Task<Voucher> CreateNew(VoucherCreateRequest voucherRequest)
@@ -67,11 +77,13 @@ namespace BikeRental.Business.Services
                 .ToList();
         }
 
-        public VoucherViewModel GetById(Guid id)
+        public async Task<VoucherViewModel> GetById(Guid id)
         {
-            return Get().Where(tempVoucher => tempVoucher.Id.Equals(id))
+            var result = await Get().Where(tempVoucher => tempVoucher.Id.Equals(id))
                 .ProjectTo<VoucherViewModel>(_mapper)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
+
+            return await Task.Run(() => result);
         }
 
         public List<VoucherViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate)
@@ -116,6 +128,23 @@ namespace BikeRental.Business.Services
             await UpdateAsync(voucher);
 
             return await Task.Run(() => voucher);
+        }
+
+        public async Task<decimal> GetDiscountedPrice(decimal originalPrice, Guid voucherCode)
+        {
+            var voucherItem = await _voucherItemRepository.GetAsync(voucherCode);
+
+            if (voucherItem == null)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher code is not existed.");
+
+            var voucher = await GetById(voucherItem.VoucherId.Value);
+
+            int discountPercent = voucher.DiscountPercent.Value;
+            decimal maxDiscountAmount = voucher.DiscountAmount.Value;
+
+            var finalPrice = DiscountUtil.DiscountBooking(originalPrice, discountPercent, maxDiscountAmount);
+
+            return await Task.Run(() => finalPrice.Value);
         }
     }
 }

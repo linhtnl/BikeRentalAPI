@@ -47,9 +47,10 @@ namespace BikeRental.API.Controllers
 
         [HttpGet("customerId/{customerId}")]
         [MapToApiVersion("2")]
-        public List<VoucherItemViewModel> GetByCustomerId(Guid customerId)
+        public async Task<IActionResult> GetByCustomerId(Guid customerId)
         {
-            return _voucherItemService.GetByCustomerId(customerId);
+            var result = await _voucherItemService.GetByCustomerId(customerId);
+            return await Task.Run(() => Ok(result));
         }
 
         [HttpGet("voucherId/{voucherId}")]

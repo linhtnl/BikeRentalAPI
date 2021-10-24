@@ -43,9 +43,11 @@ namespace BikeRental.API.Controllers
 
         [HttpGet("{id}")]
         [MapToApiVersion("1")]
-        public VoucherViewModel GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid id)
         {
-            return _voucherService.GetById(id);
+            var result = await _voucherService.GetById(id);
+
+            return await Task.Run(() => Ok(result));
         }
 
         [HttpGet("campaignId/{campaignId}")]
@@ -88,6 +90,15 @@ namespace BikeRental.API.Controllers
         public async Task<IActionResult> Update(Guid id, VoucherUpdateRequest voucherRequest)
         {
             return await Task.Run(() => Ok(_voucherService.UpdateVoucher(id, voucherRequest)));
+        }
+
+        [HttpGet("GetDiscountedPrice")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> GetDiscountedPrice(decimal originalPrice, Guid voucherCode)
+        {
+            var finalPrice = await _voucherService.GetDiscountedPrice(originalPrice, voucherCode);
+
+            return await Task.Run(() => Ok(finalPrice));
         }
     }
 }
