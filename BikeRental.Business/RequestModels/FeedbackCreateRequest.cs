@@ -9,7 +9,7 @@ namespace BikeRental.Business.RequestModels
 {
     public class FeedbackCreateRequest
     {
-        public virtual Booking IdNavigation { get; set; }
+        public Guid Id { get; set; }
         public int rating { get; set; }
         public string content { get; set; }
     }

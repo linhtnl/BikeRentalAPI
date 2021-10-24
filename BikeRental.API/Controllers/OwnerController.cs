@@ -63,14 +63,14 @@ namespace BikeRental.API.Controllers
         [HttpGet("find")]
         [MapToApiVersion("2")]
         [Authorize]
-        public async Task<IActionResult> Get(Guid areaId, Guid typeId, DateTime dateRent, DateTime dateReturn)
+        public async Task<IActionResult> Get(Guid areaId, Guid typeId, DateTime dateRent, DateTime dateReturn, int? timeRent, double totalPrice, string address, string customerLocation)
         {
             string token = null;
             if (Request.Headers["Authorization"].Count > 0)
             {
                 token = Request.Headers["Authorization"];
             }
-            return Ok(await _ownerService.GetListOwnerByAreaIdAndTypeId(areaId, typeId, token, dateRent, dateReturn));
+            return Ok(await _ownerService.GetListOwnerByAreaIdAndTypeId(areaId, typeId, token, dateRent, dateReturn, timeRent,totalPrice,address, customerLocation));
         }
 
         [HttpGet("{id}")]
@@ -135,7 +135,7 @@ namespace BikeRental.API.Controllers
             return await Task.Run(() => Ok(true));
         }
 
-        [HttpGet("testDistance")]
+        /*[HttpGet("testDistance")]
         [MapToApiVersion("2")]
         [Authorize]
         public async Task<IActionResult> TestDistance(Guid areaId, Guid typeId, string customerLocation, DateTime dateRent, DateTime dateReturn)
@@ -150,13 +150,13 @@ namespace BikeRental.API.Controllers
             var result = await DistanceUtil.OrderByDistance(suitableOwners, customerLocation);
 
             return await Task.Run(() => Ok(result));
-        }
+        }*/
 
         [HttpGet("testSendNoti")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> SendNoti(string id, string licensePlate, DateTime dateRent, DateTime dateReturn)
+        public async Task<IActionResult> SendNoti(Guid ownerId, [FromQuery]CustomerRequestModel request)
         {
-            return Ok(await _ownerService.SendNoti(id,licensePlate,dateRent,dateReturn));
+            return Ok(await _ownerService.SendNoti(ownerId,request));
         }
 
         [HttpGet("testGetTrackingBooking")]

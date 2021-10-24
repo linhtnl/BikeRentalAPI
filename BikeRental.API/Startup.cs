@@ -105,6 +105,9 @@ namespace BikeRental.API
                 mc.CreateMap<Bike, BikeViewModel>();
                 mc.CreateMap<BikeViewModel, Bike>();
 
+                mc.CreateMap<Bike, BikeByIdViewModel>();
+                mc.CreateMap<BikeByIdViewModel, Bike>();
+
                 mc.CreateMap<Bike, BikeCreateRequest>();
                 mc.CreateMap<BikeCreateRequest, Bike>();
 

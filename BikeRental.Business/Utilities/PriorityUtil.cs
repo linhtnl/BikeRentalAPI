@@ -8,9 +8,25 @@ namespace BikeRental.Business.Utilities
 {
     public class PriorityUtil
     {
-        public static double GetPriority (int bike, int totalBike, int distance, double rating, int deniedTime)
+        public static double GetPriority (double bookingTimes, double totalBike, double distance, double rating, double deniedTime)
         {
-            var priority = (bike / totalBike) * (1 / distance) * rating * (1 / deniedTime);
+            if(rating == 0)
+            {
+                rating = 1;
+            }
+            if(distance == 0)
+            {
+                distance = 1;
+            }
+            if(bookingTimes == 0)
+            {
+                bookingTimes = 1;
+            }
+            if(deniedTime == 0)
+            {
+                deniedTime = 1;
+            }
+            var priority = (bookingTimes / totalBike) * (1 / distance) * rating * (1 / bookingTimes)*(1/deniedTime);
             return priority;
         }
     }

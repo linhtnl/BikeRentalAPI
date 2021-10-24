@@ -41,8 +41,12 @@ namespace BikeRental.Business.Services
             var listBike = await Get(b => b.OwnerId.Equals(ownerId) && b.Status == (int)BikeStatus.Available).ProjectTo<BikeFindingViewModel>(_mapper).ToListAsync();
             if (listBike.Count != 0)
             {
+                
                 foreach (var bike in listBike)
-                {                        
+                {
+                    bike.TotalBike = listBike.Count;
+                    var cate = await _categoryService.GetCateById(bike.CategoryId);
+                    bike.CateName = cate.Name;
                     var rating = await _feedbackService.GetBikeRating(Guid.Parse(bike.Id.ToString()));                        
                     if (rating.FirstOrDefault().Value != 0)                      
                     {                       

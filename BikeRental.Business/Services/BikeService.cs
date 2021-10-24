@@ -26,7 +26,7 @@ namespace BikeRental.Business.Services
     public interface IBikeService : IBaseService<Bike>
     {
         Task<DynamicModelResponse<BikeViewModel>> GetAll(BikeViewModel model,int size, int pageNum, string token);
-        Task<BikeViewModel> GetBikeById(Guid id);
+        Task<BikeByIdViewModel> GetBikeById(Guid id);
         Task<BikeViewModel> Create(BikeCreateRequest request, string token);
         Task<BikeViewModel> Update(BikeUpdateRequest request, string token);
         Task<BikeDeleteSuccessViewModel> Delete(Guid id, string token);
@@ -38,20 +38,24 @@ namespace BikeRental.Business.Services
         private readonly IConfiguration _configuration;
         private readonly ICategoryService _categoryService;
         private readonly IBrandService _brandService;
-        
+        private readonly IWalletUtilService _walletUtilService;
+
 
         public BikeService(IUnitOfWork unitOfWork, IBikeRepository repository,
-             ICategoryService categoryService,IBrandService brandService ,IMapper mapper,IConfiguration configuration) : base(unitOfWork, repository)
+             ICategoryService categoryService,IBrandService brandService, IWalletUtilService walletUtilService, IMapper mapper,IConfiguration configuration) : base(unitOfWork, repository)
         {
             _categoryService = categoryService;
             _brandService = brandService;
+            _walletUtilService = walletUtilService;
             _mapper = mapper.ConfigurationProvider;
             _configuration = configuration;
         }
 
-        public async Task<BikeViewModel> GetBikeById(Guid id)
+        public async Task<BikeByIdViewModel> GetBikeById(Guid id)
         {
-            var bike = await Get(x => x.Id.Equals(id)).ProjectTo<BikeViewModel>(_mapper).FirstOrDefaultAsync();
+            var bike = await Get(x => x.Id.Equals(id)).ProjectTo<BikeByIdViewModel>(_mapper).FirstOrDefaultAsync();
+            var cate = await _categoryService.GetCateById(bike.CategoryId);
+            bike.BrandId = cate.BrandId;
             return bike;
         }
 
@@ -133,7 +137,10 @@ namespace BikeRental.Business.Services
             int role = tokenModel.Role;
             if (role == (int)RoleConstants.Owner)
             {
+                
                 var bike = _mapper.CreateMapper().Map<Bike>(request);
+                var balance = await _walletUtilService.GetWalletBalance(Guid.Parse(bike.OwnerId.ToString()));
+                if (decimal.Compare((decimal)balance,50000)<0) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Your Balance is not enough to create new bike.");
                 var cate = await _categoryService.GetCateById(bike.CategoryId);
                 if (cate.Status == (int)CategoryStatus.Pending)
                 {
@@ -156,7 +163,16 @@ namespace BikeRental.Business.Services
                 {
                     if (e.Message.Contains("unique"))
                     {
-                        throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "License plate is existed.");
+                        /*bike.Status = (int)BikeStatus.Pending;
+                        bike.LicensePlate = "[" + bike.LicensePlate + "]";
+                        await CreateAsync(bike);
+                        var result = _mapper.CreateMapper().Map<BikeViewModel>(bike);
+                        result.CategoryName = cate.Name;
+                        var brand = await _brandService.GetBrandById(cate.BrandId);
+                        result.BrandName = brand.Name;
+                        return result;*/
+                        //send noti to admin
+                        throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "License Plate is exist.");
                     }
                     throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid data.");
                 }

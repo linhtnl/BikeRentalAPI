@@ -32,9 +32,8 @@ namespace BikeRental.Business.Services
         Task<Owner> GetOwner(Guid id);
         Task<OwnerViewModel> GetByMail(string mail);
         Task<DynamicModelResponse<OwnerRatingViewModel>> GetAll(OwnerRatingViewModel model, int filterOption, int size, int pageNum);
-        Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn);
-        Task<bool> SendNoti(string id, string licensePlate, DateTime dateRent, DateTime dateReturn);
-
+        Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn, int? timeRent, double totalPrice, string address, string customerLocation);
+        Task<bool> SendNoti(Guid ownerId, CustomerRequestModel request);
         //thieu update
     }
     public class OwnerService : BaseService<Owner>, IOwnerService
@@ -251,12 +250,14 @@ namespace BikeRental.Business.Services
             throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Email from request and the one from access token is not matched.");
         }
 
-        public async Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn)
+        public async Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn, int? timeRent , double totalPrice, string address, string customerLocation) // customerLocation is formated by "latitude,longitude"
         {
             TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
             int role = tokenModel.Role;
             if (role != (int)RoleConstants.Customer)
                 throw new ErrorResponse((int)HttpStatusCode.Unauthorized, "This role cannot use this feature.");
+
+            bool rentedByDate = false;
             var owners = Get(x => x.AreaId.Equals(areaId)).ProjectTo<OwnerByAreaViewModel>(_mapper);
             var listOwner = owners.ToList();
             if (listOwner.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
@@ -294,17 +295,52 @@ namespace BikeRental.Business.Services
                     i--;
                 }
             }
-            var rs = await DistanceUtil.OrderByDistance(listTemp, tokenModel.Id);
-            //get registrationID of rs[0]
-            //get LicensePlate of rs[0]
-            //var checkSendNoti = NotificationUtil.SendNotification()
-            //if(checkSendNoti == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");
+            var listDistance = await DistanceUtil.OrderByDistance(listTemp, customerLocation);
+            foreach(var ownerTemp in listDistance)
+            {
+                double bookingtimes = 0;
+                double deniedtimes = 0;
+                var trackingBooking = await TrackingBookingUtil.GetTrackingBookingByDate(ownerTemp.Id, dateRent);
+                if(trackingBooking != null)
+                {
+                    bookingtimes = double.Parse(trackingBooking.BookingTimes.ToString());
+                    deniedtimes = double.Parse(trackingBooking.DeniedTimes.ToString());
+                }              
+                double totalBike = double.Parse(ownerTemp.Bike.TotalBike.ToString());
+                double distance = double.Parse(ownerTemp.LocationInfo.Distance.ToString());
+                double rating = double.Parse(ownerTemp.Rating.ToString());
+                ownerTemp.PriorityPoint = PriorityUtil.GetPriority(bookingtimes, totalBike, distance, rating, deniedtimes);
+            }
+            var finalResult = listDistance.AsQueryable().OrderByDescending(rs => rs.PriorityPoint);
+            var rs = finalResult.ToList();
+            if (DateTime.Compare(dateRent.Date,dateReturn.Date)==0)
+            {
+                rentedByDate = true;
+            }
+            CustomerRequestModel request = new CustomerRequestModel();
+            request.LicensePlate = rs[0].Bike.LicensePlate;
+            request.CateName = rs[0].Bike.CateName;
+            request.ImgPath = rs[0].Bike.ImgPath;
+            request.DateRent = dateRent;
+            request.DateReturn = dateReturn;
+            request.TimeRent = timeRent;
+            request.IsRentedByDate = rentedByDate;
+            request.Price = totalPrice;
+            request.Address = address;
+            request.CustomerName = tokenModel.Name;
+            var trackingRegistrationId = await TrackingRegistrationIdUtil.GetOwnerRegistrationId(rs[0].Id);
+            var registrationId = trackingRegistrationId.RegistrationId;
+            var checkSendNoti = await NotificationUtil.SendNotification(registrationId, request);
+            if (checkSendNoti == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");
             return rs;
         }
 
-        public Task<bool> SendNoti(string id, string licensePlate, DateTime dateRent, DateTime dateReturn)
-        {  
-            var send = NotificationUtil.SendNotification(id, licensePlate, dateRent, dateReturn);
+        public async Task<bool> SendNoti(Guid ownerId, CustomerRequestModel request)
+        {
+            var trackingRegistrationId = await TrackingRegistrationIdUtil.GetOwnerRegistrationId(ownerId);
+            var registrationId = trackingRegistrationId.RegistrationId;
+            var send = await NotificationUtil.SendNotification(registrationId, request);
+            if (send == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");
             return send;
         }
     }

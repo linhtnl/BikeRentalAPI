@@ -11,12 +11,8 @@ namespace BikeRental.Business.Utilities
 {
     public class NotificationUtil
     {
-        public static async Task<bool> SendNotification (string registrationId, string licensePlate, DateTime dateRent, DateTime dateReturn)
+        public static async Task<bool> SendNotification (string registrationId, CustomerRequestModel request)
         {
-            CustomerRequestModel request = new CustomerRequestModel();
-            request.LicensePlate = licensePlate;
-            request.DateRent = dateRent;
-            request.DateReturn = dateReturn;
             string jsonConvert = JsonConvert.SerializeObject(request);
             using (var sender = new Sender("AAAA0prIK9I:APA91bEsuL_KqXRNgkFhS8MMnDDncrX2p1ZhwUGyz0AAOrUoaaiCh6m4IifKdNpY6zA-PkSzdvQ7BOOJt2PtcznQpsLHZ3Fgx5Fk3v6EEvNf6_SlYjAP_8jDR1NyvAQ4LFoob8yxOxUm"))
             {

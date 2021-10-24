@@ -13,6 +13,7 @@ namespace BikeRental.Data.ViewModels
         public Guid? OwnerId { get; set; }
 
         public Guid? CategoryId { get; set; }
+        public int TotalBike { get; set; }
 
         public string CateName { get; set; }
 

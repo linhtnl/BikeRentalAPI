@@ -34,9 +34,17 @@ namespace BikeRental.Business.Services
 
         public async Task<Feedback> Create(FeedbackCreateRequest request)
         {
-            var feedback = _mapper.CreateMapper().Map<Feedback>(request);
-            await CreateAsync(feedback);
-            return feedback;
+            var booking = _bookingService.GetById(request.Id);
+            if (booking != null)
+            {
+                var feedback = _mapper.CreateMapper().Map<Feedback>(request);
+                await CreateAsync(feedback);
+                return feedback;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<Dictionary<int, double?>> GetBikeRating(Guid bikeId)
