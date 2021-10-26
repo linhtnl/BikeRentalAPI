@@ -257,7 +257,6 @@ namespace BikeRental.Business.Services
             if (role != (int)RoleConstants.Customer)
                 throw new ErrorResponse((int)HttpStatusCode.Unauthorized, "This role cannot use this feature.");
 
-            bool rentedByDate = false;
             var owners = Get(x => x.AreaId.Equals(areaId)).ProjectTo<OwnerByAreaViewModel>(_mapper);
             var listOwner = owners.ToList();
             if (listOwner.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
@@ -313,18 +312,12 @@ namespace BikeRental.Business.Services
             }
             var finalResult = listDistance.AsQueryable().OrderByDescending(rs => rs.PriorityPoint);
             var rs = finalResult.ToList();
-            if (DateTime.Compare(dateRent.Date,dateReturn.Date)==0)
-            {
-                rentedByDate = true;
-            }
             CustomerRequestModel request = new CustomerRequestModel();
             request.LicensePlate = rs[0].Bike.LicensePlate;
             request.CateName = rs[0].Bike.CateName;
             request.ImgPath = rs[0].Bike.ImgPath;
             request.DateRent = dateRent;
             request.DateReturn = dateReturn;
-            request.TimeRent = timeRent;
-            request.IsRentedByDate = rentedByDate;
             request.Price = totalPrice;
             request.Address = address;
             request.CustomerName = tokenModel.Name;
