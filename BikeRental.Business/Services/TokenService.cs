@@ -33,7 +33,9 @@ namespace BikeRental.Business.Services
 
             var claims = new[] {
                         new Claim(PayloadKeyConstants.ID, ownerInfo.Id.ToString()),
-                        new Claim(PayloadKeyConstants.ROLE, ((int)RoleConstants.Owner).ToString())
+                        new Claim(PayloadKeyConstants.ROLE, ((int)RoleConstants.Owner).ToString()),
+                        new Claim(PayloadKeyConstants.NAME, ownerInfo.Fullname),
+                        new Claim(PayloadKeyConstants.PHONE_NUMBER, ownerInfo.PhoneNumber)
             };
 
             var token = new JwtSecurityToken("",
@@ -78,6 +80,7 @@ namespace BikeRental.Business.Services
             var claims = new[] {
                         new Claim(PayloadKeyConstants.ID, ownerInfo.Id.ToString()),
                         new Claim(PayloadKeyConstants.ROLE, ((int)RoleConstants.Admin).ToString())
+
             };
 
             var token = new JwtSecurityToken("",
@@ -92,6 +95,9 @@ namespace BikeRental.Business.Services
         public static TokenViewModel ReadJWTTokenToModel(string token, IConfiguration configuration)
         {
             string tempToken = token;
+
+            string name = null;
+            string phoneNum = null;
 
             if (token.Contains("Bearer"))
             {
@@ -108,13 +114,14 @@ namespace BikeRental.Business.Services
             }
 
             var result = new JwtSecurityTokenHandler().ReadJwtToken(token);
-
             Guid id = Guid.Parse(result.Claims.First(claim => claim.Type == PayloadKeyConstants.ID).Value);
             int role = int.Parse(result.Claims.First(claim => claim.Type == PayloadKeyConstants.ROLE).Value);
-            string name = result.Claims.First(claim => claim.Type == PayloadKeyConstants.NAME).Value;
-            string phoneNumber = result.Claims.First(claim => claim.Type == PayloadKeyConstants.PHONE_NUMBER).Value;
-
-            return new TokenViewModel(id, role, name, phoneNumber);
+            if (role != (int)RoleConstants.Admin)
+            {
+                name = result.Claims.First(claim => claim.Type == PayloadKeyConstants.NAME).Value;
+                phoneNum = result.Claims.First(claim => claim.Type == PayloadKeyConstants.PHONE_NUMBER).Value;              
+            }
+            return new TokenViewModel(id, role, name, phoneNum);
         }
 
         private static SecurityKey GetSymmetricSecurityKey()
