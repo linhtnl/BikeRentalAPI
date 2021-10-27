@@ -45,7 +45,13 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("1")]
         public async Task<IActionResult> Update([FromQuery]Guid id , [FromQuery] int postalCode, [FromQuery] string name)
         {
-            return  Ok(await _areaService.Update(id, postalCode, name));
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+
+            return  Ok(await _areaService.Update(id, postalCode, name, token));
         }
 
         [Authorize]
@@ -53,7 +59,13 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("1")]
         public async Task<IActionResult> Create([FromBody]AreaCreateModel model)
         {
-            return Ok(await _areaService.Create(model));
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+
+            return Ok(await _areaService.Create(model, token));
         }
     }
 }
