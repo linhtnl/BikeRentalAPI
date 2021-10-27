@@ -1,17 +1,9 @@
-﻿using AutoMapper;
-using BikeRental.Business.Constants;
-using BikeRental.Business.RequestModels;
+﻿using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
-using BikeRental.Data.Models;
-using BikeRental.Data.Responses;
-using BikeRental.Data.ViewModels;
-using FirebaseAdmin.Auth;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -23,6 +15,7 @@ namespace BikeRental.API.Controllers
     {
         private readonly ICustomerService _customerService;
         private readonly IConfiguration _configuration;
+
         public CustomerController(ICustomerService customerService, IConfiguration configuration)
         {
             _customerService = customerService;
@@ -47,6 +40,7 @@ namespace BikeRental.API.Controllers
             return await Task.Run(() => Ok(token));
         }
 
+        [Authorize]
         [HttpPut]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Update(CustomerUpdateRequest request)
@@ -56,6 +50,7 @@ namespace BikeRental.API.Controllers
             return await Task.Run(() => Ok(updatedCustomer));
         }
 
+        [Authorize]
         [HttpDelete]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Delete(Guid id)

@@ -1,9 +1,5 @@
 ﻿using BikeRental.Business.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -14,6 +10,7 @@ namespace BikeRental.API.Controllers
     public class MotorTypeController : ControllerBase
     {
         private readonly IMotorTypeService _motorService;
+
         public MotorTypeController(IMotorTypeService motorTypeService)
         {
             _motorService = motorTypeService;

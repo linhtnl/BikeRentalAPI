@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using AutoMapper.Configuration;
 using AutoMapper.QueryableExtensions;
-using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
 using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
@@ -14,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BikeRental.Business.Services
@@ -120,13 +117,13 @@ namespace BikeRental.Business.Services
         {
             var ownerView = await _ownerService.GetOwnerById(walletRequest.Id);
 
-            if (ownerView != null && ownerView.ToString().Trim().Length > 0)
+            if (ownerView != null)
             {
                 Wallet wallet = _mapper.CreateMapper().Map<Wallet>(walletRequest);
                 await CreateAsync(wallet);
                 return wallet;
             }
-            return null;
+            throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot create wallet for this owner.");
         }
     }
 }

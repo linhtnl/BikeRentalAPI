@@ -1,17 +1,10 @@
 ﻿using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
-
-using BikeRental.Data.Responses;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -22,12 +15,12 @@ namespace BikeRental.API.Controllers
     public class BikeController : ControllerBase
     {
         private readonly IBikeService _bikeService;
-        private readonly IBikeUtilService _bikeUtilService;
-        public BikeController(IBikeService bikeService, IBikeUtilService bikeUtilService)
+
+        public BikeController(IBikeService bikeService)
         {
             _bikeService = bikeService;
-            _bikeUtilService = bikeUtilService;
         }
+
         [HttpGet("{id}")]
         [MapToApiVersion("1")]
         public async Task<IActionResult> GetById(Guid id)
@@ -35,9 +28,9 @@ namespace BikeRental.API.Controllers
             return Ok(await _bikeService.GetBikeById(id));
         }
 
+        [Authorize]
         [HttpGet]
         [MapToApiVersion("1")]
-        [Authorize]
         public async Task<IActionResult> Get([FromQuery] BikeViewModel model,int size, int page = CommonConstants.DefaultPage)
         {
             string token = null;
@@ -48,9 +41,9 @@ namespace BikeRental.API.Controllers
             return Ok(await _bikeService.GetAll(model, size, page, token));
         }
 
+        [Authorize]
         [HttpPost]
         [MapToApiVersion("1")]
-        [Authorize]
         public async Task<IActionResult> Create([FromBody]BikeCreateRequest request)
         {
             string token = null;
@@ -60,9 +53,10 @@ namespace BikeRental.API.Controllers
             }
             return Ok(await _bikeService.Create(request, token));
         }
+
+        [Authorize]
         [HttpPut]
         [MapToApiVersion("1")]
-        [Authorize]
         public async Task<IActionResult> Update([FromBody] BikeUpdateRequest request)
         {
             string token = null;
@@ -72,9 +66,10 @@ namespace BikeRental.API.Controllers
             }
             return Ok(await _bikeService.Update(request,token));
         }
+
+        [Authorize]
         [HttpDelete]
         [MapToApiVersion("1")]
-        [Authorize]
         public async Task<IActionResult> Delete([FromBody] Guid id)
         {
             string token = null;
@@ -84,6 +79,5 @@ namespace BikeRental.API.Controllers
             }
             return Ok(await _bikeService.Delete(id,token));
         }
-        
     }
 }

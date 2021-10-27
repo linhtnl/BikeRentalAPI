@@ -1,20 +1,13 @@
-﻿using AutoMapper;
-using BikeRental.Business.Constants;
+﻿using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using BikeRental.Business.Utilities;
 using BikeRental.Data.Models;
-using BikeRental.Data.Responses;
 using BikeRental.Data.ViewModels;
-using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -26,12 +19,10 @@ namespace BikeRental.API.Controllers
     public class OwnerController : Controller
     {
         private readonly IOwnerService _ownerService;
-        private readonly AutoMapper.IConfigurationProvider _mapper;
         private readonly IConfiguration _configuration;
-        public OwnerController(IOwnerService ownerService, IMapper mapper, IConfiguration configuration)
+        public OwnerController(IOwnerService ownerService, IConfiguration configuration)
         {
             _ownerService = ownerService;
-            _mapper = mapper.ConfigurationProvider;
             _configuration = configuration;
         }
 
@@ -79,6 +70,8 @@ namespace BikeRental.API.Controllers
         {
             return Ok(await _ownerService.GetOwnerById(id));
         }
+
+        [Authorize]
         [HttpDelete]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Delete([FromBody] Guid id)

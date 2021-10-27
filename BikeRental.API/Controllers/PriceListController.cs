@@ -1,12 +1,8 @@
 ﻿using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
-using BikeRental.Data.Models;
-using BikeRental.Data.ViewModels;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -30,6 +26,8 @@ namespace BikeRental.API.Controllers
         {
             return Ok(await _priceListService.GetAll());
         }
+
+        [Authorize]
         [HttpPost]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Create(PricelistCreateRequest request)
@@ -37,6 +35,7 @@ namespace BikeRental.API.Controllers
             return Ok(await _priceListService.Create(request));
         }
 
+        [Authorize]
         [HttpPut]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Update(Guid areaId, Guid cateId, decimal? price)
