@@ -48,7 +48,7 @@ namespace BikeRental.Business.Services
             }
             catch
             {
-                return null;
+                throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");
             }
         }
 

@@ -1,12 +1,8 @@
 ﻿using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
-using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -14,10 +10,10 @@ namespace BikeRental.API.Controllers
     [Route("api/v{version:apiVersion}/bookings")]
     [ApiController]
     [ApiVersion("1")]
-   
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
+
         public BookingController(IBookingService bookingService)
         {
             _bookingService = bookingService;
@@ -37,9 +33,9 @@ namespace BikeRental.API.Controllers
             return Ok(await _bookingService.GetById(id));
         }
 
+        [Authorize]
         [HttpPost]
         [MapToApiVersion("1")]
-        [Authorize]
         public async Task<IActionResult> Create([FromBody] BookingCreateRequest request)
         {
             string token = null;
@@ -53,9 +49,9 @@ namespace BikeRental.API.Controllers
             return await Task.Run(() => Ok(bookingResult));
         }
 
+        [Authorize]
         [HttpPut]
         [MapToApiVersion("1")]
-        [Authorize]
         public async Task<IActionResult> UpdateStatus([FromBody] BookingUpdateStatusRequest request)
         {
             string token = null;

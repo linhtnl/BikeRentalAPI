@@ -1,17 +1,9 @@
-﻿
-using BikeRental.Business.Services;
-using BikeRental.Business.Constants;
-using BikeRental.Data.Models;
+﻿using BikeRental.Business.Services;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using BikeRental.Data.Responses;
-using System.Net;
 
 namespace BikeRental.API.Controllers
 {
@@ -21,6 +13,7 @@ namespace BikeRental.API.Controllers
     public class AreaController : ControllerBase
     {
         private readonly IAreaService _areaService;
+
         public AreaController(IAreaService areaService)
         {
             _areaService = areaService;
@@ -28,35 +21,34 @@ namespace BikeRental.API.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        //[ProducesResponseType(typeof(DynamicModelResponse<AreaViewModel>), (int)HttpStatusCode.OK)]
-        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
-        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Get([FromQuery] AreaViewModel model)
         {
             return Ok(await _areaService.GetAll(model));
         }
+
         [HttpGet("{id}")]
         [MapToApiVersion("1")]
-        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
-        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetArea(Guid id)
         {
             return Ok(await _areaService.GetById(id));
         }
+
         [HttpGet("areaByOwnerId")]
         [MapToApiVersion("1")]
-        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
-        //[ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetAreaByOwnerId(Guid id)
         {
             return Ok(await _areaService.GetAreaByOwnerId(id));
         }
+
+        [Authorize]
         [HttpPut]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Update([FromQuery]Guid id , [FromQuery] int postalCode, [FromQuery] string name)
         {
-                return  Ok(await _areaService.Update(id, postalCode, name));
+            return  Ok(await _areaService.Update(id, postalCode, name));
         }
+
+        [Authorize]
         [HttpPost]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Create([FromBody]AreaCreateModel model)

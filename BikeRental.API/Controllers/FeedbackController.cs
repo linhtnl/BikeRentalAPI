@@ -1,10 +1,8 @@
 ﻿using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -15,11 +13,13 @@ namespace BikeRental.API.Controllers
     public class FeedbackController : ControllerBase
     {
         private readonly IFeedbackService _feedbackService;
+
         public FeedbackController(IFeedbackService feedbackService)
         {
             _feedbackService = feedbackService;
         }
 
+        [Authorize]
         [HttpPost]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Create(FeedbackCreateRequest request)
@@ -27,6 +27,7 @@ namespace BikeRental.API.Controllers
             return Ok(await _feedbackService.Create(request));
         }
 
+        [Authorize]
         [HttpPut]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Update(Guid id,FeedbackCreateRequest request)

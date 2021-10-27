@@ -2,11 +2,9 @@
 using BikeRental.Business.Services;
 using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -17,6 +15,7 @@ namespace BikeRental.API.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
+
         public CategoryController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
@@ -35,18 +34,24 @@ namespace BikeRental.API.Controllers
         {
             return Ok(await _categoryService.GetCateById(id));
         }
+
+        [Authorize]
         [HttpPut]
         [MapToApiVersion("1")]
         public async Task<Category> Update(Guid id, string name, int type)
         {
             return await _categoryService.Update(id, name, type);
         }
+
+        [Authorize]
         [HttpPost]
         [MapToApiVersion("1")]
         public async Task<Category> Create(CategoryCreateModel model)
         {
             return await _categoryService.Create(model);
         }
+
+        [Authorize]
         [HttpDelete]
         [MapToApiVersion("1")]
         public async Task<bool> Delete(Guid id)

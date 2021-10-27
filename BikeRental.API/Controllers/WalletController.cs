@@ -1,15 +1,11 @@
-﻿using BikeRental.Business.Constants;
-using BikeRental.Business.RequestModels;
+﻿using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using BikeRental.Data.Enums;
-using BikeRental.Data.Models;
-using BikeRental.Data.Responses;
 using BikeRental.Data.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -21,19 +17,20 @@ namespace BikeRental.API.Controllers
     public class WalletController : Controller
     {
         private readonly IWalletService _walletService;
+
         public WalletController(IWalletService walletService)
         {
             _walletService = walletService;
         }
+
+        [Authorize]
         [HttpPost]
         [MapToApiVersion("1")]
         public async Task<IActionResult> CreateNew([FromBody] WalletCreateRequest walletRequest)
         {
             var wallet = _walletService.CreateNew(walletRequest);
 
-            return wallet != null 
-                ? await Task.Run(() => Ok(wallet)) 
-                : await Task.Run(() => StatusCode(ResponseStatusConstants.FORBIDDEN));
+            return await Task.Run(() => Ok(wallet));
         }
 
         [HttpGet("{id}")]
@@ -69,14 +66,14 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("2")]
         public async Task<bool> DepositAmount([FromBody] WalletRequest requestData)
         {
-                return await _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int) WalletStatus.DEPOSIT);             
+            return await _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int) WalletStatus.DEPOSIT);             
         }
 
         [HttpPut("decreaseAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
         [MapToApiVersion("2")]
         public async Task<bool> DecreaseAmount([FromBody] WalletRequest requestData)
         {          
-               return await _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int)WalletStatus.DECREASE);    
+            return await _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int)WalletStatus.DECREASE);    
         }
     }
 }

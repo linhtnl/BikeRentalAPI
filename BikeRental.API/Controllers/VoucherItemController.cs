@@ -1,11 +1,10 @@
-﻿using BikeRental.Business.Constants;
-using BikeRental.Business.RequestModels;
+﻿using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using BikeRental.Data.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -17,11 +16,13 @@ namespace BikeRental.API.Controllers
     public class VoucherItemController : Controller
     {
         private readonly IVoucherItemService _voucherItemService;
+
         public VoucherItemController(IVoucherItemService voucherItemService)
         {
             _voucherItemService = voucherItemService;
         }
 
+        [Authorize]
         [HttpPost]
         [MapToApiVersion("1")]
         public async Task<IActionResult> CreateNew([FromBody] VoucherItemCreateRequest voucherItemRequest)

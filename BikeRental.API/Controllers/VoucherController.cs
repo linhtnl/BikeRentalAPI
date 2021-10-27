@@ -1,5 +1,4 @@
-﻿using BikeRental.Business.Constants;
-using BikeRental.Business.RequestModels;
+﻿using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using BikeRental.Data.Models;
 using BikeRental.Data.ViewModels;
@@ -7,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BikeRental.API.Controllers
@@ -19,6 +17,7 @@ namespace BikeRental.API.Controllers
     public class VoucherController : Controller
     {
         private readonly IVoucherService _voucherService;
+
         public VoucherController(IVoucherService voucherService)
         {
             _voucherService = voucherService;
@@ -78,6 +77,7 @@ namespace BikeRental.API.Controllers
             return _voucherService.GetInDiscountPercentRange(startNum, endNum);
         }
 
+        [Authorize]
         [HttpDelete]
         [MapToApiVersion("2")]
         public async Task<IActionResult> Delete([FromBody] Guid id)
@@ -85,6 +85,7 @@ namespace BikeRental.API.Controllers
             return await Task.Run(() => Ok(_voucherService.DeleteVoucher(id)));
         }
 
+        [Authorize]
         [HttpPut]
         [MapToApiVersion("2")]
         public async Task<IActionResult> Update(Guid id, VoucherUpdateRequest voucherRequest)
