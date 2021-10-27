@@ -250,7 +250,8 @@ namespace BikeRental.Business.Services
             throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Email from request and the one from access token is not matched.");
         }
 
-        public async Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn, int? timeRent , double totalPrice, string address, string customerLocation) // customerLocation is formated by "latitude,longitude"
+        public async Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn, 
+            int? timeRent , double totalPrice, string address, string customerLocation) // customerLocation is formated by "latitude,longitude"
         {
             TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
             int role = tokenModel.Role;
@@ -313,6 +314,7 @@ namespace BikeRental.Business.Services
             var finalResult = listDistance.AsQueryable().OrderByDescending(rs => rs.PriorityPoint);
             var rs = finalResult.ToList();
             CustomerRequestModel request = new CustomerRequestModel();
+            request.CustomerId = tokenModel.Id;
             request.LicensePlate = rs[0].Bike.LicensePlate;
             request.CateName = rs[0].Bike.CateName;
             request.ImgPath = rs[0].Bike.ImgPath;
@@ -323,17 +325,20 @@ namespace BikeRental.Business.Services
             request.CustomerName = tokenModel.Name;
             var trackingRegistrationId = await TrackingRegistrationIdUtil.GetOwnerRegistrationId(rs[0].Id);
             var registrationId = trackingRegistrationId.RegistrationId;
-            var checkSendNoti = await NotificationUtil.SendNotification(registrationId, request);
+            var checkSendNoti = await NotificationUtil.SendOwnerNotification(registrationId, request);
             if (checkSendNoti == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");
             return rs;
         }
 
         public async Task<bool> SendNoti(Guid ownerId, CustomerRequestModel request)
         {
-            var trackingRegistrationId = await TrackingRegistrationIdUtil.GetOwnerRegistrationId(ownerId);
-            var registrationId = trackingRegistrationId.RegistrationId;
-            var send = await NotificationUtil.SendNotification(registrationId, request);
-            if (send == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");
+            var trackingOwnerRegistrationId = await TrackingRegistrationIdUtil.GetOwnerRegistrationId(ownerId);
+            var registrationId = trackingOwnerRegistrationId.RegistrationId;
+
+            var send = await NotificationUtil.SendOwnerNotification(registrationId, request);
+            if (send == false) 
+                throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");
+
             return send;
         }
     }

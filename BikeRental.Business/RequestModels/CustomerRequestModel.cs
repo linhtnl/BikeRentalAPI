@@ -8,6 +8,7 @@ namespace BikeRental.Business.RequestModels
 {
     public class CustomerRequestModel
     {
+        public Guid CustomerId { get; set; }
         public string CustomerName { get; set; }
         public string LicensePlate { get; set; }
         public string CateName { get;set; }
