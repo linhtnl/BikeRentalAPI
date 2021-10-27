@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
+using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,6 +28,7 @@ namespace BikeRental.Business.Services
         Task<string> Register(CustomerCreateRequest request, IConfiguration configuration);
         Task<bool> DeleteCustomer(Guid id);
         Task<CustomerViewModel> UpdateCustomer(CustomerUpdateRequest request);
+        Task<bool> SendBookingReply(ReplyBookingRequest request);
     }
     public class CustomerService : BaseService<Customer>, ICustomerService
     {
@@ -100,6 +103,19 @@ namespace BikeRental.Business.Services
             string token = TokenService.GenerateCustomerJWTWebToken(targetCustomer, configuration);
 
             return await Task.Run(() => token);
+        }
+
+        public async Task<bool> SendBookingReply(ReplyBookingRequest request)
+        {
+            try
+            {
+                await NotificationUtil.ReplyBookingCustomerNotification(request);
+
+                return await Task.Run(() => true);
+            } catch
+            {
+                return await Task.Run(() => false);
+            }
         }
 
         public async Task<CustomerViewModel> UpdateCustomer(CustomerUpdateRequest request)
