@@ -10,6 +10,7 @@ using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,22 +24,24 @@ namespace BikeRental.Business.Services
     public interface IAreaService : IBaseService<Area>
     {
         Task<AreaViewModel> GetById(Guid id);
-
         Task<List<AreaViewModel>> GetAll(AreaViewModel model);
-
-        Task<AreaViewModel> Update(Guid id,int postalCode, string name);
-
-        Task<AreaViewModel> Create(AreaCreateModel model);
+        Task<AreaViewModel> Update(Guid id,int postalCode, string name, string token);
+        Task<AreaViewModel> Create(AreaCreateModel model, string token);
         Task<AreaViewModel> GetAreaByOwnerId(Guid id);
     }
     public class AreaService : BaseService<Area>, IAreaService
     {
-        private readonly IConfigurationProvider _mapper;
+        private readonly AutoMapper.IConfigurationProvider _mapper;
         private readonly IOwnerService _ownerService;
-        public AreaService(IUnitOfWork unitOfWork, IAreaRepository repository, IMapper mapper, IOwnerService ownerService) : base(unitOfWork, repository)
+        private readonly IConfiguration _configuration;
+
+        public AreaService(IUnitOfWork unitOfWork, IConfiguration configuration, IMapper mapper,
+            IAreaRepository repository, 
+            IOwnerService ownerService) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
             _ownerService = ownerService;
+            _configuration = configuration;
         }
 
         public async Task<List<AreaViewModel>> GetAll(AreaViewModel model)
@@ -54,9 +57,12 @@ namespace BikeRental.Business.Services
             return rs;
         }
 
-        public async Task<AreaViewModel> Update(Guid id, int postalCode, string name)
+        public async Task<AreaViewModel> Update(Guid id, int postalCode, string name, string token)
         {
-            //only admin
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+
+            if (tokenModel.Role != (int)RoleConstants.Admin)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
             
             Area area = Get(a => a.Id.Equals(id)).First();
             area.PostalCode = postalCode;
@@ -73,9 +79,13 @@ namespace BikeRental.Business.Services
             }
         }
 
-        public async Task<AreaViewModel> Create(AreaCreateModel model)
+        public async Task<AreaViewModel> Create(AreaCreateModel model, string token)
         {
-            //only admin
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+
+            if (tokenModel.Role != (int)RoleConstants.Admin)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+
             var area = _mapper.CreateMapper().Map<Area>(model);
             try
             {
