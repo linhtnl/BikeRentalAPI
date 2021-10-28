@@ -19,6 +19,7 @@ namespace BikeRental.API.Controllers
             _areaService = areaService;
         }
 
+        [Authorize]
         [HttpGet]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Get([FromQuery] AreaViewModel model)
