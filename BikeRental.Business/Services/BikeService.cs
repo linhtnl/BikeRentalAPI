@@ -139,7 +139,7 @@ namespace BikeRental.Business.Services
             {
                 
                 var bike = _mapper.CreateMapper().Map<Bike>(request);
-                var balance = await _walletUtilService.GetWalletBalance(Guid.Parse(bike.OwnerId.ToString()));
+                var balance = await _walletUtilService.GetWalletBalance(bike.OwnerId.Value);
                 if (decimal.Compare((decimal)balance,50000)<0) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Your Balance is not enough to create new bike.");
                 var cate = await _categoryService.GetCateById(bike.CategoryId);
                 if (cate.Status == (int)CategoryStatus.Pending)
@@ -159,9 +159,9 @@ namespace BikeRental.Business.Services
                     result.BrandName = brand.Name;
                     return result;
                 }
-                catch (SqlException e)
+                catch (Exception e)
                 {
-                    if (e.Message.Contains("unique"))
+                    if (e.InnerException.ToString().Contains("UNIQUE"))
                     {
                         /*bike.Status = (int)BikeStatus.Pending;
                         bike.LicensePlate = "[" + bike.LicensePlate + "]";
@@ -172,7 +172,7 @@ namespace BikeRental.Business.Services
                         result.BrandName = brand.Name;
                         return result;*/
                         //send noti to admin
-                        throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "License Plate is exist.");
+                        throw new ErrorResponse((int)HttpStatusCode.BadRequest, "License Plate is exist.");
                     }
                     throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid data.");
                 }
@@ -193,6 +193,7 @@ namespace BikeRental.Business.Services
             {
                 var bike = await GetAsync(request.Id);
                 if (bike == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
+                if(tokenModel.Role == (int)RoleConstants.Owner && !bike.OwnerId.Equals(tokenModel.Id)) throw new ErrorResponse((int)HttpStatusCode.Forbidden, "You can only update information of your bike.");
                 var updateBike = _mapper.CreateMapper().Map(request, bike);
                 try
                 {
@@ -204,8 +205,21 @@ namespace BikeRental.Business.Services
                     result.BrandName = brand.Name;
                     return result;
                 }
-                catch
+                catch (Exception e)
                 {
+                    if (e.InnerException.ToString().Contains("UNIQUE"))
+                    {
+                        /*bike.Status = (int)BikeStatus.Pending;
+                        bike.LicensePlate = "[" + bike.LicensePlate + "]";
+                        await CreateAsync(bike);
+                        var result = _mapper.CreateMapper().Map<BikeViewModel>(bike);
+                        result.CategoryName = cate.Name;
+                        var brand = await _brandService.GetBrandById(cate.BrandId);
+                        result.BrandName = brand.Name;
+                        return result;*/
+                        //send noti to admin
+                        throw new ErrorResponse((int)HttpStatusCode.BadRequest, "License Plate is exist.");
+                    }
                     throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid data!");
                 }
             }
@@ -227,6 +241,7 @@ namespace BikeRental.Business.Services
 
                 if (bike == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
                 if (bike.Status == (int)BikeStatus.Rent) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not delete Rented bike!");
+                bike.LicensePlate = bike.LicensePlate + "_Delete_" + DateTime.Now;
                 bike.Status = (int)BikeStatus.Delete;
                 await UpdateAsync(bike);
                 var result = _mapper.CreateMapper().Map<BikeDeleteSuccessViewModel>(bike);

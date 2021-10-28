@@ -295,6 +295,7 @@ namespace BikeRental.Business.Services
                     i--;
                 }
             }
+            if(listTemp.Count==0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
             var listDistance = await DistanceUtil.OrderByDistance(listTemp, customerLocation);
             foreach(var ownerTemp in listDistance)
             {
@@ -313,7 +314,7 @@ namespace BikeRental.Business.Services
             }
             var finalResult = listDistance.AsQueryable().OrderByDescending(rs => rs.PriorityPoint);
             var rs = finalResult.ToList();
-            CustomerRequestModel request = new CustomerRequestModel();
+            /*CustomerRequestModel request = new CustomerRequestModel();
             request.CustomerId = tokenModel.Id;
             request.LicensePlate = rs[0].Bike.LicensePlate;
             request.CateName = rs[0].Bike.CateName;
@@ -326,7 +327,7 @@ namespace BikeRental.Business.Services
             var trackingRegistrationId = await TrackingRegistrationIdUtil.GetOwnerRegistrationId(rs[0].Id);
             var registrationId = trackingRegistrationId.RegistrationId;
             var checkSendNoti = await NotificationUtil.SendOwnerNotification(registrationId, request);
-            if (checkSendNoti == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");
+            if (checkSendNoti == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");*/
             return rs;
         }
 

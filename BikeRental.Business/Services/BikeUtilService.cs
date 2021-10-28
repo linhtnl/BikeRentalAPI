@@ -69,7 +69,7 @@ namespace BikeRental.Business.Services
                         i--;
                     }
                 }
-                if (listSuitableBike.Count==0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+                if (listSuitableBike.Count == 0) return null;
                 var cateTemp = await _categoryService.GetCateById(listSuitableBike[0].CategoryId);
                 if (!cateTemp.MotorTypeId.Equals(typeId))
                 {
