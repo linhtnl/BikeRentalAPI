@@ -80,9 +80,19 @@ namespace BikeRental.API.Controllers
         }
 
         [Authorize]
+        [HttpPut]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Update([FromBody] OwnerUpdateRequest request)
+        {
+            var result = await _ownerService.Update(request);
+
+            return await Task.Run(() => Ok(result));
+        }
+
+        [Authorize]
         [HttpGet("sendBookingReply")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> SendBookingReply(ReplyBookingRequest request)
+        public async Task<IActionResult> SendBookingReply([FromQuery] ReplyBookingRequest request)
         {
             var result = await _ownerService.SendBookingReply(request);
 
