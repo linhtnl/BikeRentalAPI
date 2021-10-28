@@ -22,7 +22,7 @@ namespace BikeRental.Business.Services
     public interface IAreaService : IBaseService<Area>
     {
         Task<AreaViewModel> GetById(Guid id);
-        Task<List<AreaViewModel>> GetAll(AreaViewModel model, string token);
+        Task<List<AreaViewModel>> GetAll(AreaViewModel model);
         Task<AreaViewModel> Update(Guid id,int postalCode, string name, string token);
         Task<AreaViewModel> Create(AreaCreateModel model, string token);
         Task<AreaViewModel> GetAreaByOwnerId(Guid id);
@@ -42,28 +42,14 @@ namespace BikeRental.Business.Services
             _configuration = configuration;
         }
 
-        public async Task<List<AreaViewModel>> GetAll(AreaViewModel model, string token)
+        public async Task<List<AreaViewModel>> GetAll(AreaViewModel model)
         {
-            List<AreaViewModel> result = null;
-
-            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
-            int role = tokenModel.Role;
-            
-            if (role == (int)RoleConstants.Customer || role == (int)RoleConstants.Owner)
-            {
-                var areas = Get().ProjectTo<AreaViewModel>(_mapper)
+            var areas = Get().ProjectTo<AreaViewModel>(_mapper)
                     .DynamicFilter(model);
-                result = await areas.ToListAsync();
+            var result = await areas.ToListAsync();
 
-                if (result.Count == 0)
-                    throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
-            } else if (role == (int)RoleConstants.Admin)
-            {
-                result = await Get().ProjectTo<AreaViewModel>(_mapper).ToListAsync() ;
-            }
-
-            if (result == null)
-                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Something went wrong.");
+            if (result.Count == 0)
+                throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
 
             return await Task.Run(() => result);
         }
