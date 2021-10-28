@@ -79,6 +79,15 @@ namespace BikeRental.API.Controllers
             return Ok(await _ownerService.Delete(id));
         }
 
+        [Authorize]
+        [HttpPut]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Update([FromBody] OwnerUpdateRequest request)
+        {
+            var result = await _ownerService.Update(request);
+
+            return await Task.Run(() => Ok(result));
+        }
 
         [Authorize]
         [HttpGet("sendBookingReply")]

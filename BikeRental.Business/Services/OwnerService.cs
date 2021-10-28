@@ -28,13 +28,13 @@ namespace BikeRental.Business.Services
         Task<string> Register(OwnerRegisterRequest loginRequest, IConfiguration configuration);
         Task<OwnerViewModel> CreateNew(Owner ownerInfo);
         Task<OwnerViewModel> Delete(Guid id);
+        Task<OwnerViewModel> Update(OwnerUpdateRequest request);
         Task<OwnerDetailViewModel> GetOwnerById(Guid id);
         Task<Owner> GetOwner(Guid id);
         Task<OwnerViewModel> GetByMail(string mail);
         Task<DynamicModelResponse<OwnerRatingViewModel>> GetAll(OwnerRatingViewModel model, int filterOption, int size, int pageNum);
         Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn, int? timeRent, double totalPrice, string address, string customerLocation);
         Task<bool> SendNoti(Guid ownerId, CustomerRequestModel request);
-
         Task<bool> SendBookingReply(ReplyBookingRequest request);
         //thieu update
     }
@@ -207,6 +207,9 @@ namespace BikeRental.Business.Services
 
             if (result != null) // if email existed in local database
             {
+                if (result.Status == (int)UserStatus.Deactive)
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This account got banned or got some trouble.");
+
                 FirebaseToken token = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(loginRequest.AccessToken); // re-check access token with firebase
                 object email;
                 token.Claims.TryGetValue("email", out email); // get email from the above re-check step, then check the email whether it's matched the request email
@@ -316,7 +319,8 @@ namespace BikeRental.Business.Services
             }
             var finalResult = listDistance.AsQueryable().OrderByDescending(rs => rs.PriorityPoint);
             var rs = finalResult.ToList();
-            /*CustomerRequestModel request = new CustomerRequestModel();
+
+            CustomerRequestModel request = new CustomerRequestModel();
             request.CustomerId = tokenModel.Id;
             request.LicensePlate = rs[0].Bike.LicensePlate;
             request.CateName = rs[0].Bike.CateName;
@@ -329,7 +333,7 @@ namespace BikeRental.Business.Services
             var trackingRegistrationId = await TrackingRegistrationIdUtil.GetOwnerRegistrationId(rs[0].Id);
             var registrationId = trackingRegistrationId.RegistrationId;
             var checkSendNoti = await NotificationUtil.SendOwnerNotification(registrationId, request);
-            if (checkSendNoti == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");*/
+            if (checkSendNoti == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");
             return rs;
         }
 
@@ -357,6 +361,18 @@ namespace BikeRental.Business.Services
             {
                 return await Task.Run(() => false);
             }
+        }
+
+        public async Task<OwnerViewModel> Update(OwnerUpdateRequest request)
+        {
+            var tempOwner = await GetAsync(request.Id);
+            var targetOwner = _mapper.CreateMapper().Map<Owner>(tempOwner);
+
+            await UpdateAsync(targetOwner);
+
+            var result = _mapper.CreateMapper().Map<OwnerViewModel>(targetOwner);
+
+            return await Task.Run(() => result);
         }
     }
 }

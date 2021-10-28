@@ -221,6 +221,9 @@ namespace BikeRental.API
 
                 mc.CreateMap<MotorType, MotorTypeViewModel>();
                 mc.CreateMap<MotorTypeViewModel, MotorType>();
+
+                mc.CreateMap<Owner, OwnerUpdateRequest>();
+                mc.CreateMap<OwnerUpdateRequest, Owner>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
