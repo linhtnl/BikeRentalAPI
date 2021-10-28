@@ -14,7 +14,7 @@ namespace BikeRental.Data.ViewModels
         public string Fullname { get; set; }
         public string IdentityImg { get; set; }
         public int? RewardPoints { get; set; }
-        public bool? IsBanned { get; set; }
+        public int Status { get; set; }
         public int? BanCount { get; set; }
     }
 }
