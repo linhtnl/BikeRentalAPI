@@ -80,7 +80,7 @@ namespace BikeRental.Business.Services
             if (customer == null)
                 throw new ErrorResponse((int)HttpStatusCode.NotFound, "Phone number not existed in database yet.");
 
-            if (customer.IsBanned.Value)
+            if (customer.Status == (int)UserStatus.Deactive)
                 throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This user has been banned.");
 
             string token = TokenService.GenerateCustomerJWTWebToken(customer, configuration);
