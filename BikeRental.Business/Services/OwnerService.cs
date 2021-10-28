@@ -34,6 +34,8 @@ namespace BikeRental.Business.Services
         Task<DynamicModelResponse<OwnerRatingViewModel>> GetAll(OwnerRatingViewModel model, int filterOption, int size, int pageNum);
         Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn, int? timeRent, double totalPrice, string address, string customerLocation);
         Task<bool> SendNoti(Guid ownerId, CustomerRequestModel request);
+
+        Task<bool> SendBookingReply(ReplyBookingRequest request);
         //thieu update
     }
     public class OwnerService : BaseService<Owner>, IOwnerService
@@ -341,6 +343,20 @@ namespace BikeRental.Business.Services
                 throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong.");
 
             return send;
+        }
+
+        public async Task<bool> SendBookingReply(ReplyBookingRequest request)
+        {
+            try
+            {
+                await NotificationUtil.ReplyBookingCustomerNotification(request);
+
+                return await Task.Run(() => true);
+            }
+            catch
+            {
+                return await Task.Run(() => false);
+            }
         }
     }
 }
