@@ -79,10 +79,11 @@ namespace BikeRental.API.Controllers
             return Ok(await _ownerService.Delete(id));
         }
 
+
         [Authorize]
         [HttpGet("sendBookingReply")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> SendBookingReply(ReplyBookingRequest request)
+        public async Task<IActionResult> SendBookingReply([FromQuery] ReplyBookingRequest request)
         {
             var result = await _ownerService.SendBookingReply(request);
 
