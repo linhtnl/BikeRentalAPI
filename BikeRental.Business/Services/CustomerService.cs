@@ -28,7 +28,6 @@ namespace BikeRental.Business.Services
         Task<string> Register(CustomerCreateRequest request, IConfiguration configuration);
         Task<bool> DeleteCustomer(Guid id);
         Task<CustomerViewModel> UpdateCustomer(CustomerUpdateRequest request);
-        Task<bool> SendBookingReply(ReplyBookingRequest request);
     }
     public class CustomerService : BaseService<Customer>, ICustomerService
     {
@@ -103,19 +102,6 @@ namespace BikeRental.Business.Services
             string token = TokenService.GenerateCustomerJWTWebToken(targetCustomer, configuration);
 
             return await Task.Run(() => token);
-        }
-
-        public async Task<bool> SendBookingReply(ReplyBookingRequest request)
-        {
-            try
-            {
-                await NotificationUtil.ReplyBookingCustomerNotification(request);
-
-                return await Task.Run(() => true);
-            } catch
-            {
-                return await Task.Run(() => false);
-            }
         }
 
         public async Task<CustomerViewModel> UpdateCustomer(CustomerUpdateRequest request)
