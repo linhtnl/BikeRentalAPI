@@ -2,7 +2,6 @@
 using AutoMapper.QueryableExtensions;
 using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
-using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
@@ -11,10 +10,8 @@ using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BikeRental.Business.Services
@@ -32,6 +29,7 @@ namespace BikeRental.Business.Services
     public class CustomerService : BaseService<Customer>, ICustomerService
     {
         private readonly AutoMapper.IConfigurationProvider _mapper;
+
         public CustomerService(IUnitOfWork unitOfWork, ICustomerRepository repository, 
             IMapper mapper) : base(unitOfWork, repository)
         {
@@ -51,7 +49,8 @@ namespace BikeRental.Business.Services
             try
             {
                 var customer = await GetAsync(id);
-                if (customer == null) throw new ErrorResponse((int)ResponseStatusConstants.NOT_FOUND, "Customer not found.");
+                if (customer == null) 
+                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Customer not found.");
 
                 customer.Status = (int)UserStatus.Deactive;
                 customer.BanCount += 1;
@@ -79,9 +78,11 @@ namespace BikeRental.Business.Services
             CustomerViewModel customer = GetCustomerByPhone(phoneNumber);
 
             if (customer == null)
-            {
-                throw new ErrorResponse((int)ResponseStatusConstants.CREATED, "Phone number not existed in database yet.");
-            }
+                throw new ErrorResponse((int)HttpStatusCode.NotFound, "Phone number not existed in database yet.");
+
+            if (customer.IsBanned.Value)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This user has been banned.");
+
             string token = TokenService.GenerateCustomerJWTWebToken(customer, configuration);
 
             return await Task.Run(() => token);
@@ -93,7 +94,7 @@ namespace BikeRental.Business.Services
 
             if (targetCustomer != null)
             {
-                throw new ErrorResponse((int)ResponseStatusConstants.BAD_REQUEST, "Phone number existed.");
+                throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Phone number existed.");
             }
             Customer newCustomer = await CreateNew(request);
 
@@ -109,7 +110,8 @@ namespace BikeRental.Business.Services
             try
             {
                 var customer = await GetAsync(request.Id);
-                if (customer == null) throw new ErrorResponse((int)ResponseStatusConstants.NOT_FOUND, "Customer not found.");
+                if (customer == null) 
+                    throw new ErrorResponse((int)HttpStatusCode.NotFound, "Customer not found.");
 
                 await UpdateAsync(customer);
                 CustomerViewModel updatedCustomer = _mapper.CreateMapper().Map<CustomerViewModel>(customer);
@@ -117,7 +119,7 @@ namespace BikeRental.Business.Services
             }
             catch
             {
-                throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Something went wrong.");
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Something went wrong.");
             }
         }
     }

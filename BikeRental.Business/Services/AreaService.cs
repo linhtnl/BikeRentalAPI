@@ -3,7 +3,6 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BikeRental.Business.Constants;
 using BikeRental.Business.Utilities;
-using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
 using BikeRental.Data.Responses;
@@ -16,7 +15,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BikeRental.Business.Services
@@ -24,7 +22,7 @@ namespace BikeRental.Business.Services
     public interface IAreaService : IBaseService<Area>
     {
         Task<AreaViewModel> GetById(Guid id);
-        Task<List<AreaViewModel>> GetAll(AreaViewModel model);
+        Task<List<AreaViewModel>> GetAll(AreaViewModel model, string token);
         Task<AreaViewModel> Update(Guid id,int postalCode, string name, string token);
         Task<AreaViewModel> Create(AreaCreateModel model, string token);
         Task<AreaViewModel> GetAreaByOwnerId(Guid id);
@@ -44,17 +42,30 @@ namespace BikeRental.Business.Services
             _configuration = configuration;
         }
 
-        public async Task<List<AreaViewModel>> GetAll(AreaViewModel model)
+        public async Task<List<AreaViewModel>> GetAll(AreaViewModel model, string token)
         {
-            //customer&owner => Status = Available
-            //Admin => all
+            List<AreaViewModel> result = null;
 
-            //customer&owner
-            var areas = Get().ProjectTo<AreaViewModel>(_mapper)
-                .DynamicFilter(model);
-            var rs = await areas.ToListAsync();
-            if(rs.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
-            return rs;
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+            int role = tokenModel.Role;
+            
+            if (role == (int)RoleConstants.Customer || role == (int)RoleConstants.Owner)
+            {
+                var areas = Get().ProjectTo<AreaViewModel>(_mapper)
+                    .DynamicFilter(model);
+                result = await areas.ToListAsync();
+
+                if (result.Count == 0)
+                    throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            } else if (role == (int)RoleConstants.Admin)
+            {
+                result = await Get().ProjectTo<AreaViewModel>(_mapper).ToListAsync() ;
+            }
+
+            if (result == null)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Something went wrong.");
+
+            return await Task.Run(() => result);
         }
 
         public async Task<AreaViewModel> Update(Guid id, int postalCode, string name, string token)
@@ -109,7 +120,9 @@ namespace BikeRental.Business.Services
         public async Task<AreaViewModel> GetAreaByOwnerId(Guid id)
         {
             var owner = await _ownerService.GetOwnerById(id);
-            if(owner == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            if(owner == null) 
+                throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+
             return await Get(a => a.Id.Equals(owner.AreaId)).ProjectTo<AreaViewModel>(_mapper).FirstOrDefaultAsync();
         }
     }

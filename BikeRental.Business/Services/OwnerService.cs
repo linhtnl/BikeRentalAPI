@@ -219,12 +219,12 @@ namespace BikeRental.Business.Services
 
                     return await Task.Run(() => verifyRequestToken); // return if everything is done
                 }
-                throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Email from request and the one from access token is not matched."); // return if this email's not existed yet in database - FE foward to sign up page
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Email from request and the one from access token is not matched."); // return if this email's not existed yet in database - FE foward to sign up page
             }
             var claim = new Dictionary<string, object> { { "email", userRecord.Email } };
             await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(loginRequest.GoogleId, claim);
 
-            throw new ErrorResponse((int)ResponseStatusConstants.NOT_FOUND, "Email's not existed in database yet.");
+            throw new ErrorResponse((int)HttpStatusCode.NotFound, "Email's not existed in database yet.");
         }
 
         public async Task<string> Register(OwnerRegisterRequest loginRequest, IConfiguration configuration)
@@ -247,9 +247,9 @@ namespace BikeRental.Business.Services
 
                     return await Task.Run(() => verifyRequestToken);
                 }
-                throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Something went wrong.");
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Something went wrong.");
             }
-            throw new ErrorResponse((int)ResponseStatusConstants.FORBIDDEN, "Email from request and the one from access token is not matched.");
+            throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Email from request and the one from access token is not matched.");
         }
 
         public async Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn, 

@@ -23,7 +23,13 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("1")]
         public async Task<IActionResult> Get([FromQuery] AreaViewModel model)
         {
-            return Ok(await _areaService.GetAll(model));
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+
+            return Ok(await _areaService.GetAll(model, token));
         }
 
         [HttpGet("{id}")]
