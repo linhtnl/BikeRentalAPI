@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -110,7 +111,7 @@ namespace BikeRental.Business.Services
 
             if (!isValid)
             {
-                throw new ErrorResponse((int)ResponseStatusConstants.UNAUTHORIZED, "Request Secret Token is invalid");
+                throw new ErrorResponse((int)HttpStatusCode.Unauthorized, "Request Secret Token is invalid");
             }
 
             var result = new JwtSecurityTokenHandler().ReadJwtToken(token);
