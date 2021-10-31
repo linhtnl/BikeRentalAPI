@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
 using BikeRental.Business.Utilities;
 using BikeRental.Data.Models;
@@ -8,6 +9,7 @@ using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,18 +23,24 @@ namespace BikeRental.Business.Services
     {
         Task<List<PriceListViewModel>> GetAll();
         Task<PriceList> Create(PricelistCreateRequest request);
-        Task<PriceList> Update(Guid areaId, Guid cateId, decimal? price);
+        Task<PriceList> Update(Guid areaId, Guid cateId, decimal? price, string token);
         Task<decimal> GetPriceByAreaIdAndTypeId(Guid areaId,Guid typeId);
         Task<List<PriceListByAreaViewModel>> GetPriceByArea(Guid areaId);
     }
     public class PriceListService : BaseService<PriceList>, IPriceListService
     {
-        private readonly IConfigurationProvider _mapper;
+        private readonly AutoMapper.IConfigurationProvider _mapper;
+        private readonly IConfiguration _configuration;
+
         private readonly IMotorTypeService _motorTypeService;
-        public PriceListService(IUnitOfWork unitOfWork, IPriceListRepository repository, IMotorTypeService motorTypeService, IMapper mapper) : base(unitOfWork, repository)
+        public PriceListService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, 
+            IPriceListRepository repository, 
+            IMotorTypeService motorTypeService) : base(unitOfWork, repository)
         {
-            _motorTypeService = motorTypeService;
             _mapper = mapper.ConfigurationProvider;
+            _configuration = configuration;
+
+            _motorTypeService = motorTypeService;
         }
 
         public async Task<PriceList> Create(PricelistCreateRequest request)
@@ -58,8 +66,14 @@ namespace BikeRental.Business.Services
             return await Task.Run(() => priceList.Price.Value);
         }
 
-        public async Task<PriceList> Update(Guid areaId, Guid motorTypeId, decimal? price)
+        public async Task<PriceList> Update(Guid areaId, Guid motorTypeId, decimal? price, string token)
         {
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+
+            int role = tokenModel.Role;
+            if (role != (int)RoleConstants.Admin)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+
             var priceList = await Get(temp => temp.AreaId.Equals(areaId) && temp.MotorTypeId.Equals(motorTypeId)).FirstOrDefaultAsync();
             priceList.Price = price;
             await UpdateAsync(priceList);
