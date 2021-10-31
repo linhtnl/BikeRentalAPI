@@ -26,7 +26,7 @@ namespace BikeRental.Business.Utilities
             {
                 deniedTime = 1;
             }
-            var priority = (bookingTimes / totalBike) * (1 / distance) * rating * (1 / bookingTimes)*(1/deniedTime);
+            var priority = (bookingTimes / totalBike) * (1000 / distance) * rating * (1 / bookingTimes)*(1/deniedTime);
             return priority;
         }
     }

@@ -27,6 +27,7 @@ namespace BikeRental.Business.Utilities
             return null;
         }
 
+        //Thêm tham số truyền vào (denied or accept)
         public static async Task<bool> UpdateTrackingBooking(Guid ownerId, DateTime date)
         {
             string formatedDate = date.ToString("yyyy-MM-dd");
