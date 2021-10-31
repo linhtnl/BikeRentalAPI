@@ -23,17 +23,19 @@ namespace BikeRental.Business.Services
         CustomerViewModel GetCustomerByPhone(string phone);
         Task<string> Login(string phoneNumber, IConfiguration configuration);
         Task<string> Register(CustomerCreateRequest request, IConfiguration configuration);
-        Task<bool> DeleteCustomer(Guid id);
+        Task<CustomerViewModel> DeleteCustomer(Guid id, string token);
         Task<CustomerViewModel> UpdateCustomer(CustomerUpdateRequest request);
     }
     public class CustomerService : BaseService<Customer>, ICustomerService
     {
         private readonly AutoMapper.IConfigurationProvider _mapper;
+        private readonly IConfiguration _configuration;
 
-        public CustomerService(IUnitOfWork unitOfWork, ICustomerRepository repository, 
-            IMapper mapper) : base(unitOfWork, repository)
+        public CustomerService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, 
+            ICustomerRepository repository) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
+            _configuration = configuration;
         }
 
         public async Task<Customer> CreateNew(CustomerCreateRequest request)
@@ -44,23 +46,25 @@ namespace BikeRental.Business.Services
             return targetCustomer;
         }
 
-        public async Task<bool> DeleteCustomer(Guid id)
+        public async Task<CustomerViewModel> DeleteCustomer(Guid id, string token)
         {
-            try
-            {
-                var customer = await GetAsync(id);
-                if (customer == null) 
-                    throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Customer not found.");
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
 
-                customer.Status = (int)UserStatus.Deactive;
-                customer.BanCount += 1;
-                await UpdateAsync(customer);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            int role = tokenModel.Role;
+            if (role != (int)RoleConstants.Admin)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+
+            var customer = await GetAsync(id);
+            if (customer == null)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Customer not found.");
+
+            customer.Status = (int)UserStatus.Deactive;
+            customer.BanCount += 1;
+            await UpdateAsync(customer);
+
+            var result = _mapper.CreateMapper().Map<CustomerViewModel>(customer);
+
+            return await Task.Run(() => result);
         }
 
         public CustomerViewModel GetCustomerById(Guid id)
