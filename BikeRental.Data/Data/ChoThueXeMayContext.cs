@@ -30,12 +30,12 @@ namespace BikeRental.Data.Models
         public virtual DbSet<Owner> Owners { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
         public virtual DbSet<PriceList> PriceLists { get; set; }
+        public virtual DbSet<Report> Reports { get; set; }
         public virtual DbSet<TransactionHistory> TransactionHistories { get; set; }
         public virtual DbSet<Voucher> Vouchers { get; set; }
         public virtual DbSet<VoucherExchangeHistory> VoucherExchangeHistories { get; set; }
         public virtual DbSet<VoucherItem> VoucherItems { get; set; }
         public virtual DbSet<Wallet> Wallets { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
@@ -86,7 +86,7 @@ namespace BikeRental.Data.Models
                 entity.Property(e => e.ImgPath).HasMaxLength(255);
 
                 entity.Property(e => e.LicensePlate)
-                    .HasMaxLength(11)
+                    .HasMaxLength(255)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('-')");
 
@@ -252,7 +252,7 @@ namespace BikeRental.Data.Models
             {
                 entity.ToTable("MotorType");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Name).HasMaxLength(50);
             });
@@ -331,6 +331,24 @@ namespace BikeRental.Data.Models
                     .HasForeignKey(d => d.MotorTypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__PriceList__Motor__4D5F7D71");
+            });
+
+            modelBuilder.Entity<Report>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("Report");
+
+                entity.HasIndex(e => e.Id, "UQ__Report__3214EC06206794BF")
+                    .IsUnique();
+
+                entity.Property(e => e.Content).IsRequired();
+
+                entity.HasOne(d => d.IdNavigation)
+                    .WithOne()
+                    .HasForeignKey<Report>(d => d.Id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Report_Booking");
             });
 
             modelBuilder.Entity<TransactionHistory>(entity =>
