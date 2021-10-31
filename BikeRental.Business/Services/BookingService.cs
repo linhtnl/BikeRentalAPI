@@ -102,6 +102,13 @@ namespace BikeRental.Business.Services
             await CreateAsync(targetBooking);
 
             var bookingResult = _mapper.CreateMapper().Map<BookingSuccessViewModel>(targetBooking);
+
+            string dateTimeFormat = "yyyy-MM-dd";
+
+            await TrackingBookingUtil.UpdateTrackingBooking(request.OwnerId, 
+                Convert.ToDateTime(request.DayRent.ToString(dateTimeFormat)), 
+                Convert.ToDateTime(request.DayReturnExpected.ToString(dateTimeFormat)));
+
             return await Task.Run(() => bookingResult);
         }
 

@@ -355,6 +355,11 @@ namespace BikeRental.Business.Services
             {
                 await NotificationUtil.ReplyBookingCustomerNotification(request);
 
+                if (!request.IsAccepted)
+                    await TrackingBookingUtil.UpdateTrackingBooking(request.OwnerId, 
+                        Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd")), 
+                        false);
+
                 return await Task.Run(() => true);
             }
             catch

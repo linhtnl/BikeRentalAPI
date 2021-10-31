@@ -28,7 +28,7 @@ namespace BikeRental.Business.Utilities
         }
 
         //Thêm tham số truyền vào (denied or accept)
-        public static async Task<bool> UpdateTrackingBooking(Guid ownerId, DateTime date)
+        public static async Task<bool> UpdateTrackingBooking(Guid ownerId, DateTime date, bool isAccepted)
         {
             string formatedDate = date.ToString("yyyy-MM-dd");
 
@@ -44,8 +44,8 @@ namespace BikeRental.Business.Utilities
                     .Child("TrackingBookingPriority/" + ownerId + "/" + formatedDate)
                     .PutAsync(new TrackingBookingViewModel()
                     {
-                        BookingTimes = 1,
-                        DeniedTimes = 0
+                        BookingTimes = (isAccepted) ? 1 : 0,
+                        DeniedTimes = (!isAccepted) ? 1 : 0
                     });
 
                 return await Task.Run(() => true);
@@ -55,8 +55,8 @@ namespace BikeRental.Business.Utilities
                     .Child("TrackingBookingPriority/" + ownerId + "/" + formatedDate)
                     .PutAsync(new TrackingBookingViewModel()
                     {
-                        BookingTimes = trackingBooking.BookingTimes + 1,
-                        DeniedTimes = trackingBooking.DeniedTimes
+                        BookingTimes = (isAccepted) ? trackingBooking.BookingTimes + 1 : trackingBooking.BookingTimes,
+                        DeniedTimes = (!isAccepted) ? trackingBooking.DeniedTimes + 1 : trackingBooking.DeniedTimes
                     });
                 return await Task.Run(() => true);
             }
@@ -68,7 +68,7 @@ namespace BikeRental.Business.Utilities
 
             while (DateTime.Compare(dayRent.AddDays(count), dayReturn) <= 0)
             {
-                var isCompleted = await UpdateTrackingBooking(ownerId, dayRent.AddDays(count));
+                var isCompleted = await UpdateTrackingBooking(ownerId, dayRent.AddDays(count), true);
 
                 count++;
             }

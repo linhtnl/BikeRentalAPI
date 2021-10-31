@@ -181,9 +181,9 @@ namespace BikeRental.API.Controllers
 
         [HttpGet("testUpdateTrackingBooking")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> TestUpdateTrackingBooking(Guid ownerId, DateTime date)
+        public async Task<IActionResult> TestUpdateTrackingBooking(Guid ownerId, DateTime date, bool isAccepted)
         {
-            return Ok(await TrackingBookingUtil.UpdateTrackingBooking(ownerId, date));
+            return Ok(await TrackingBookingUtil.UpdateTrackingBooking(ownerId, date, isAccepted));
         }
 
         [HttpGet("testUpdateTrackingBookingDays")]
