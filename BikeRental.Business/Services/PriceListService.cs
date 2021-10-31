@@ -58,13 +58,12 @@ namespace BikeRental.Business.Services
             return await Task.Run(() => priceList.Price.Value);
         }
 
-        public async Task<PriceList> Update(Guid areaId, Guid cateId, decimal? price)
+        public async Task<PriceList> Update(Guid areaId, Guid motorTypeId, decimal? price)
         {
-            /*var priceList = await Get(pl => pl.AreaId.Equals(areaId) && pl.CategoryId.Equals(cateId)).FirstOrDefaultAsync();
+            var priceList = await Get(temp => temp.AreaId.Equals(areaId) && temp.MotorTypeId.Equals(motorTypeId)).FirstOrDefaultAsync();
             priceList.Price = price;
             await UpdateAsync(priceList);
-            return priceList;*/
-            return null;
+            return priceList;
         }
 
         public async Task<List<PriceListByAreaViewModel>> GetPriceByArea(Guid areaId)

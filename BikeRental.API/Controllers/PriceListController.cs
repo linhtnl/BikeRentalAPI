@@ -38,9 +38,9 @@ namespace BikeRental.API.Controllers
         [Authorize]
         [HttpPut]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Update(Guid areaId, Guid cateId, decimal? price)
+        public async Task<IActionResult> Update(Guid areaId, Guid motorTypeId, decimal? price)
         {
-            return Ok(await _priceListService.Update(areaId,cateId,price));
+            return Ok(await _priceListService.Update(areaId, motorTypeId, price));
         }
 
         [HttpGet("suitablePriceList")]
