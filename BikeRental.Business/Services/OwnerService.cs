@@ -10,14 +10,12 @@ using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
 using FirebaseAdmin.Auth;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BikeRental.Business.Services
@@ -27,7 +25,7 @@ namespace BikeRental.Business.Services
         Task<string> Login(OwnerLoginRequest loginRequest, IConfiguration configuration);
         Task<string> Register(OwnerRegisterRequest loginRequest, IConfiguration configuration);
         Task<OwnerViewModel> CreateNew(Owner ownerInfo);
-        Task<OwnerViewModel> Delete(Guid id);
+        Task<OwnerViewModel> Delete(Guid id, string token);
         Task<OwnerViewModel> Update(OwnerUpdateRequest request);
         Task<OwnerDetailViewModel> GetOwnerById(Guid id);
         Task<Owner> GetOwner(Guid id);
@@ -188,9 +186,14 @@ namespace BikeRental.Business.Services
             return rs;
         }
 
-        public async Task<OwnerViewModel> Delete(Guid id)
+        public async Task<OwnerViewModel> Delete(Guid id, string token)
         {
-            //only admin
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+
+            int role = tokenModel.Role;
+            if (role != (int)RoleConstants.Admin)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+
             var owner = await GetAsync(id);
             if (owner == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
             owner.Status = (int)UserStatus.Deactive;

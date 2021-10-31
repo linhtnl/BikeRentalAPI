@@ -76,7 +76,12 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("1")]
         public async Task<IActionResult> Delete([FromBody] Guid id)
         {
-            return Ok(await _ownerService.Delete(id));
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+            return Ok(await _ownerService.Delete(id, token));
         }
 
         [Authorize]
