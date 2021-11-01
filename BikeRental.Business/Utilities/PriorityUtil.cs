@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BikeRental.Data.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,26 +9,50 @@ namespace BikeRental.Business.Utilities
 {
     public class PriorityUtil
     {
-        public static double GetPriority (double bookingTimes, double totalBike, double distance, double rating, double deniedTime)
+        public static double GetPriority(double bookingTimes, double totalBike, double distance, double rating, double deniedTime, List<double> maxMinDistances)
         {
-            if(rating == 0)
+            double maxDistance = maxMinDistances[1];
+
+            double priority = 0;
+
+            double denyCoefficient = 0;
+            if (deniedTime < 2)
             {
-                rating = 1;
+                denyCoefficient = 0.1;
             }
-            if(distance == 0)
+            else if (deniedTime > 2)
             {
-                distance = 1;
+                denyCoefficient = 0.15;
             }
-            if(bookingTimes == 0)
+            else if (deniedTime > 5)
             {
-                bookingTimes = 1;
+                denyCoefficient = 0.3;
             }
-            if(deniedTime == 0)
+
+            if (deniedTime == 0)
             {
-                deniedTime = 1;
+                priority = 0.5 * (1 - bookingTimes / totalBike) + 0.4 * (1 - distance / maxDistance) + 0.1 * (rating / 5);
             }
-            var priority = (bookingTimes / totalBike) * (1000 / distance) * rating * (1 / bookingTimes)*(1/deniedTime);
+            else
+            {
+                priority = 0.5 * (1 - bookingTimes / totalBike) + 0.4 * (1 - distance / maxDistance) + 0.1 * (rating / 5) - (denyCoefficient * deniedTime);
+            }
             return priority;
+        }
+
+        public static List<double> GetMaxMinDistance(List<OwnerByAreaViewModel> list)
+        {
+            double min = 0;
+            double max = 0;
+            foreach (var owner in list)
+            {
+                var distance = owner.LocationInfo.Distance;
+                if (distance < min)
+                    min = double.Parse(distance.ToString());
+                else if (distance > max)
+                    max = double.Parse(distance.ToString());
+            }
+            return new List<double>() { min, max };
         }
     }
 }

@@ -305,7 +305,8 @@ namespace BikeRental.Business.Services
             }
             if(listTemp.Count==0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
             var listDistance = await DistanceUtil.OrderByDistance(listTemp, customerLocation);
-            foreach(var ownerTemp in listDistance)
+            var maxMinDistances = PriorityUtil.GetMaxMinDistance(listDistance);
+            foreach (var ownerTemp in listDistance)
             {
                 double bookingtimes = 0;
                 double deniedtimes = 0;
@@ -317,8 +318,8 @@ namespace BikeRental.Business.Services
                 }              
                 double totalBike = double.Parse(ownerTemp.Bike.TotalBike.ToString());
                 double distance = double.Parse(ownerTemp.LocationInfo.Distance.ToString());
-                double rating = double.Parse(ownerTemp.Rating.ToString());
-                ownerTemp.PriorityPoint = PriorityUtil.GetPriority(bookingtimes, totalBike, distance, rating, deniedtimes);
+                double rating = double.Parse(ownerTemp.Rating.ToString());              
+                ownerTemp.PriorityPoint = PriorityUtil.GetPriority(bookingtimes, totalBike, distance, rating, deniedtimes, maxMinDistances);
             }
             var finalResult = listDistance.AsQueryable().OrderByDescending(rs => rs.PriorityPoint);
             var rs = finalResult.ToList();
