@@ -1,16 +1,8 @@
 ﻿using AutoMapper;
-using AutoMapper.Configuration;
-using AutoMapper.QueryableExtensions;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
-using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
-using BikeRental.Data.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BikeRental.Business.Services
@@ -24,7 +16,7 @@ namespace BikeRental.Business.Services
     {
         private readonly IConfigurationProvider _mapper;
 
-        public UtilService(IUnitOfWork unitOfWork, IOwnerRepository ownerRepository, IMapper mapper) : base(unitOfWork, ownerRepository)
+        public UtilService(IUnitOfWork unitOfWork, IMapper mapper, IOwnerRepository ownerRepository) : base(unitOfWork, ownerRepository)
         {
             _mapper = mapper.ConfigurationProvider;
         }

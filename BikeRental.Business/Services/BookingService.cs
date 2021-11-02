@@ -35,19 +35,15 @@ namespace BikeRental.Business.Services
 
         private readonly IBikeService _bikeService;
         private readonly IVoucherItemService _voucherItemService;
-        private readonly IVoucherService _voucherService;
-        private readonly IPriceListService _priceListService;
-        private readonly ICategoryService _categoryService;
         private readonly IUtilService _utilService;
+        private readonly IWalletService _walletService;
 
         public BookingService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration,
             IBookingRepository bookingRepository,
             IBikeService bikeService,
             IVoucherItemService voucherItemService,
-            IVoucherService voucherService,
-            IPriceListService priceListService,
-            ICategoryService categoryService, 
-            IUtilService utilService
+            IUtilService utilService,
+            IWalletService walletService
             ) : base(unitOfWork, bookingRepository)
         {
             _mapper = mapper.ConfigurationProvider;
@@ -55,10 +51,8 @@ namespace BikeRental.Business.Services
 
             _bikeService = bikeService;
             _voucherItemService = voucherItemService;
-            _voucherService = voucherService;
-            _priceListService = priceListService;
-            _categoryService = categoryService;
             _utilService = utilService;
+            _walletService = walletService;
         }
 
         public async Task<BookingSuccessViewModel> CreateNew(string token, BookingCreateRequest request)
@@ -108,6 +102,9 @@ namespace BikeRental.Business.Services
             await TrackingBookingUtil.UpdateTrackingBooking(request.OwnerId, 
                 Convert.ToDateTime(request.DayRent.ToString(dateTimeFormat)), 
                 Convert.ToDateTime(request.DayReturnExpected.ToString(dateTimeFormat)));
+
+            await _walletService
+                .UpdateAmount(request.OwnerId, Decimal.Divide(request.Price, 10), (int)WalletStatus.DECREASE, bookingResult.Id);
 
             return await Task.Run(() => bookingResult);
         }
