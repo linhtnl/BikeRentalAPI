@@ -23,22 +23,20 @@ namespace BikeRental.Business.Services
         WalletViewModel GetByMomoId(string momoId);
         WalletViewModel GetByBankId(string bankId);
         List<TransactionHistoryViewModel> GetTransactionHistory(Guid id, int pageNum, int? filterOption);
-        Task<bool> UpdateAmount(Guid id, int amount, int isDeposited);
+        Task<bool> UpdateAmount(Guid walletId, decimal amount, int status, Guid bookingId);
     }
 
     public class WalletService : BaseService<Wallet>, IWalletService
     {
         private readonly IConfigurationProvider _mapper;
         private readonly ITransactionHistoryService _transactionHistoryService;
-        private readonly IOwnerService _ownerService;
-
-        //private const int groupItemNum = 10;
+        private readonly IOwnerRepository _ownerRepository;
 
         public WalletService(IUnitOfWork unitOfWork, IWalletRepository repository, IMapper mapper, 
             ITransactionHistoryService transactionHistoryService, 
-            IOwnerService ownerService) : base(unitOfWork, repository)
+            IOwnerRepository ownerRepository) : base(unitOfWork, repository)
         {
-            _ownerService = ownerService;
+            _ownerRepository = ownerRepository;
             _transactionHistoryService = transactionHistoryService;
             _mapper = mapper.ConfigurationProvider;
         }
@@ -69,15 +67,18 @@ namespace BikeRental.Business.Services
             return PagingUtil<TransactionHistoryViewModel>.Paging(transactionHistories, pageNum);       
         }
 
-        private async Task<bool> DepositAmount(Guid id, int amount)
+        private async Task<bool> DepositAmount(Guid walletId, decimal amount, Guid bookingId)
         {
-            Wallet targetWallet = Get().Where(tempWallet => tempWallet.Id.Equals(id)).First();
+            Wallet targetWallet = await GetAsync(walletId);
 
             targetWallet.Balance += amount;
 
             try
             {
                 await UpdateAsync(targetWallet);
+
+                await _transactionHistoryService.CreateNew(walletId, bookingId, DateTime.Now, false, amount);
+
                 return true;
             } catch
             {
@@ -85,15 +86,18 @@ namespace BikeRental.Business.Services
             }
         }
 
-        private async Task<bool> DecreaseAmount(Guid id, int amount)
+        private async Task<bool> DecreaseAmount(Guid walletId, decimal amount, Guid bookingId)
         {
-            Wallet targetWallet = Get().Where(tempWallet => tempWallet.Id.Equals(id)).First();
+            Wallet targetWallet = await GetAsync(walletId);
 
             targetWallet.Balance -= amount;
 
             try
             {
                 await UpdateAsync(targetWallet);
+
+                await _transactionHistoryService.CreateNew(walletId, bookingId, DateTime.Now, true, amount);
+
                 return true;
             }
             catch
@@ -102,20 +106,20 @@ namespace BikeRental.Business.Services
             }
         }
 
-        public async Task<bool> UpdateAmount(Guid id, int amount, int status)
+        public async Task<bool> UpdateAmount(Guid walletId, decimal amount, int status, Guid bookingId)
         {
             if (status == (int)WalletStatus.DEPOSIT)
             {
-                return await DepositAmount(id, amount);
+                return await DepositAmount(walletId, amount, bookingId);
             } else
             {
-                return await DecreaseAmount(id, amount);
+                return await DecreaseAmount(walletId, amount, bookingId);
             }
         }
 
         public async Task<Wallet> CreateNew(WalletCreateRequest walletRequest)
         {
-            var ownerView = await _ownerService.GetOwnerById(walletRequest.Id);
+            var ownerView = await _ownerRepository.GetAsync(walletRequest.Id);
 
             if (ownerView != null)
             {

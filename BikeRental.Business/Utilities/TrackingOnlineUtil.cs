@@ -29,7 +29,7 @@ namespace BikeRental.Business.Utilities
                         ExpiredTime = DateTime.UtcNow.AddHours(2)
                     });
 
-                return true;
+                return await Task.Run(() => true);
             }
             catch
             {

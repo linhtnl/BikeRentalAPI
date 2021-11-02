@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BikeRental.Business.RequestModels
 {
     public class WalletRequest
     {
-        public Guid Id { get; set; }
+        public Guid WalletId { get; set; }
         public int Amount { get; set; }
+        public Guid BookingId { get; set; }
     }
 }

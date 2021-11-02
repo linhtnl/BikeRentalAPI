@@ -1,4 +1,5 @@
-﻿using BikeRental.Business.Services;
+﻿using BikeRental.Business.RequestModels;
+using BikeRental.Business.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -49,6 +50,22 @@ namespace BikeRental.API.Controllers
                 token = Request.Headers["Authorization"];
             }
             return Ok(await _reportService.GetAll(token));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Create(ReportCreateRequest request)
+        {
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+
+            var result = await _reportService.CreateNew(request, token);
+
+            return await Task.Run(() => Ok(result));
         }
     }
 }

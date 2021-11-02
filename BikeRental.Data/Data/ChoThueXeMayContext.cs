@@ -36,6 +36,7 @@ namespace BikeRental.Data.Models
         public virtual DbSet<VoucherExchangeHistory> VoucherExchangeHistories { get; set; }
         public virtual DbSet<VoucherItem> VoucherItems { get; set; }
         public virtual DbSet<Wallet> Wallets { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
@@ -335,17 +336,17 @@ namespace BikeRental.Data.Models
 
             modelBuilder.Entity<Report>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("Report");
 
                 entity.HasIndex(e => e.Id, "UQ__Report__3214EC06206794BF")
                     .IsUnique();
 
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
                 entity.Property(e => e.Content).IsRequired();
 
                 entity.HasOne(d => d.IdNavigation)
-                    .WithOne()
+                    .WithOne(p => p.Report)
                     .HasForeignKey<Report>(d => d.Id)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Report_Booking");

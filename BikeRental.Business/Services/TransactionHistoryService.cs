@@ -8,7 +8,6 @@ using BikeRental.Data.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BikeRental.Business.Services
@@ -19,6 +18,7 @@ namespace BikeRental.Business.Services
         List<TransactionHistoryViewModel> GetInRangeTime(DateTime startTime, DateTime endTime);
         List<TransactionHistoryViewModel> GetByWalletId(Guid walletId);
         List<TransactionHistoryViewModel> FilterGetTransactionHistory(Guid walletId, int? filterOption);
+        Task<TransactionHistoryViewModel> CreateNew(Guid walletId, Guid bookingId, DateTime actionDate, bool action, decimal amount);
     }
     public class TransactionHistoryService : BaseService<TransactionHistory>, ITransactionHistoryService
     {
@@ -86,6 +86,24 @@ namespace BikeRental.Business.Services
                 default:
                     return null;
             }
+        }
+
+        public async Task<TransactionHistoryViewModel> CreateNew(Guid walletId, Guid bookingId, DateTime actionDate, bool action, decimal amount)
+        {
+            var targetTransactionHistory = new TransactionHistory
+            {
+                Action = action,
+                ActionDate = actionDate,
+                Amount = amount,
+                WalletId = walletId,
+                BookingId = bookingId
+            };
+
+            await CreateAsync(targetTransactionHistory);
+
+            var result = _mapper.CreateMapper().Map<TransactionHistoryViewModel>(targetTransactionHistory);
+
+            return await Task.Run(() => result);
         }
     }
 }

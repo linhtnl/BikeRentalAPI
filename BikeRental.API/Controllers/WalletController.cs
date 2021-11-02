@@ -66,14 +66,16 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("2")]
         public async Task<bool> DepositAmount([FromBody] WalletRequest requestData)
         {
-            return await _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int) WalletStatus.DEPOSIT);             
+            return await _walletService
+                .UpdateAmount(requestData.WalletId, requestData.Amount, (int) WalletStatus.DEPOSIT, requestData.BookingId);             
         }
 
         [HttpPut("decreaseAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
         [MapToApiVersion("2")]
         public async Task<bool> DecreaseAmount([FromBody] WalletRequest requestData)
         {          
-            return await _walletService.UpdateAmount(requestData.Id, requestData.Amount, (int)WalletStatus.DECREASE);    
+            return await _walletService
+                .UpdateAmount(requestData.WalletId, requestData.Amount, (int)WalletStatus.DECREASE, requestData.BookingId);    
         }
     }
 }

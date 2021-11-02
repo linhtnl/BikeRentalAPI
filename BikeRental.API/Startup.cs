@@ -227,6 +227,9 @@ namespace BikeRental.API
 
                 mc.CreateMap<Report, ReportViewModel>();
                 mc.CreateMap<ReportViewModel, Report>();
+
+                mc.CreateMap<Report, ReportCreateRequest>();
+                mc.CreateMap<ReportCreateRequest, Report>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
