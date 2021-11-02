@@ -30,6 +30,7 @@ namespace BikeRental.Data.Models
         public virtual Payment Payment { get; set; }
         public virtual VoucherItem VoucherCodeNavigation { get; set; }
         public virtual Feedback Feedback { get; set; }
+        public virtual Report Report { get; set; }
         public virtual ICollection<TransactionHistory> TransactionHistories { get; set; }
     }
 }
