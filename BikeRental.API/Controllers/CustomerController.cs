@@ -22,6 +22,13 @@ namespace BikeRental.API.Controllers
             _configuration = configuration;
         }
 
+        [HttpGet("{id}")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            return Ok(await _customerService.GetCustomerById(id));
+        }
+
         [HttpPost("login")]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Login([FromBody] CustomerLoginRequest request)
