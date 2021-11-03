@@ -97,6 +97,9 @@ namespace BikeRental.Business.Services
                 {
                     voucherItems.RemoveAt(i);
                     i--;
+                } else
+                {
+                    voucherItems[i].ExpiredDate = voucherTemp.ExpiredDate;
                 }
             }
 

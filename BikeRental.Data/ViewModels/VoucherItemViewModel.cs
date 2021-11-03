@@ -13,5 +13,6 @@ namespace BikeRental.Data.ViewModels
         public Guid? CustomerId { get; set; }
         public int? PointExchange { get; set; }
         public Guid? VoucherId { get; set; }
+        public DateTime ExpiredDate { get; set; }
     }
 }
