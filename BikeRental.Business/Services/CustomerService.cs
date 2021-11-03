@@ -8,6 +8,7 @@ using BikeRental.Data.Repositories;
 using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace BikeRental.Business.Services
     public interface ICustomerService : IBaseService<Customer>
     {
         Task<Customer> CreateNew(CustomerCreateRequest request);
-        CustomerViewModel GetCustomerById(Guid id);
+        Task<CustomerViewModel> GetCustomerById(Guid id);
         CustomerViewModel GetCustomerByPhone(string phone);
         Task<UserLoginResponseViewModel> Login(string phoneNumber, IConfiguration configuration);
         Task<UserLoginResponseViewModel> Register(CustomerCreateRequest request, IConfiguration configuration);
@@ -67,9 +68,9 @@ namespace BikeRental.Business.Services
             return await Task.Run(() => result);
         }
 
-        public CustomerViewModel GetCustomerById(Guid id)
+        public async Task<CustomerViewModel> GetCustomerById(Guid id)
         {
-            return Get(c => c.Id.Equals(id)).ProjectTo<CustomerViewModel>(_mapper).FirstOrDefault();
+            return await Get(c => c.Id.Equals(id)).ProjectTo<CustomerViewModel>(_mapper).FirstOrDefaultAsync();
         }
 
         public CustomerViewModel GetCustomerByPhone(string phone)
