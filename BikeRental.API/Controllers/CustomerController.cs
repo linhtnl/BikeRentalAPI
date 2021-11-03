@@ -26,7 +26,7 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("1")]
         public async Task<IActionResult> Login([FromBody] CustomerLoginRequest request)
         {
-            string token = await _customerService.Login(request.PhoneNumber, _configuration);
+            var token = await _customerService.Login(request.PhoneNumber, _configuration);
 
             return await Task.Run(() => Ok(token));
         }
@@ -35,7 +35,7 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("1")]
         public async Task<IActionResult> Register([FromBody] CustomerCreateRequest request)
         {
-            string token = await _customerService.Register(request, _configuration);
+            var token = await _customerService.Register(request, _configuration);
 
             return await Task.Run(() => Ok(token));
         }

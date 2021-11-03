@@ -22,8 +22,8 @@ namespace BikeRental.Business.Services
 {
     public interface IOwnerService : IBaseService<Owner>
     {
-        Task<string> Login(OwnerLoginRequest loginRequest, IConfiguration configuration);
-        Task<string> Register(OwnerRegisterRequest loginRequest, IConfiguration configuration);
+        Task<UserLoginResponseViewModel> Login(OwnerLoginRequest loginRequest, IConfiguration configuration);
+        Task<UserLoginResponseViewModel> Register(OwnerRegisterRequest loginRequest, IConfiguration configuration);
         Task<OwnerViewModel> CreateNew(Owner ownerInfo);
         Task<OwnerViewModel> Delete(Guid id, string token);
         Task<OwnerViewModel> Update(OwnerUpdateRequest request);
@@ -203,14 +203,14 @@ namespace BikeRental.Business.Services
             return result;
         }
 
-        public async Task<string> Login(OwnerLoginRequest loginRequest, IConfiguration configuration)
+        public async Task<UserLoginResponseViewModel> Login(OwnerLoginRequest loginRequest, IConfiguration configuration)
         {
             UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(loginRequest.GoogleId); // get user by request's guid
-            OwnerViewModel result = await GetByMail(userRecord.Email);
+            OwnerViewModel owner = await GetByMail(userRecord.Email);
 
-            if (result != null) // if email existed in local database
+            if (owner != null) // if email existed in local database
             {
-                if (result.Status == (int)UserStatus.Deactive)
+                if (owner.Status == (int)UserStatus.Deactive)
                     throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This account got banned or got some trouble.");
 
                 FirebaseToken token = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(loginRequest.AccessToken); // re-check access token with firebase
@@ -218,12 +218,14 @@ namespace BikeRental.Business.Services
                 token.Claims.TryGetValue("email", out email); // get email from the above re-check step, then check the email whether it's matched the request email
                 if (userRecord.Email.Equals(email))
                 {
-                    string verifyRequestToken = TokenService.GenerateOwnerJWTWebToken(result, configuration);
+                    string verifyRequestToken = TokenService.GenerateOwnerJWTWebToken(owner, configuration);
 
                     TrackingOnlineUtil trackingOnlineUtil = new TrackingOnlineUtil();
-                    await trackingOnlineUtil.TrackNewUserLogin(result.Id);
+                    await trackingOnlineUtil.TrackNewUserLogin(owner.Id);
 
-                    return await Task.Run(() => verifyRequestToken); // return if everything is done
+                    var response = new UserLoginResponseViewModel(verifyRequestToken, owner.Fullname);
+
+                    return await Task.Run(() => response); // return if everything is done
                 }
                 throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Email from request and the one from access token is not matched."); // return if this email's not existed yet in database - FE foward to sign up page
             }
@@ -233,7 +235,7 @@ namespace BikeRental.Business.Services
             throw new ErrorResponse((int)HttpStatusCode.NotFound, "Email's not existed in database yet.");
         }
 
-        public async Task<string> Register(OwnerRegisterRequest loginRequest, IConfiguration configuration)
+        public async Task<UserLoginResponseViewModel> Register(OwnerRegisterRequest loginRequest, IConfiguration configuration)
         {
             FirebaseToken token = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(loginRequest.AccessToken); // get firebase token via request's access token
             object email;
@@ -251,7 +253,9 @@ namespace BikeRental.Business.Services
                     TrackingOnlineUtil trackingOnlineUtil = new TrackingOnlineUtil();
                     await trackingOnlineUtil.TrackNewUserLogin(ownerResult.Id);
 
-                    return await Task.Run(() => verifyRequestToken);
+                    var response = new UserLoginResponseViewModel(verifyRequestToken, owner.Fullname);
+
+                    return await Task.Run(() => response);
                 }
                 throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Something went wrong.");
             }
