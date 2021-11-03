@@ -134,8 +134,8 @@ namespace BikeRental.Business.Services
                 double? rating = 0;
                 int total = 0;
                 var listBike = await _bikeService.GetBikeByOwnerId(Guid.Parse(listOwner[i].Id.ToString()));
-                listOwner[i].NumberOfBikes = listBike.Count();
-                if(listBike.Count() != 0)
+                listOwner[i].NumberOfBikes = listBike.Count;
+                if(listBike.Count != 0)
                 {
                     foreach (var bike in listBike)
                     {
@@ -277,7 +277,7 @@ namespace BikeRental.Business.Services
             int flag = 0;
             for (int i = 0; i < listOwner.Count; i++)
             {
-                var bike = await _bikeUtilService.FindBike(listOwner[i].Id, typeId);
+                var bike = await _bikeUtilService.FindBike(listOwner[i].Id, typeId, totalPrice);
 
                 if (bike == null)
                 {

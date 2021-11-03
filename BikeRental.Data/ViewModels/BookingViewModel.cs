@@ -31,5 +31,6 @@ namespace BikeRental.Data.ViewModels
         public Guid? PaymentId { get; set; }
        
         public int? Status { get; set; }
+        public BikeByIdViewModel Bike { get; set; }
     }
 }

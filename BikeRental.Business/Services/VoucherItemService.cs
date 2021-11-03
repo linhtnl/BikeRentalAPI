@@ -91,7 +91,7 @@ namespace BikeRental.Business.Services
             for (int i = 0; i < voucherItems.Count; i++)
             {
                 var voucherTemp = await _voucherService.GetById(voucherItems[i].VoucherId.Value);
-
+                voucherItems[i].Voucher = voucherTemp;
                 if (!IsVoucherItemInUse(voucherTemp.StartingDate, voucherTemp.ExpiredDate)
                     || !IsVoucherItemRemainUsingTime(voucherItems[i]))
                 {

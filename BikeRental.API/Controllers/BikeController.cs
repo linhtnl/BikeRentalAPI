@@ -79,5 +79,12 @@ namespace BikeRental.API.Controllers
             }
             return Ok(await _bikeService.Delete(id,token));
         }
+
+        [HttpGet("suitableBike/{ownerId}")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> GetSuitableBikeByOwnerId(Guid ownerId)
+        {
+            return Ok(await _bikeService.GetSuitableBikeByOwnerId(ownerId));
+        }
     }
 }

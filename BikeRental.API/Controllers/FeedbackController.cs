@@ -30,9 +30,9 @@ namespace BikeRental.API.Controllers
         [Authorize]
         [HttpPut]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Update(Guid id,FeedbackCreateRequest request)
+        public async Task<IActionResult> Update(FeedbackCreateRequest request)
         {
-            return Ok(await _feedbackService.Update(id,request));
+            return Ok(await _feedbackService.Update(request));
         }
     }
 }
