@@ -65,9 +65,11 @@ namespace BikeRental.API.Controllers
 
         [HttpGet("areaId/{areaId}")]
         [MapToApiVersion("2")]
-        public List<CampaignViewModel> GetByAreaId(Guid areaId)
+        public async Task<IActionResult> GetByAreaId(Guid areaId)
         {
-            return _campaignService.GetByAreaId(areaId);
+            var result = await _campaignService.GetByAreaId(areaId);
+
+            return await Task.Run(() => Ok(result));
         }
 
         [HttpGet("inRangeDate/start")]

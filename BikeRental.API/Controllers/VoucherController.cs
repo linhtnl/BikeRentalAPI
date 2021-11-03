@@ -51,9 +51,11 @@ namespace BikeRental.API.Controllers
 
         [HttpGet("campaignId/{campaignId}")]
         [MapToApiVersion("2")]
-        public List<VoucherViewModel> GetByCampaignId(Guid campaignId)
+        public async Task<IActionResult> GetByCampaignId(Guid campaignId)
         {
-            return _voucherService.GetByCampaignId(campaignId);
+            var result = await _voucherService.GetByCampaignId(campaignId);
+
+            return await Task.Run(() => Ok(result));
         }
 
         [HttpGet("inRangeDate/start")]
@@ -100,6 +102,22 @@ namespace BikeRental.API.Controllers
             var finalPrice = await _voucherService.GetDiscountedPrice(originalPrice, voucherCode);
 
             return await Task.Run(() => Ok(finalPrice));
+        }
+
+        [Authorize]
+        [HttpGet("GetByAreaId")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> GetByAreaId(Guid areaId)
+        {
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+
+            var result = await _voucherService.GetByAreaId(areaId, token);
+
+            return await Task.Run(() => Ok(result));
         }
     }
 }
