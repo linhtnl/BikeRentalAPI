@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
 using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
@@ -9,6 +10,7 @@ using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
 using BikeRental.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +27,8 @@ namespace BikeRental.Business.Services
         Task<Voucher> DeleteVoucher(Guid id);
         List<VoucherViewModel> GetAll();
         Task<VoucherViewModel> GetById(Guid id);
-        List<VoucherViewModel> GetByCampaignId(Guid campaignId);
+        Task<List<VoucherViewModel>> GetByCampaignId(Guid campaignId);
+        Task<List<VoucherViewModel>>  GetByAreaId(Guid areaId, string token);
         List<VoucherViewModel> GetInDiscountPercentRange(int startNum, int endNum);
         List<VoucherViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate); // this method is used to get all campaign that start in the range time
         List<VoucherViewModel> GetEndInRangeDate(DateTime startDate, DateTime endDate); // this method is used to get all campaign that end in the range time
@@ -33,17 +36,25 @@ namespace BikeRental.Business.Services
     }
     public class VoucherService : BaseService<Voucher>, IVoucherService
     {
-        private readonly IConfigurationProvider _mapper;
+        private readonly AutoMapper.IConfigurationProvider _mapper;
+        private readonly IConfiguration _configuration;
 
         private readonly IVoucherItemRepository _voucherItemRepository;
-        public VoucherService(IUnitOfWork unitOfWork, IMapper mapper, 
+        private readonly ICampaignService _campaignService;
+        private readonly ICustomerRepository _customerRepository;
+        public VoucherService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, 
             IVoucherRepository voucherRepository, 
-            IVoucherItemRepository voucherItemRepository
+            IVoucherItemRepository voucherItemRepository,
+            ICampaignService campaignService, 
+            ICustomerRepository customerRepository
             ) : base(unitOfWork, voucherRepository)
         {
             _mapper = mapper.ConfigurationProvider;
+            _configuration = configuration;
 
             _voucherItemRepository = voucherItemRepository;
+            _campaignService = campaignService;
+            _customerRepository = customerRepository;
         }
 
         public async Task<Voucher> CreateNew(VoucherCreateRequest voucherRequest)
@@ -70,11 +81,11 @@ namespace BikeRental.Business.Services
                 .ToList();
         }
 
-        public List<VoucherViewModel> GetByCampaignId(Guid campaignId)
+        public async Task<List<VoucherViewModel>> GetByCampaignId(Guid campaignId)
         {
-            return Get().Where(tempVoucher => tempVoucher.CampaignId.Equals(campaignId))
+            return await Get().Where(tempVoucher => (tempVoucher.CampaignId.Equals(campaignId) && tempVoucher.VoucherItemsRemain > 0))
                 .ProjectTo<VoucherViewModel>(_mapper)
-                .ToList();
+                .ToListAsync();
         }
 
         public async Task<VoucherViewModel> GetById(Guid id)
@@ -145,6 +156,48 @@ namespace BikeRental.Business.Services
             var finalPrice = DiscountUtil.DiscountBooking(originalPrice, discountPercent, maxDiscountAmount);
 
             return await Task.Run(() => finalPrice.Value);
+        }
+
+        public async Task<List<VoucherViewModel>> GetByAreaId(Guid areaId, string token)
+        {
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+
+            int role = tokenModel.Role;
+            if (role != (int)RoleConstants.Customer)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+
+            var customerId = tokenModel.Id;
+
+            var customer = await _customerRepository.GetAsync(customerId);
+            var currentPoint = customer.RewardPoints;
+
+            var campaigns = await _campaignService.GetByAreaId(areaId);
+
+            List<VoucherViewModel> resultList = new();
+
+            foreach (var campaignTemp in campaigns)
+            {
+                var vouchers = await GetByCampaignId(campaignTemp.Id.Value);
+
+                if (resultList.Count <= 0)
+                {
+                    resultList = vouchers;
+                    continue;
+                }
+
+                resultList.AddRange(vouchers);
+            }
+            
+            for (int i = 0; i < resultList.Count; i++)
+            {
+                if (resultList[i].PointExchange > currentPoint)
+                {
+                    resultList.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            return await Task.Run(() => resultList);
         }
     }
 }

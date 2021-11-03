@@ -26,7 +26,7 @@ namespace BikeRental.Business.Services
         Task<bool> Delete(Guid id);
         Task<DynamicModelResponse<CampaignViewModel>> GetAll(CampaignViewModel model,int size, int pageNum);
         Task<CampaignViewModel> GetById(Guid id);
-        List<CampaignViewModel> GetByAreaId(Guid areaId);
+        Task<List<CampaignViewModel>> GetByAreaId(Guid areaId);
         List<CampaignViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate); // this method is used to get all campaign that start in the range time
         List<CampaignViewModel> GetEndInRangeDate(DateTime startDate, DateTime endDate); // this method is used to get all campaign that end in the range time
     }
@@ -82,11 +82,14 @@ namespace BikeRental.Business.Services
                 .FirstOrDefaultAsync();
         }
 
-        public List<CampaignViewModel> GetByAreaId(Guid areaId)
+        public async Task<List<CampaignViewModel>> GetByAreaId(Guid areaId)
         {
-            return Get().Where(tempCampain => tempCampain.AreaId.Equals(areaId))
+            return await Get()
+                .Where(tempCampaign => (tempCampaign.AreaId.Equals(areaId) 
+                    && DateTime.Compare(tempCampaign.ExpiredDate, DateTime.Now) > 0 
+                    && tempCampaign.Status == (int)CampaignStatus.Available))
                 .ProjectTo<CampaignViewModel>(_mapper)
-                .ToList();
+                .ToListAsync();
         }
 
         public List<CampaignViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate)

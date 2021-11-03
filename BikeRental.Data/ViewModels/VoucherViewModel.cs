@@ -18,5 +18,7 @@ namespace BikeRental.Data.ViewModels
         public DateTime StartingDate { get; set; }
         public int? VoucherItemsRemain { get; set; }
         public Guid? CampaignId { get; set; }
+        public int? NumberOfUses { get; set; }
+        public int? PointExchange { get; set; }
     }
 }
