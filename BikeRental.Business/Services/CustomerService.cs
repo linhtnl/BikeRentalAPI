@@ -21,8 +21,8 @@ namespace BikeRental.Business.Services
         Task<Customer> CreateNew(CustomerCreateRequest request);
         CustomerViewModel GetCustomerById(Guid id);
         CustomerViewModel GetCustomerByPhone(string phone);
-        Task<string> Login(string phoneNumber, IConfiguration configuration);
-        Task<string> Register(CustomerCreateRequest request, IConfiguration configuration);
+        Task<UserLoginResponseViewModel> Login(string phoneNumber, IConfiguration configuration);
+        Task<UserLoginResponseViewModel> Register(CustomerCreateRequest request, IConfiguration configuration);
         Task<CustomerViewModel> DeleteCustomer(Guid id, string token);
         Task<CustomerViewModel> UpdateCustomer(CustomerUpdateRequest request);
     }
@@ -77,7 +77,7 @@ namespace BikeRental.Business.Services
             return Get(c => c.PhoneNumber.Equals(phone)).ProjectTo<CustomerViewModel>(_mapper).FirstOrDefault();
         }
 
-        public async Task<string> Login(string phoneNumber, IConfiguration configuration)
+        public async Task<UserLoginResponseViewModel> Login(string phoneNumber, IConfiguration configuration)
         {
             CustomerViewModel customer = GetCustomerByPhone(phoneNumber);
 
@@ -89,10 +89,12 @@ namespace BikeRental.Business.Services
 
             string token = TokenService.GenerateCustomerJWTWebToken(customer, configuration);
 
-            return await Task.Run(() => token);
+            var response = new UserLoginResponseViewModel(token, customer.Fullname);
+
+            return await Task.Run(() => response);
         }
 
-        public async Task<string> Register(CustomerCreateRequest request, IConfiguration configuration)
+        public async Task<UserLoginResponseViewModel> Register(CustomerCreateRequest request, IConfiguration configuration)
         {
             CustomerViewModel targetCustomer = GetCustomerByPhone(request.PhoneNumber);
 
@@ -106,7 +108,9 @@ namespace BikeRental.Business.Services
 
             string token = TokenService.GenerateCustomerJWTWebToken(targetCustomer, configuration);
 
-            return await Task.Run(() => token);
+            var response = new UserLoginResponseViewModel(token, targetCustomer.Fullname);
+
+            return await Task.Run(() => response);
         }
 
         public async Task<CustomerViewModel> UpdateCustomer(CustomerUpdateRequest request)

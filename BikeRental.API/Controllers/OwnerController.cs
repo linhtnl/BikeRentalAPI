@@ -30,7 +30,7 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("1")]
         public async Task<IActionResult> Login([FromBody] OwnerLoginRequest request)
         {
-            string token = await _ownerService.Login(request, _configuration);
+            var token = await _ownerService.Login(request, _configuration);
 
             return await Task.Run(() => Ok(token));
         }
@@ -39,7 +39,7 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("1")]
         public async Task<IActionResult> Register([FromBody] OwnerRegisterRequest request)
         {
-            string token = await _ownerService.Register(request, _configuration);
+            var token = await _ownerService.Register(request, _configuration);
 
             return await Task.Run(() => Ok(token));
         }
