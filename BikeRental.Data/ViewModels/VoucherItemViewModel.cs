@@ -9,7 +9,6 @@ namespace BikeRental.Data.ViewModels
     public class VoucherItemViewModel
     {
         public Guid Id { get; set; }
-        public DateTime? TimeUsing { get; set; }
         public int? TimeUsingRemain { get; set; }
         public Guid? CustomerId { get; set; }
         public int? PointExchange { get; set; }

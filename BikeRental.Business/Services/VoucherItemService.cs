@@ -83,7 +83,8 @@ namespace BikeRental.Business.Services
 
         public async Task<List<VoucherItemViewModel>> GetByCustomerId(Guid customerId)
         {
-            List<VoucherItemViewModel> voucherItems = Get().Where(tempVoucherItem => tempVoucherItem.CustomerId.Equals(customerId))
+            List<VoucherItemViewModel> voucherItems = Get()
+                .Where(tempVoucherItem => (tempVoucherItem.CustomerId.Equals(customerId) && tempVoucherItem.TimeUsingRemain > 0))
                 .ProjectTo<VoucherItemViewModel>(_mapper)
                 .ToList();
 
