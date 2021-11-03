@@ -19,11 +19,19 @@ namespace BikeRental.API.Controllers
             _bookingService = bookingService;
         }
 
+        [Authorize]
         [HttpGet()]
         [MapToApiVersion("1")]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _bookingService.GetAll());
+            string token = null;
+
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            };
+
+            return Ok(await _bookingService.GetAll(token));
         }
 
         [HttpGet("{id}")]

@@ -21,12 +21,12 @@ namespace BikeRental.Business.Services
 {
     public interface IBookingService : IBaseService<Booking>
     {
-        Task<List<BookingViewModel>> GetById(Guid id);
-        Task<List<BookingViewModel>> GetAll();
+        Task<BookingViewModel> GetById(Guid id);
+        Task<List<BookingViewModel>> GetAll(string token);
         Task<List<Booking>> GetByBikeId(Guid id);
         Task<BookingSuccessViewModel> CreateNew(string token, BookingCreateRequest model);
         Task<BookingSuccessViewModel> UpdateStatus(string token, BookingUpdateStatusRequest request);
-      
+
     }
     public class BookingService : BaseService<Booking>, IBookingService
     {
@@ -99,8 +99,8 @@ namespace BikeRental.Business.Services
 
             string dateTimeFormat = "yyyy-MM-dd";
 
-            await TrackingBookingUtil.UpdateTrackingBooking(request.OwnerId, 
-                Convert.ToDateTime(request.DayRent.ToString(dateTimeFormat)), 
+            await TrackingBookingUtil.UpdateTrackingBooking(request.OwnerId,
+                Convert.ToDateTime(request.DayRent.ToString(dateTimeFormat)),
                 Convert.ToDateTime(request.DayReturnExpected.ToString(dateTimeFormat)));
 
             await _walletService
@@ -109,11 +109,48 @@ namespace BikeRental.Business.Services
             return await Task.Run(() => bookingResult);
         }
 
-        public async Task<List<BookingViewModel>> GetAll()
+        public async Task<List<BookingViewModel>> GetAll(string token)
         {
-            var bookings = await Get().ProjectTo<BookingViewModel>(_mapper).ToListAsync();
-            if(bookings.Count==0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
-            return bookings;
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+
+            int role = tokenModel.Role;
+            if (role == (int)RoleConstants.Admin)
+            {
+                var bookings = await Get().ProjectTo<BookingViewModel>(_mapper).ToListAsync();
+                if (bookings.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+                foreach (var booking in bookings)
+                {
+                    var bike = await _bikeService.GetBikeById(Guid.Parse(booking.BikeId.ToString()));
+                    bike = booking.Bike;
+                }
+                return bookings;
+            }
+            else if (role == (int)RoleConstants.Owner)
+            {
+                Guid ownerId = tokenModel.Id;
+                var bookings = await Get(b => b.OwnerId.Equals(ownerId)).ProjectTo<BookingViewModel>(_mapper).ToListAsync();
+                if (bookings.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+                foreach (var booking in bookings)
+                {
+                    var bike = await _bikeService.GetBikeById(Guid.Parse(booking.BikeId.ToString()));
+                    bike = booking.Bike;
+                }
+                return bookings;
+            }
+            else if (role == (int)RoleConstants.Customer)
+            {
+                Guid customerId = tokenModel.Id;
+                var bookings = await Get(b => b.CustomerId.Equals(customerId)).ProjectTo<BookingViewModel>(_mapper).ToListAsync();
+                if (bookings.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+                foreach (var booking in bookings)
+                {
+                    var bike = await _bikeService.GetBikeById(Guid.Parse(booking.BikeId.ToString()));
+                    bike = booking.Bike;
+                }
+                return bookings;
+            }
+            else throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature");
+
         }
 
         public async Task<List<Booking>> GetByBikeId(Guid id)
@@ -121,24 +158,13 @@ namespace BikeRental.Business.Services
             return await Get(b => b.BikeId.Equals(id)).ToListAsync();
         }
 
-        public async Task<List<BookingViewModel>> GetById(Guid id)
+        public async Task<BookingViewModel> GetById(Guid id)
         {
-            // token => role
-            //if role = Customer/ Owner => GetAll booking base on that role
-            //if role = Admin => Get All booking
-
-            if (Get(b => b.CustomerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).Count()!=0)
-            {
-                var bookings = await Get(b => b.CustomerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).ToListAsync();
-                return bookings;
-            }
-            else if(Get(b => b.OwnerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).Count() != 0)
-            {
-                var bookings = await Get(b => b.OwnerId.Equals(id)).ProjectTo<BookingViewModel>(_mapper).ToListAsync();
-
-                return bookings;
-            }
-            else throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            var booking = await Get(b => b.Id.Equals(id)).ProjectTo<BookingViewModel>(_mapper).FirstOrDefaultAsync();
+            if(booking == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            var bike = await _bikeService.GetBikeById(Guid.Parse(booking.BikeId.ToString()));
+            bike = booking.Bike;
+            return booking;
         }
 
         public async Task<BookingSuccessViewModel> UpdateStatus(string token, BookingUpdateStatusRequest request)

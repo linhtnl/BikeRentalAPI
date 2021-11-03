@@ -18,7 +18,7 @@ namespace BikeRental.Business.Services
     {
         Task<Dictionary<int, double?>> GetBikeRating(Guid bikeId);
         Task<Feedback> Create(FeedbackCreateRequest request);
-        Task<Feedback> Update(Guid id , FeedbackCreateRequest request);
+        Task<Feedback> Update(FeedbackCreateRequest request);
     }
     public class FeedbackService : BaseService<Feedback>, IFeedbackService
     {
@@ -34,17 +34,20 @@ namespace BikeRental.Business.Services
 
         public async Task<Feedback> Create(FeedbackCreateRequest request)
         {
-            var booking = _bookingService.GetById(request.Id);
-            if (booking != null)
+            var booking = await _bookingService.GetById(request.Id);
+            if (booking == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Booking not found");
+            try
             {
                 var feedback = _mapper.CreateMapper().Map<Feedback>(request);
                 await CreateAsync(feedback);
                 return feedback;
             }
-            else
+            catch (Exception)
             {
-                return null;
+                throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid Data");
             }
+
+
         }
 
         public async Task<Dictionary<int, double?>> GetBikeRating(Guid bikeId)
@@ -53,14 +56,14 @@ namespace BikeRental.Business.Services
             result.Add(0, 0);
             var listFeedback = new List<Feedback>();
             var bookings = await _bookingService.GetByBikeId(bikeId);
-            if(bookings.Count == 0)
+            if (bookings.Count == 0)
             {
                 return result;
             }
             foreach (var booking in bookings)
             {
                 var feedback = await Get(x => x.Id.Equals(booking.Id)).FirstOrDefaultAsync();
-                if(feedback != null)
+                if (feedback != null)
                 {
                     listFeedback.Add(feedback);
                 }
@@ -71,10 +74,13 @@ namespace BikeRental.Business.Services
             int total = 0;
             foreach (var feedback in listFeedback)
             {
-                if(feedback != null)
+                if (feedback != null)
                 {
-                    total++;
-                    rating += (float)feedback.Rating;
+                    if (feedback.Rating==null || feedback.Rating > 0)
+                    {
+                        total++;
+                        rating += (float)feedback.Rating;
+                    }
                 }
             }
 
@@ -83,9 +89,9 @@ namespace BikeRental.Business.Services
 
         }
 
-        public async Task<Feedback> Update(Guid id, FeedbackCreateRequest request)
+        public async Task<Feedback> Update(FeedbackCreateRequest request)
         {
-            var feedback = await GetAsync(id);
+            var feedback = await Get(f => f.Id.Equals(request.Id)).FirstOrDefaultAsync();
             if (feedback == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Feedback not found");
             var updateFeedback = _mapper.CreateMapper().Map(request, feedback);
             await UpdateAsync(updateFeedback);

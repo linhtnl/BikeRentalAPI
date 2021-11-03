@@ -14,5 +14,6 @@ namespace BikeRental.Data.ViewModels
         public int? PointExchange { get; set; }
         public Guid? VoucherId { get; set; }
         public DateTime ExpiredDate { get; set; }
+        public VoucherViewModel Voucher { get; set; }
     }
 }

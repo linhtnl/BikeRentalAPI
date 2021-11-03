@@ -120,6 +120,9 @@ namespace BikeRental.API
                 mc.CreateMap<Bike, BikeFindingViewModel>();
                 mc.CreateMap<BikeFindingViewModel, Bike>();
 
+                mc.CreateMap<Bike, SuitableBikeViewModel>();
+                mc.CreateMap<SuitableBikeViewModel, Bike>();
+
                 mc.CreateMap<Brand, BrandViewModel>();
                 mc.CreateMap<BrandViewModel, Brand>();
 

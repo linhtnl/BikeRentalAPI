@@ -31,6 +31,7 @@ namespace BikeRental.Business.Services
         Task<BikeViewModel> Update(BikeUpdateRequest request, string token);
         Task<BikeDeleteSuccessViewModel> Delete(Guid id, string token);
         Task<List<Bike>> GetBikeByOwnerId(Guid id);
+        Task<List<SuitableBikeViewModel>> GetSuitableBikeByOwnerId(Guid id);
     }
     public class BikeService : BaseService<Bike>, IBikeService
     {
@@ -55,6 +56,7 @@ namespace BikeRental.Business.Services
         {
             var bike = await Get(x => x.Id.Equals(id)).ProjectTo<BikeByIdViewModel>(_mapper).FirstOrDefaultAsync();
             var cate = await _categoryService.GetCateById(bike.CategoryId);
+            bike.CategoryName = cate.Name;
             bike.BrandId = cate.BrandId;
             return bike;
         }
@@ -254,11 +256,37 @@ namespace BikeRental.Business.Services
 
         }
 
-        public async Task<List<Bike>> GetBikeByOwnerId(Guid id)
+        public async Task<List<SuitableBikeViewModel>> GetSuitableBikeByOwnerId(Guid id)
         {
-            return await Get(b => b.OwnerId.Equals(id)).ToListAsync();
+            var listBike = await Get(b => b.OwnerId.Equals(id)).ProjectTo<SuitableBikeViewModel>(_mapper).ToListAsync();
+            if(listBike.Count==0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
+            for(int i = 0; i<listBike.Count;i++)
+            {
+                if (listBike[i].Status == (int)BikeStatus.Delete)
+                {
+                    listBike.RemoveAt(i);
+                    i--;
+                }
+            }
+            if(listBike[0].Status == (int)BikeStatus.Delete)
+            {
+                listBike.RemoveAt(0);
+            }
+            foreach(var bike in listBike)
+            {
+                var cate = await _categoryService.GetCateById(bike.CategoryId);
+                bike.CategoryName = cate.Name;
+                bike.BrandId = cate.BrandId;
+                var brand = await _brandService.GetBrandById(cate.BrandId);
+                bike.BrandName = brand.Name;
+            }
+            return listBike;
         }
 
-        
+        public async Task<List<Bike>> GetBikeByOwnerId(Guid id)
+        {
+            var listBike = await Get(b => b.OwnerId.Equals(id)).ToListAsync();
+            return listBike;
+        }
     }
 }
