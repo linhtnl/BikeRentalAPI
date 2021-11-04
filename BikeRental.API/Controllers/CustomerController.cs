@@ -58,9 +58,25 @@ namespace BikeRental.API.Controllers
         }
 
         [Authorize]
+        [HttpPut("unban")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Unban([FromBody]Guid id)
+        {
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+
+            var result = await _customerService.UnbanCustomer(id, token);
+
+            return await Task.Run(() => Ok(result));
+        }
+
+        [Authorize]
         [HttpDelete]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete([FromBody]Guid id)
         {
             string token = null;
             if (Request.Headers["Authorization"].Count > 0)

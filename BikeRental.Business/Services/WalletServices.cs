@@ -77,7 +77,7 @@ namespace BikeRental.Business.Services
                 },
                 Data = result.Item2.ToList()
             };
-            return rs;
+            return await Task.Run(()=> rs);
         }
 
         private async Task<bool> DepositAmount(Guid walletId, decimal amount, Guid bookingId)

@@ -175,6 +175,7 @@ namespace BikeRental.Business.Services
 
             int role = tokenModel.Role;
 
+
             if (role != (int)RoleConstants.Customer && role != (int)RoleConstants.Owner)
                 throw new ErrorResponse((int)HttpStatusCode.NotAcceptable, "This role cannot use this feature");
 
@@ -226,12 +227,30 @@ namespace BikeRental.Business.Services
                     break;
 
                 case (int)BookingStatus.Canceled:
+
                     if (role == (int)RoleConstants.Customer && targetBooking.Status != (int)BookingStatus.Pending)
                         throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+
+                    var bookingTime = await TrackingBookingTimeUtil.GetBookingTime(targetBooking.Id);
+
+                    var now = DateTime.Now;
+                    var dayBook = bookingTime.BookingTime;
+                    var dayRent = targetBooking.DayRent;
+
+                    var totalTime = (dayRent - dayBook).Value.TotalHours;
+
+                    var realTime = (dayRent - now).Value.TotalHours;
+
+                    if (realTime / totalTime > 0.3) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Overdue.");
 
                     targetBike.Status = (int)BikeStatus.Available;
 
                     isUpdated = true;
+
+                    var check = await NotificationUtil.CancelBooking(userId, role);
+
+                    if(check == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong");
+
                     break;
 
                 default:

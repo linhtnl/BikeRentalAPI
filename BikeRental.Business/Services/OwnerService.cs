@@ -26,6 +26,7 @@ namespace BikeRental.Business.Services
         Task<UserLoginResponseViewModel> Register(OwnerRegisterRequest loginRequest, IConfiguration configuration);
         Task<OwnerViewModel> CreateNew(Owner ownerInfo);
         Task<OwnerViewModel> Delete(Guid id, string token);
+        Task<OwnerViewModel> Unban(Guid id, string token);
         Task<OwnerViewModel> Update(OwnerUpdateRequest request);
         Task<OwnerDetailViewModel> GetOwnerById(Guid id);
         Task<Owner> GetOwner(Guid id);
@@ -44,14 +45,12 @@ namespace BikeRental.Business.Services
         private readonly ICategoryService _categoryService;
         private readonly IBrandService _brandService;
         private readonly IFeedbackService _feedbackService;
-        private readonly IBookingUtilService _bookingUtilService;
         private readonly IBikeUtilService _bikeUtilService;
 
 
         public OwnerService(IMapper mapper, IConfiguration configuration, IUnitOfWork unitOfWork,IBikeService bikeService,IFeedbackService feedbackService,
             ICategoryService categoryService, IBrandService brandService, IOwnerRepository repository, 
-            IBookingUtilService bookingUtilService
-            , IBikeUtilService bikeUtilService) : base(unitOfWork, repository)
+            IBikeUtilService bikeUtilService) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
             _configuration = configuration;
@@ -60,7 +59,6 @@ namespace BikeRental.Business.Services
             _feedbackService = feedbackService;
             _categoryService = categoryService;
             _brandService = brandService;
-            _bookingUtilService = bookingUtilService;
             _bikeUtilService = bikeUtilService;
         }
 
@@ -386,6 +384,20 @@ namespace BikeRental.Business.Services
             var result = _mapper.CreateMapper().Map<OwnerViewModel>(targetOwner);
 
             return await Task.Run(() => result);
+        }
+
+        public async Task<OwnerViewModel> Unban(Guid id, string token)
+        {
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+
+            int role = tokenModel.Role;
+            if (role != (int)RoleConstants.Admin) throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+            var owner = await GetAsync(id);
+            if (owner == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
+            owner.Status = (int)UserStatus.Active;
+            await UpdateAsync(owner);
+            var result = _mapper.CreateMapper().Map<OwnerViewModel>(owner);
+            return result;
         }
     }
 }

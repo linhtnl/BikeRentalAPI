@@ -46,9 +46,9 @@ namespace BikeRental.API.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Get([FromQuery] OwnerRatingViewModel model, int filterOption ,int size, int page = CommonConstants.DefaultPage)
+        public async Task<IActionResult> Get([FromQuery] OwnerRatingViewModel model, int filterOption, int size, int page = CommonConstants.DefaultPage)
         {
-            return Ok(await _ownerService.GetAll(model,filterOption, size, page));
+            return Ok(await _ownerService.GetAll(model, filterOption, size, page));
         }
 
         [HttpGet("find")]
@@ -61,7 +61,7 @@ namespace BikeRental.API.Controllers
             {
                 token = Request.Headers["Authorization"];
             }
-            return Ok(await _ownerService.GetListOwnerByAreaIdAndTypeId(areaId, typeId, token, dateRent, dateReturn, timeRent,totalPrice,address, customerLocation));
+            return Ok(await _ownerService.GetListOwnerByAreaIdAndTypeId(areaId, typeId, token, dateRent, dateReturn, timeRent, totalPrice, address, customerLocation));
         }
 
         [HttpGet("{id}")]
@@ -82,6 +82,19 @@ namespace BikeRental.API.Controllers
                 token = Request.Headers["Authorization"];
             }
             return Ok(await _ownerService.Delete(id, token));
+        }
+
+        [Authorize]
+        [HttpPut("unban")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Unban([FromBody] Guid id)
+        {
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+            return Ok(await _ownerService.Unban(id, token));
         }
 
         [Authorize]

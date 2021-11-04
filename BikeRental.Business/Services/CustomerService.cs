@@ -25,6 +25,7 @@ namespace BikeRental.Business.Services
         Task<UserLoginResponseViewModel> Login(string phoneNumber, IConfiguration configuration);
         Task<UserLoginResponseViewModel> Register(CustomerCreateRequest request, IConfiguration configuration);
         Task<CustomerViewModel> DeleteCustomer(Guid id, string token);
+        Task<CustomerViewModel> UnbanCustomer(Guid id, string token);
         Task<CustomerViewModel> UpdateCustomer(CustomerUpdateRequest request);
     }
     public class CustomerService : BaseService<Customer>, ICustomerService
@@ -112,6 +113,26 @@ namespace BikeRental.Business.Services
             var response = new UserLoginResponseViewModel(token, targetCustomer.Fullname);
 
             return await Task.Run(() => response);
+        }
+
+        public async Task<CustomerViewModel> UnbanCustomer(Guid id, string token)
+        {
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+
+            int role = tokenModel.Role;
+            if (role != (int)RoleConstants.Admin)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+
+            var customer = await GetAsync(id);
+            if (customer == null)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Customer not found.");
+
+            customer.Status = (int)UserStatus.Active;
+            await UpdateAsync(customer);
+
+            var result = _mapper.CreateMapper().Map<CustomerViewModel>(customer);
+
+            return await Task.Run(() => result);
         }
 
         public async Task<CustomerViewModel> UpdateCustomer(CustomerUpdateRequest request)
