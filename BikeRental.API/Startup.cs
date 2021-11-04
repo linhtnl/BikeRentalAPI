@@ -216,6 +216,9 @@ namespace BikeRental.API
                 mc.CreateMap<Customer, CustomerCreateRequest>();
                 mc.CreateMap<CustomerCreateRequest, Customer>();
 
+                mc.CreateMap<Customer, CustomerUpdateRequest>();
+                mc.CreateMap<CustomerUpdateRequest, Customer>();
+
                 mc.CreateMap<Admin, AdminViewModel>();
                 mc.CreateMap<AdminViewModel, Admin>();
 

@@ -31,7 +31,7 @@ namespace BikeRental.Business.Services
         Task<OwnerDetailViewModel> GetOwnerById(Guid id);
         Task<Owner> GetOwner(Guid id);
         Task<OwnerViewModel> GetByMail(string mail);
-        Task<DynamicModelResponse<OwnerRatingViewModel>> GetAll(OwnerRatingViewModel model, int filterOption, int size, int pageNum);
+        Task<DynamicModelResponse<OwnerWithRatingViewModel>> GetAll(OwnerWithRatingViewModel model, int filterOption, int size, int pageNum);
         Task<List<OwnerByAreaViewModel>> GetListOwnerByAreaIdAndTypeId(Guid areaId, Guid typeId, string token, DateTime dateRent, DateTime dateReturn, int? timeRent, double totalPrice, string address, string customerLocation);
         Task<bool> SendNoti(Guid ownerId, CustomerRequestModel request);
         Task<bool> SendBookingReply(ReplyBookingRequest request);
@@ -122,10 +122,10 @@ namespace BikeRental.Business.Services
                 return null;
             }
         }
-        public async Task<DynamicModelResponse<OwnerRatingViewModel>> GetAll(OwnerRatingViewModel model, int filterOption,int size, int pageNum)
+        public async Task<DynamicModelResponse<OwnerWithRatingViewModel>> GetAll(OwnerWithRatingViewModel model, int filterOption,int size, int pageNum)
         {
-            var owners = Get(o => o.Bikes != null).ProjectTo<OwnerRatingViewModel>(_mapper).DynamicFilter<OwnerRatingViewModel>(model);
-            List<OwnerRatingViewModel> listOwner = owners.ToList();
+            var owners = Get(o => o.Bikes != null).ProjectTo<OwnerWithRatingViewModel>(_mapper).DynamicFilter<OwnerWithRatingViewModel>(model);
+            List<OwnerWithRatingViewModel> listOwner = owners.ToList();
             if (listOwner.Count == 0) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
             for (int i = 0; i < listOwner.Count; i++)
             {
@@ -171,7 +171,7 @@ namespace BikeRental.Business.Services
 
             var result = owners.PagingIQueryable(pageNum, size, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
 
-            var rs = new DynamicModelResponse<OwnerRatingViewModel>
+            var rs = new DynamicModelResponse<OwnerWithRatingViewModel>
             {
                 Metadata = new PagingMetaData
                 {
