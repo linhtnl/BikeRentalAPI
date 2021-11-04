@@ -1,6 +1,8 @@
-﻿using BikeRental.Business.RequestModels;
+﻿using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using BikeRental.Data.Enums;
+using BikeRental.Data.Responses;
 using BikeRental.Data.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -56,10 +58,10 @@ namespace BikeRental.API.Controllers
 
         [HttpGet("transactionHistory/{id}")]
         [MapToApiVersion("2")]
-        public List<TransactionHistoryViewModel> GetTransactionHistory(string id, int pageNum, int? filterOption)
+        public async Task<IActionResult> GetTransactionHistory(string id, int? filterOption, int size, int pageNum = CommonConstants.DefaultPage)
         {
             Guid guid = Guid.Parse(id);
-            return _walletService.GetTransactionHistory(guid, pageNum, filterOption); // this line need to handle the null case, the null case occur when filterOption is not supported yet
+            return Ok(await _walletService.GetTransactionHistory(guid,size,pageNum,filterOption)); // this line need to handle the null case, the null case occur when filterOption is not supported yet
         }
 
         [HttpPut("depositAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
