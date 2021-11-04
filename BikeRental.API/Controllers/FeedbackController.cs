@@ -20,6 +20,19 @@ namespace BikeRental.API.Controllers
         }
 
         [Authorize]
+        [HttpGet]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> GetListFeedback()
+        {
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+            return Ok(await _feedbackService.GetListFeedBackByOwnerId(token));
+        }
+
+        [Authorize]
         [HttpPost]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Create(FeedbackCreateRequest request)

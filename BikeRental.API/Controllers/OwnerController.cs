@@ -46,7 +46,7 @@ namespace BikeRental.API.Controllers
 
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Get([FromQuery] OwnerRatingViewModel model, int filterOption, int size, int page = CommonConstants.DefaultPage)
+        public async Task<IActionResult> Get([FromQuery] OwnerWithRatingViewModel model, int filterOption, int size, int page = CommonConstants.DefaultPage)
         {
             return Ok(await _ownerService.GetAll(model, filterOption, size, page));
         }

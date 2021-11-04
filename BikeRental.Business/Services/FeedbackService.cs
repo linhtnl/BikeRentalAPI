@@ -1,10 +1,15 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
+using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
 using BikeRental.Data.Responses;
 using BikeRental.Data.UnitOfWorks;
+using BikeRental.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,19 +22,25 @@ namespace BikeRental.Business.Services
     public interface IFeedbackService : IBaseService<Feedback>
     {
         Task<Dictionary<int, double?>> GetBikeRating(Guid bikeId);
+        Task<List<FeedbackViewModel>> GetListFeedBackByOwnerId(String token);
         Task<Feedback> Create(FeedbackCreateRequest request);
         Task<Feedback> Update(FeedbackCreateRequest request);
     }
     public class FeedbackService : BaseService<Feedback>, IFeedbackService
     {
-        private readonly IConfigurationProvider _mapper;
+        private readonly AutoMapper.IConfigurationProvider _mapper;
+        private readonly IConfiguration _configuration;
         private readonly IBookingService _bookingService;
+        private readonly ICustomerService _customerService;
 
-        public FeedbackService(IUnitOfWork unitOfWork, IFeedbackRepository repository, IMapper mapper
-            , IBookingService bookingService) : base(unitOfWork, repository)
+        public FeedbackService(IUnitOfWork unitOfWork, IFeedbackRepository repository, IMapper mapper, IConfiguration configuration
+            , IBookingService bookingService, ICustomerService customerService) : base(unitOfWork, repository)
         {
             _mapper = mapper.ConfigurationProvider;
+            _configuration = configuration;
+
             _bookingService = bookingService;
+            _customerService = customerService;
         }
 
         public async Task<Feedback> Create(FeedbackCreateRequest request)
@@ -87,6 +98,40 @@ namespace BikeRental.Business.Services
             result.Add(total, rating / total);
             return result;
 
+        }
+
+        public async Task<List<FeedbackViewModel>> GetListFeedBackByOwnerId(string token)
+        {
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+            int role = tokenModel.Role;
+            if(role != (int)RoleConstants.Owner) throw new ErrorResponse((int)HttpStatusCode.NotAcceptable, "This role cannot use this feature");
+
+            Guid ownerId = tokenModel.Id;
+            var listBooking = await _bookingService.GetListBookingByOwnerId(ownerId);
+            List<FeedbackViewModel> listFeedback = new List<FeedbackViewModel>();
+            foreach(var booking in listBooking)
+            {
+                var feedback = await Get(b => b.Id.Equals(booking.Id)).ProjectTo<FeedbackViewModel>(_mapper).FirstOrDefaultAsync();
+                if(feedback != null)
+                {
+                    if (feedback.Rating > 0)
+                    {
+                        var customer = await _customerService.GetCustomerById(Guid.Parse(booking.CustomerId.ToString()));
+                        feedback.CustomerName = customer.Fullname;
+                        feedback.Status = (int)FeedbackStatus.Feedback;
+                        listFeedback.Add(feedback);
+
+                    }else if (feedback.Rating == 0)
+                    {
+                        var customer = await _customerService.GetCustomerById(Guid.Parse(booking.CustomerId.ToString()));
+                        feedback.CustomerName = customer.Fullname;
+                        feedback.Status = (int)FeedbackStatus.Feedback;
+                        listFeedback.Add(feedback);
+                    }
+                }
+            }
+            if(listFeedback.Count==0) throw new ErrorResponse((int)HttpStatusCode.NoContent, "Empty");
+            return listFeedback;
         }
 
         public async Task<Feedback> Update(FeedbackCreateRequest request)

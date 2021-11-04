@@ -165,8 +165,14 @@ namespace BikeRental.API
                 mc.CreateMap<Owner, OwnerByAreaViewModel>();
                 mc.CreateMap<OwnerByAreaViewModel, Owner>();
 
+                mc.CreateMap<Owner, OwnerWithRatingViewModel>();
+                mc.CreateMap<OwnerWithRatingViewModel, Owner>();
+
                 mc.CreateMap<Feedback, FeedbackCreateRequest>();
                 mc.CreateMap<FeedbackCreateRequest, Feedback>();
+
+                mc.CreateMap<Feedback, FeedbackViewModel>();
+                mc.CreateMap<FeedbackViewModel, Feedback>();
 
                 mc.CreateMap<PriceList, PriceListViewModel>();
                 mc.CreateMap<PriceListViewModel, PriceList>();
