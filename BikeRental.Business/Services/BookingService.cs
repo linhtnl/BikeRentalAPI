@@ -103,6 +103,10 @@ namespace BikeRental.Business.Services
                 Convert.ToDateTime(request.DayRent.ToString(dateTimeFormat)),
                 Convert.ToDateTime(request.DayReturnExpected.ToString(dateTimeFormat)));
 
+            var check = await TrackingBookingTimeUtil.UpdateBookingTime(bookingResult.Id);
+
+            if (check == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "SomeThing went wrong");
+
             await _walletService
                 .UpdateAmount(request.OwnerId, Decimal.Divide(request.Price, 10), (int)WalletStatus.DECREASE, bookingResult.Id);
 
@@ -161,7 +165,7 @@ namespace BikeRental.Business.Services
         public async Task<BookingViewModel> GetById(Guid id)
         {
             var booking = await Get(b => b.Id.Equals(id)).ProjectTo<BookingViewModel>(_mapper).FirstOrDefaultAsync();
-            if(booking == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            if (booking == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
             var bike = await _bikeService.GetBikeById(Guid.Parse(booking.BikeId.ToString()));
             bike = booking.Bike;
             return booking;
@@ -241,7 +245,7 @@ namespace BikeRental.Business.Services
 
                     var realTime = (dayRent - now).Value.TotalHours;
 
-                    if (realTime / totalTime > 0.3) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Overdue.");
+                    if (realTime / totalTime < 0.3) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Overdue.");
 
                     targetBike.Status = (int)BikeStatus.Available;
 
@@ -249,7 +253,7 @@ namespace BikeRental.Business.Services
 
                     var check = await NotificationUtil.CancelBooking(userId, role);
 
-                    if(check == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong");
+                    if (check == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong");
 
                     break;
 
