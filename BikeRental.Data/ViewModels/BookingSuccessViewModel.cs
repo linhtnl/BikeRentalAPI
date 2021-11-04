@@ -23,6 +23,7 @@ namespace BikeRental.Data.ViewModels
         public DateTime? DayReturnExpected { get; set; }
 
         public decimal? Price { get; set; }
+        public string Address { get; set; }
 
         public Guid? PaymentId { get; set; }
 

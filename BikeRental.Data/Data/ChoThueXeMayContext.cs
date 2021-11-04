@@ -115,6 +115,8 @@ namespace BikeRental.Data.Models
 
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
+                entity.Property(e => e.Address).HasMaxLength(250);
+
                 entity.Property(e => e.DayRent).HasColumnType("date");
 
                 entity.Property(e => e.DayReturnActual).HasColumnType("date");

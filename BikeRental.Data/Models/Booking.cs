@@ -23,6 +23,7 @@ namespace BikeRental.Data.Models
         public Guid? OwnerId { get; set; }
         public Guid? PaymentId { get; set; }
         public int? Status { get; set; }
+        public string Address { get; set; }
 
         public virtual Bike Bike { get; set; }
         public virtual Customer Customer { get; set; }

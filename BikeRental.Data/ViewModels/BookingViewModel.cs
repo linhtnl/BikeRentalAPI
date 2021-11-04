@@ -28,6 +28,8 @@ namespace BikeRental.Data.ViewModels
  
         public decimal? Price { get; set; }
 
+        public string Address { get; set; }
+
         public Guid? PaymentId { get; set; }
        
         public int? Status { get; set; }
