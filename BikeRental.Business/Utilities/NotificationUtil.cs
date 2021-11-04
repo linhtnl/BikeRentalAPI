@@ -1,4 +1,5 @@
-﻿using BikeRental.Business.RequestModels;
+﻿using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
 using BikeRental.Data.Responses;
 using BikeRental.Data.ViewModels;
 using FCM.Net;
@@ -35,9 +36,6 @@ namespace BikeRental.Business.Utilities
                 var result = await sender.SendAsync(message);
                 Console.WriteLine($"Success: {result.MessageResponse.Success}");
 
-               /* var json = "{\"notification\":{\"title\":\"json message\",\"body\":" + jsonConvert + "\"},\"to\":\"" + registrationId + "\"}";
-                result = await sender.SendAsync(json);
-                Console.WriteLine($"Success: {result.MessageResponse.Success}");*/
                 return true;
             }
         }
@@ -68,6 +66,35 @@ namespace BikeRental.Business.Utilities
                     {
                         Title = "You got an owner's response!",
                         Body = "Check it now"
+                    }
+                };
+                var result = await sender.SendAsync(message);
+                Console.WriteLine($"Success: {result.MessageResponse.Success}");
+
+                return true;
+            }
+        }
+
+        public static async Task<bool> CancelBooking(Guid userId, int role)
+        {
+            if (role == (int)RoleConstants.Admin)
+                return false;
+
+            var registrationId = (role == (int)RoleConstants.Customer) 
+                ? await TrackingRegistrationIdUtil.GetCustomerRegistrationId(userId) 
+                : await TrackingRegistrationIdUtil.GetOwnerRegistrationId(userId);
+
+            if (registrationId == null)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot find registrationId of this user.");
+
+            using (var sender = new Sender("AAAA0prIK9I:APA91bEsuL_KqXRNgkFhS8MMnDDncrX2p1ZhwUGyz0AAOrUoaaiCh6m4IifKdNpY6zA-PkSzdvQ7BOOJt2PtcznQpsLHZ3Fgx5Fk3v6EEvNf6_SlYjAP_8jDR1NyvAQ4LFoob8yxOxUm"))
+            {
+                var message = new Message
+                {
+                    RegistrationIds = new List<string> { registrationId.RegistrationId },
+                    Notification = new Notification
+                    {
+                        Title = "Your booking has been canceled"
                     }
                 };
                 var result = await sender.SendAsync(message);
