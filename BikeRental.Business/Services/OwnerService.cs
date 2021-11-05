@@ -27,7 +27,7 @@ namespace BikeRental.Business.Services
         Task<OwnerViewModel> CreateNew(Owner ownerInfo);
         Task<OwnerViewModel> Delete(Guid id, string token);
         Task<OwnerViewModel> Unban(Guid id, string token);
-        Task<OwnerViewModel> Update(OwnerUpdateRequest request);
+        Task<OwnerViewModel> UpdateOwner(string token, OwnerUpdateRequest request);
         Task<OwnerDetailViewModel> GetOwnerById(Guid id);
         Task<Owner> GetOwner(Guid id);
         Task<OwnerViewModel> GetByMail(string mail);
@@ -374,14 +374,28 @@ namespace BikeRental.Business.Services
             }
         }
 
-        public async Task<OwnerViewModel> Update(OwnerUpdateRequest request)
+        public async Task<OwnerViewModel> UpdateOwner(string token, OwnerUpdateRequest request)
         {
-            var tempOwner = await GetAsync(request.Id);
-            var targetOwner = _mapper.CreateMapper().Map<Owner>(tempOwner);
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
 
-            await UpdateAsync(targetOwner);
+            int role = tokenModel.Role;
+            if (role != (int)RoleConstants.Owner)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
 
-            var result = _mapper.CreateMapper().Map<OwnerViewModel>(targetOwner);
+            var owner = await GetAsync(tokenModel.Id);
+
+            if (owner.PhoneNumber != null)
+                owner.PhoneNumber = request.PhoneNumber;
+
+            if (owner.Fullname != null)
+                owner.Fullname = request.Fullname;
+
+            if (owner.Address != null)
+                owner.Address = request.Address;
+
+            await UpdateAsync(owner);
+
+            var result = _mapper.CreateMapper().Map<OwnerViewModel>(owner);
 
             return await Task.Run(() => result);
         }

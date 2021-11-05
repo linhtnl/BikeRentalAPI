@@ -102,7 +102,13 @@ namespace BikeRental.API.Controllers
         [MapToApiVersion("1")]
         public async Task<IActionResult> Update([FromBody] OwnerUpdateRequest request)
         {
-            var result = await _ownerService.Update(request);
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+
+            var result = await _ownerService.UpdateOwner(token, request);
 
             return await Task.Run(() => Ok(result));
         }
