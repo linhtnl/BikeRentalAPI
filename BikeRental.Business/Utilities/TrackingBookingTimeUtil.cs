@@ -11,7 +11,7 @@ namespace BikeRental.Business.Utilities
 {
     public class TrackingBookingTimeUtil
     {
-        public static async Task<bool> UpdateBookingTime(Guid bookingId)
+        public static async Task<bool> UpdateBookingTime(Guid bookingId, decimal advanceMoney)
         {
             FirebaseClient firebaseClient = new FirebaseClient("https://chothuexemay-35838-default-rtdb.asia-southeast1.firebasedatabase.app/");
 
@@ -19,7 +19,8 @@ namespace BikeRental.Business.Utilities
                     .Child("TrackingBookingTime/" + bookingId)
                     .PutAsync(new TrackingBookingTimeViewModel()
                     {
-                        BookingTime = DateTime.Now
+                        BookingTime = DateTime.Now, 
+                        OwnerAdvanceMoney = advanceMoney
                     });
 
             return await Task.Run(() => true);

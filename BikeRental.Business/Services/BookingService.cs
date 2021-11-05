@@ -104,12 +104,14 @@ namespace BikeRental.Business.Services
                 Convert.ToDateTime(request.DayRent.ToString(dateTimeFormat)),
                 Convert.ToDateTime(request.DayReturnExpected.ToString(dateTimeFormat)));
 
-            var check = await TrackingBookingTimeUtil.UpdateBookingTime(bookingResult.Id);
+            var advanceMoney = Decimal.Divide(request.Price, 10);
+
+            var check = await TrackingBookingTimeUtil.UpdateBookingTime(bookingResult.Id, advanceMoney);
 
             if (check == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "SomeThing went wrong");
 
             await _walletService
-                .UpdateAmount(request.OwnerId, Decimal.Divide(request.Price, 10), (int)WalletStatus.DECREASE, bookingResult.Id);
+                .UpdateAmount(request.OwnerId, advanceMoney, (int)WalletStatus.DECREASE, bookingResult.Id);
 
             return await Task.Run(() => bookingResult);
         }
@@ -261,7 +263,12 @@ namespace BikeRental.Business.Services
 
                     var check = await NotificationUtil.CancelBooking(userId, role);
 
-                    if (check == false) throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong");
+                    if (check == false) 
+                        throw new ErrorResponse((int)HttpStatusCode.InternalServerError, "Something went wrong");
+
+                    decimal advanceMoney = bookingTime.OwnerAdvanceMoney;
+
+                    await _walletService.UpdateAmount(userId, advanceMoney, (int)WalletStatus.DEPOSIT, targetBooking.Id);
 
                     break;
 

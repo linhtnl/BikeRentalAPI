@@ -149,7 +149,7 @@ namespace BikeRental.Business.Services
             }
             catch
             {
-                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Something went wrong.");
+                throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Something went wrong.");
             }
         }
     }
