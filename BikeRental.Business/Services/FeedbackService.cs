@@ -23,6 +23,7 @@ namespace BikeRental.Business.Services
     {
         Task<Dictionary<int, double?>> GetBikeRating(Guid bikeId);
         Task<List<FeedbackViewModel>> GetListFeedBackByOwnerId(String token);
+        Task<FeedbackDetailViewModel> GetFeedbackById(Guid id);
         Task<Feedback> Create(FeedbackCreateRequest request);
         Task<Feedback> Update(FeedbackCreateRequest request);
     }
@@ -98,6 +99,16 @@ namespace BikeRental.Business.Services
             result.Add(total, rating / total);
             return result;
 
+        }
+
+        public async Task<FeedbackDetailViewModel> GetFeedbackById(Guid id)
+        {
+            var feedback = await Get(f => f.Id.Equals(id)).ProjectTo<FeedbackDetailViewModel>(_mapper).FirstOrDefaultAsync();
+            if(feedback == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
+            else
+            {
+                return feedback;
+            }
         }
 
         public async Task<List<FeedbackViewModel>> GetListFeedBackByOwnerId(string token)

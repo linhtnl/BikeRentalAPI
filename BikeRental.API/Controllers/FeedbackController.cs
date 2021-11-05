@@ -32,6 +32,13 @@ namespace BikeRental.API.Controllers
             return Ok(await _feedbackService.GetListFeedBackByOwnerId(token));
         }
 
+        [HttpGet("{id}")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> GetFeedbackById(Guid id)
+        {
+            return Ok(await _feedbackService.GetFeedbackById(id));
+        }
+
         [Authorize]
         [HttpPost]
         [MapToApiVersion("1")]

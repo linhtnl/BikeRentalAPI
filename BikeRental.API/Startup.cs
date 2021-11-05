@@ -174,6 +174,9 @@ namespace BikeRental.API
                 mc.CreateMap<Feedback, FeedbackViewModel>();
                 mc.CreateMap<FeedbackViewModel, Feedback>();
 
+                mc.CreateMap<Feedback, FeedbackDetailViewModel>();
+                mc.CreateMap<FeedbackDetailViewModel, Feedback>();
+
                 mc.CreateMap<PriceList, PriceListViewModel>();
                 mc.CreateMap<PriceListViewModel, PriceList>();
 
