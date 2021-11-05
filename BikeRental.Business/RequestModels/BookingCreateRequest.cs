@@ -14,7 +14,7 @@ namespace BikeRental.Business.RequestModels
 
         public Guid PaymentId { get; set; }
 
-        public Guid? VoucherCode { get; set; }
+        public string StrVoucherCode { get; set; }
 
         public decimal Price { get; set; }
         public string Address { get; set; }
