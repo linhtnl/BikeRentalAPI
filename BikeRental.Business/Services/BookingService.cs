@@ -74,15 +74,18 @@ namespace BikeRental.Business.Services
 
             targetBooking.Price = request.Price;
 
-            if (request.VoucherCode != null)
+            if (!string.IsNullOrEmpty(request.StrVoucherCode.Trim()))
             {
-                var voucherItemUsed = await _voucherItemService.GetAsync(request.VoucherCode);
+                var tempGuid = Guid.Parse(request.StrVoucherCode);
+                var voucherItemUsed = await _voucherItemService.GetAsync(tempGuid);
 
                 if (voucherItemUsed.TimeUsingRemain <= 0)
                     throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This voucher code is out of using time.");
 
                 voucherItemUsed.TimeUsingRemain -= 1;
                 await _voucherItemService.UpdateAsync(voucherItemUsed);
+
+                targetBooking.VoucherCode = Guid.Parse(request.StrVoucherCode);
             }
 
             var chosenBike = await _bikeService.GetAsync(request.BikeId);
