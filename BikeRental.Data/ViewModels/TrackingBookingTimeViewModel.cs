@@ -10,6 +10,7 @@ namespace BikeRental.Data.ViewModels
     public class TrackingBookingTimeViewModel
     {
         public DateTime BookingTime { get; set; }
+        public decimal OwnerAdvanceMoney { get; set; }
 
         [JsonConstructor]
         public TrackingBookingTimeViewModel()

@@ -220,9 +220,9 @@ namespace BikeRental.API.Controllers
 
         [HttpGet("testTrackingBookingTime")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> TestTrackingBookingTime(Guid bookingId)
+        public async Task<IActionResult> TestTrackingBookingTime(Guid bookingId, decimal advanceMoney)
         {
-            return Ok(await TrackingBookingTimeUtil.UpdateBookingTime(bookingId));
+            return Ok(await TrackingBookingTimeUtil.UpdateBookingTime(bookingId, advanceMoney));
         }
 
         [HttpGet("testGetBookingTime")]
