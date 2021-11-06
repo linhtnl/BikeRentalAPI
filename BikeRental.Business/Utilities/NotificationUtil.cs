@@ -24,7 +24,8 @@ namespace BikeRental.Business.Utilities
                 {
                     Data = new Dictionary<string, string>()
                     {
-                        {"json",jsonConvert },
+                        {"json", jsonConvert },
+                        {"click_action", "FLUTTER_NOTIFICATION_CLICK" }
                     },
                     RegistrationIds = new List<string> { registrationId },
                     Notification = new Notification
