@@ -35,6 +35,7 @@ namespace BikeRental.API.Controllers
             return Ok(await _bookingService.GetAll(token,status, size,pageNum));
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         [MapToApiVersion("1")]
         public async Task<IActionResult> GetById(Guid id)
@@ -85,6 +86,19 @@ namespace BikeRental.API.Controllers
             var result = await _bookingService.SaveBookingEvidence(bookingId, path);
 
             return await Task.Run(() => Ok(result));
+        }
+
+        [Authorize]
+        [HttpGet("SendConfirmedNoti")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> SendConfirmedNoti(Guid bookingId)
+        {
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+            return Ok(await _bookingService.SendConfirmNoti(token, bookingId));
         }
     }
 }

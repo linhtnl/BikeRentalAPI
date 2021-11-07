@@ -112,6 +112,14 @@ namespace BikeRental.Business.Services
                 var result = await Get(f => f.Id.Equals(id)).ProjectTo<ReportViewModel>(_mapper).FirstOrDefaultAsync();
                 if (result == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
                 return result;
+            } else if (role == (int)RoleConstants.Customer || role == (int)RoleConstants.Owner)
+            {
+                var result = await Get(f => f.Id.Equals(id)).ProjectTo<ReportViewModel>(_mapper).FirstOrDefaultAsync();
+                if (result == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
+                else
+                {
+                    throw new ErrorResponse((int) HttpStatusCode.Accepted, "Found");
+                }
             }
             else throw new ErrorResponse((int)HttpStatusCode.NotAcceptable, "This role cannot use this feature");
         }

@@ -48,8 +48,7 @@ namespace BikeRental.Business.Utilities
             var registrationId = await TrackingRegistrationIdUtil.GetCustomerRegistrationId(request.CustomerId);
 
             if (registrationId == null)
-                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot find registrationId of this user.");
-
+                throw new ErrorResponse((int)HttpStatusCode.NotFound, "Cannot find registrationId of this user.");
             string jsonConvert = JsonConvert.SerializeObject(new ReplyBookingResponseViewModel
             {
                 OwnerId = request.OwnerId,
@@ -88,7 +87,7 @@ namespace BikeRental.Business.Utilities
                 : await TrackingRegistrationIdUtil.GetOwnerRegistrationId(userId);
 
             if (registrationId == null)
-                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot find registrationId of this user.");
+                throw new ErrorResponse((int)HttpStatusCode.NotFound, "Cannot find registrationId of this user.");
 
             using (var sender = new Sender("AAAA0prIK9I:APA91bEsuL_KqXRNgkFhS8MMnDDncrX2p1ZhwUGyz0AAOrUoaaiCh6m4IifKdNpY6zA-PkSzdvQ7BOOJt2PtcznQpsLHZ3Fgx5Fk3v6EEvNf6_SlYjAP_8jDR1NyvAQ4LFoob8yxOxUm"))
             {
@@ -107,17 +106,13 @@ namespace BikeRental.Business.Utilities
             }
         }
 
-        public static async Task<bool> SendTakenBike(Guid customerId, Guid bikeId, int role, IBikeService bikeService)
+        public static async Task<bool> SendConfirmedNotification(Guid bookingId, Guid customerId, BikeByIdViewModel bike, string title)
         {
-            if (role != (int)RoleConstants.Owner)
-                return false;
 
             var registrationId = await TrackingRegistrationIdUtil.GetCustomerRegistrationId(customerId);
 
             if (registrationId == null)
-                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot find registrationId of this user.");
-
-            var bike = await bikeService.GetBikeById(bikeId);
+                throw new ErrorResponse((int)HttpStatusCode.NotFound, "Cannot find registrationId of this user.");
 
             string jsonConvert = JsonConvert.SerializeObject(new TakenBikeViewModel
             {
@@ -125,7 +120,7 @@ namespace BikeRental.Business.Utilities
                 Color = bike.Color, 
                 ImgPath = bike.ImgPath, 
                 ModelYear = bike.ModelYear
-            });
+            });;
 
             using (var sender = new Sender("AAAA0prIK9I:APA91bEsuL_KqXRNgkFhS8MMnDDncrX2p1ZhwUGyz0AAOrUoaaiCh6m4IifKdNpY6zA-PkSzdvQ7BOOJt2PtcznQpsLHZ3Fgx5Fk3v6EEvNf6_SlYjAP_8jDR1NyvAQ4LFoob8yxOxUm"))
             {
@@ -134,52 +129,14 @@ namespace BikeRental.Business.Utilities
                     Data = new Dictionary<string, string>()
                     {
                         {"data", jsonConvert },
+                        {"bookingId", bookingId.ToString() },
+                        {"click_action", "FLUTTER_NOTIFICATION_CLICK" },
+                        {"action", "confirm" }
                     },
                     RegistrationIds = new List<string> { registrationId.RegistrationId },
                     Notification = new Notification
                     {
-                        Title = "Bike has been taken!"
-                    }
-                };
-                var result = await sender.SendAsync(message);
-                Console.WriteLine($"Success: {result.MessageResponse.Success}");
-
-                return true;
-            }
-        }
-
-        public static async Task<bool> SendReturnBike(Guid customerId, Guid bikeId, int role, IBikeService bikeService)
-        {
-            if (role != (int)RoleConstants.Owner)
-                return false;
-
-            var registrationId = await TrackingRegistrationIdUtil.GetCustomerRegistrationId(customerId);
-
-            if (registrationId == null)
-                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot find registrationId of this user.");
-
-            var bike = await bikeService.GetBikeById(bikeId);
-
-            string jsonConvert = JsonConvert.SerializeObject(new TakenBikeViewModel
-            {
-                LicensePlate = bike.LicensePlate,
-                Color = bike.Color,
-                ImgPath = bike.ImgPath,
-                ModelYear = bike.ModelYear
-            });
-
-            using (var sender = new Sender("AAAA0prIK9I:APA91bEsuL_KqXRNgkFhS8MMnDDncrX2p1ZhwUGyz0AAOrUoaaiCh6m4IifKdNpY6zA-PkSzdvQ7BOOJt2PtcznQpsLHZ3Fgx5Fk3v6EEvNf6_SlYjAP_8jDR1NyvAQ4LFoob8yxOxUm"))
-            {
-                var message = new Message
-                {
-                    Data = new Dictionary<string, string>()
-                    {
-                        {"data", jsonConvert },
-                    },
-                    RegistrationIds = new List<string> { registrationId.RegistrationId },
-                    Notification = new Notification
-                    {
-                        Title = "Bike has been return!"
+                        Title = title
                     }
                 };
                 var result = await sender.SendAsync(message);

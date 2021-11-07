@@ -28,6 +28,7 @@ namespace BikeRental.Business.Services
         Task<BookingSuccessViewModel> CreateNew(string token, BookingCreateRequest model);
         Task<BookingSuccessViewModel> UpdateStatus(string token, BookingUpdateStatusRequest request);
         Task<BookingDetailViewModel> GetBookingDetailById(Guid id, string token);
+        Task<bool> SendConfirmNoti(string token, Guid id);
         Task<bool> SaveBookingEvidence(Guid id, string path);
     }
     public class BookingService : BaseService<Booking>, IBookingService
@@ -429,6 +430,21 @@ namespace BikeRental.Business.Services
         public async Task<bool> SaveBookingEvidence(Guid id, string path)
         {
             return await EvidenceUtil.SaveEvidence(id, path);
+        }
+
+        public async Task<bool> SendConfirmNoti(string token, Guid id)
+        {
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+
+            int role = tokenModel.Role;
+            if (role != (int)RoleConstants.Owner) throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+            bool check = false;
+            var booking = await GetById(id);
+            var customerId = Guid.Parse(booking.CustomerId.ToString());
+            var bike = booking.Bike;
+            var title = "Confirm to Take Bike";
+            check = await NotificationUtil.SendConfirmedNotification(id, customerId, bike, title);
+            return check;
         }
     }
 }
