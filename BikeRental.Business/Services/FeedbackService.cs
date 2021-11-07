@@ -137,7 +137,7 @@ namespace BikeRental.Business.Services
                     {
                         var customer = await _customerService.GetCustomerById(Guid.Parse(booking.CustomerId.ToString()));
                         feedback.CustomerName = customer.Fullname;
-                        feedback.Status = (int)FeedbackStatus.Feedback;
+                        feedback.Status = (int)FeedbackStatus.CancelReason;
                         listFeedback.Add(feedback);
                     }
                 }
