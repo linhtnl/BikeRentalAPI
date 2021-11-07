@@ -58,10 +58,11 @@ namespace BikeRental.API.Controllers
 
         [HttpGet("transactionHistory/{id}")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> GetTransactionHistory(string id, int? filterOption, int size, int pageNum = CommonConstants.DefaultPage)
+        public async Task<IActionResult> GetTransactionHistory(Guid id, int? filterOption, bool action, int size, int pageNum = CommonConstants.DefaultPage)
         {
-            Guid guid = Guid.Parse(id);
-            return Ok(await _walletService.GetTransactionHistory(guid,size,pageNum,filterOption)); // this line need to handle the null case, the null case occur when filterOption is not supported yet
+            var result = await _walletService.GetTransactionHistory(id, action, size, pageNum, filterOption);
+
+            return await Task.Run(() => Ok(result)); // this line need to handle the null case, the null case occur when filterOption is not supported yet
         }
 
         [HttpPut("depositAmount")] // this method must be implement checking verifyRequestToken in the header before action (login methods havent been implemented yet)
