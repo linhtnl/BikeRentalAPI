@@ -405,7 +405,7 @@ namespace BikeRental.Business.Services
 
                     decimal advanceMoney = bookingTime.OwnerAdvanceMoney;
 
-                    await _walletService.UpdateAmount(userId, advanceMoney, (int)WalletStatus.DEPOSIT, targetBooking.Id);
+                    await _walletService.UpdateAmount(targetBooking.OwnerId.Value, advanceMoney, (int)WalletStatus.DEPOSIT, targetBooking.Id);
 
                     break;
 
