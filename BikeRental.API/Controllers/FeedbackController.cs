@@ -1,4 +1,5 @@
-﻿using BikeRental.Business.RequestModels;
+﻿using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,14 +23,14 @@ namespace BikeRental.API.Controllers
         [Authorize]
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> GetListFeedback()
+        public async Task<IActionResult> GetListFeedback(int size, int pageNum = CommonConstants.DefaultPage)
         {
             string token = null;
             if (Request.Headers["Authorization"].Count > 0)
             {
                 token = Request.Headers["Authorization"];
             }
-            return Ok(await _feedbackService.GetListFeedBackByOwnerId(token));
+            return Ok(await _feedbackService.GetListFeedBackByOwnerId(token,size,pageNum));
         }
 
         [HttpGet("{id}")]
