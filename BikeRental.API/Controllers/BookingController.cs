@@ -1,4 +1,5 @@
-﻿using BikeRental.Business.RequestModels;
+﻿using BikeRental.Business.Constants;
+using BikeRental.Business.RequestModels;
 using BikeRental.Business.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ namespace BikeRental.API.Controllers
         [Authorize]
         [HttpGet()]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(int status, int size, int pageNum = CommonConstants.DefaultPage)
         {
             string token = null;
 
@@ -31,14 +32,19 @@ namespace BikeRental.API.Controllers
                 token = Request.Headers["Authorization"];
             };
 
-            return Ok(await _bookingService.GetAll(token));
+            return Ok(await _bookingService.GetAll(token,status, size,pageNum));
         }
 
         [HttpGet("{id}")]
         [MapToApiVersion("1")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            return Ok(await _bookingService.GetById(id));
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+            return Ok(await _bookingService.GetBookingDetailById(id, token));
         }
 
         [Authorize]

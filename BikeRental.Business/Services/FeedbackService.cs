@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using BikeRental.Business.Constants;
 using BikeRental.Business.RequestModels;
+using BikeRental.Business.Utilities;
 using BikeRental.Data.Enums;
 using BikeRental.Data.Models;
 using BikeRental.Data.Repositories;
@@ -22,7 +23,7 @@ namespace BikeRental.Business.Services
     public interface IFeedbackService : IBaseService<Feedback>
     {
         Task<Dictionary<int, double?>> GetBikeRating(Guid bikeId);
-        Task<List<FeedbackViewModel>> GetListFeedBackByOwnerId(String token);
+        Task<DynamicModelResponse<FeedbackViewModel>> GetListFeedBackByOwnerId(string token, int size, int pageNum);
         Task<FeedbackDetailViewModel> GetFeedbackById(Guid id);
         Task<Feedback> Create(FeedbackCreateRequest request);
         Task<Feedback> Update(FeedbackCreateRequest request);
@@ -111,7 +112,7 @@ namespace BikeRental.Business.Services
             }
         }
 
-        public async Task<List<FeedbackViewModel>> GetListFeedBackByOwnerId(string token)
+        public async Task<DynamicModelResponse<FeedbackViewModel>> GetListFeedBackByOwnerId(string token, int size, int pageNum)
         {
             TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
             int role = tokenModel.Role;
@@ -142,7 +143,19 @@ namespace BikeRental.Business.Services
                 }
             }
             if(listFeedback.Count==0) throw new ErrorResponse((int)HttpStatusCode.NoContent, "Empty");
-            return listFeedback;
+            var result = listFeedback.AsQueryable().PagingIQueryable(pageNum, size, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
+            if (result.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+            var rs = new DynamicModelResponse<FeedbackViewModel>
+            {
+                Metadata = new PagingMetaData
+                {
+                    Page = pageNum,
+                    Size = size,
+                    Total = result.Item1
+                },
+                Data = result.Item2.ToList()
+            };
+            return rs;
         }
 
         public async Task<Feedback> Update(FeedbackCreateRequest request)

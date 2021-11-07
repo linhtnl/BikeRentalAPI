@@ -228,6 +228,9 @@ namespace BikeRental.API
                 mc.CreateMap<Booking, BookingCreateRequest>();
                 mc.CreateMap<BookingCreateRequest, Booking>();
 
+                mc.CreateMap<Booking, BookingDetailViewModel>();
+                mc.CreateMap<BookingDetailViewModel, Booking>();
+
                 mc.CreateMap<Booking, BookingSuccessViewModel>();
                 mc.CreateMap<BookingSuccessViewModel, Booking>();
 
