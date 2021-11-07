@@ -23,7 +23,7 @@ namespace BikeRental.Business.Services
         WalletViewModel GetById(Guid id);
         WalletViewModel GetByMomoId(string momoId);
         WalletViewModel GetByBankId(string bankId);
-        Task<DynamicModelResponse<TransactionHistoryViewModel>> GetTransactionHistory(Guid walletId, int size, int pageNum, int? filterOption);
+        Task<DynamicModelResponse<TransactionHistoryViewModel>> GetTransactionHistory(Guid walletId, bool action, int size, int pageNum, int? filterOption);
         Task<bool> UpdateAmount(Guid walletId, decimal amount, int status, Guid bookingId);
     }
 
@@ -61,12 +61,15 @@ namespace BikeRental.Business.Services
             return Get().Where(tempWallet => tempWallet.BankId.Equals(bankId)).ProjectTo<WalletViewModel>(_mapper).FirstOrDefault();
         }
 
-        public async Task<DynamicModelResponse<TransactionHistoryViewModel>> GetTransactionHistory(Guid walletId, int size, int pageNum, int? filterOption)
+        public async Task<DynamicModelResponse<TransactionHistoryViewModel>> GetTransactionHistory(Guid walletId, bool action, int size, int pageNum, int? filterOption)
         {
             List<TransactionHistoryViewModel> transactionHistories = _transactionHistoryService.FilterGetTransactionHistory(walletId, filterOption);
 
             var result = transactionHistories.AsQueryable().PagingIQueryable(pageNum, size, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
-            if (result.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+
+            if (result.Item2.ToList().Count < 1) 
+                throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+
             var rs = new DynamicModelResponse<TransactionHistoryViewModel>
             {
                 Metadata = new PagingMetaData
@@ -77,6 +80,16 @@ namespace BikeRental.Business.Services
                 },
                 Data = result.Item2.ToList()
             };
+
+            for (int i = 0; i < rs.Data.Count; i++)
+            {
+                if (rs.Data[i].Action != action)
+                {
+                    rs.Data.RemoveAt(i);
+                    i--;
+                }
+            }
+
             return await Task.Run(()=> rs);
         }
 
