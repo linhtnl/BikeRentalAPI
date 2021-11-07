@@ -77,5 +77,14 @@ namespace BikeRental.API.Controllers
 
             return await Task.Run(() => Ok(bookingResult));
         }
+
+        [HttpGet("saveEvidence")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> SaveEvidence(Guid bookingId, string path)
+        {
+            var result = await _bookingService.SaveBookingEvidence(bookingId, path);
+
+            return await Task.Run(() => Ok(result));
+        }
     }
 }

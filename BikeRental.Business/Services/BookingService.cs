@@ -28,7 +28,7 @@ namespace BikeRental.Business.Services
         Task<BookingSuccessViewModel> CreateNew(string token, BookingCreateRequest model);
         Task<BookingSuccessViewModel> UpdateStatus(string token, BookingUpdateStatusRequest request);
         Task<BookingDetailViewModel> GetBookingDetailById(Guid id, string token);
-
+        Task<bool> SaveBookingEvidence(Guid id, string path);
     }
     public class BookingService : BaseService<Booking>, IBookingService
     {
@@ -424,6 +424,11 @@ namespace BikeRental.Business.Services
             BookingSuccessViewModel resultBooking = _mapper.CreateMapper().Map<BookingSuccessViewModel>(targetBooking);
 
             return await Task.Run(() => resultBooking);
+        }
+
+        public async Task<bool> SaveBookingEvidence(Guid id, string path)
+        {
+            return await EvidenceUtil.SaveEvidence(id, path);
         }
     }
 }
