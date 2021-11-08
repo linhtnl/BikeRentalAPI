@@ -25,7 +25,8 @@ namespace BikeRental.Data.ViewModels
         public DateTime? DayReturnActual { get; set; }
      
         public DateTime? DayReturnExpected { get; set; }
- 
+        public string PhoneNum { get; set; }
+
         public decimal? Price { get; set; }
 
         public string Address { get; set; }
