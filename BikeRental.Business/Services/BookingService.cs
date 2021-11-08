@@ -166,6 +166,8 @@ namespace BikeRental.Business.Services
                     {
                         var bike = await _bikeService.GetBikeById(Guid.Parse(booking.BikeId.ToString()));
                         bike = booking.Bike;
+                        var customer = await _customerService.GetCustomerById(Guid.Parse(booking.CustomerId.ToString()));
+                        booking.PhoneNum = customer.PhoneNumber;
                     }
                     var result = bookings.AsQueryable().PagingIQueryable(pageNum, size, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
                     if (result.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
@@ -191,6 +193,8 @@ namespace BikeRental.Business.Services
                     {
                         var bike = await _bikeService.GetBikeById(Guid.Parse(booking.BikeId.ToString()));
                         bike = booking.Bike;
+                        var customer = await _customerService.GetCustomerById(Guid.Parse(booking.CustomerId.ToString()));
+                        booking.PhoneNum = customer.PhoneNumber;
                     }
                     var result = bookings.AsQueryable().PagingIQueryable(pageNum, size, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
                     if (result.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
@@ -221,6 +225,8 @@ namespace BikeRental.Business.Services
                     {
                         var bike = await _bikeService.GetBikeById(Guid.Parse(booking.BikeId.ToString()));
                         bike = booking.Bike;
+                        var owner = await _utilService.GetOwnerByOwnerId(Guid.Parse(booking.OwnerId.ToString()));
+                        booking.PhoneNum = owner.PhoneNumber;
                     }
                     var result = bookings.AsQueryable().PagingIQueryable(pageNum, size, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
                     if (result.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
@@ -246,6 +252,8 @@ namespace BikeRental.Business.Services
                     {
                         var bike = await _bikeService.GetBikeById(Guid.Parse(booking.BikeId.ToString()));
                         bike = booking.Bike;
+                        var owner = await _utilService.GetOwnerByOwnerId(Guid.Parse(booking.OwnerId.ToString()));
+                        booking.PhoneNum = owner.PhoneNumber;
                     }
                     var result = bookings.AsQueryable().PagingIQueryable(pageNum, size, CommonConstants.LimitPaging, CommonConstants.DefaultPaging);
                     if (result.Item2.ToList().Count < 1) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
@@ -308,6 +316,18 @@ namespace BikeRental.Business.Services
                 booking.PhoneNum = customer.PhoneNumber;
                 return booking;
             }
+            else if (role == (int)RoleConstants.Admin)
+            {
+                var booking = await Get(b => b.Id.Equals(id)).ProjectTo<BookingDetailViewModel>(_mapper).FirstOrDefaultAsync();
+                if (booking == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not Found");
+                var bike = await _bikeService.GetBikeById(Guid.Parse(booking.BikeId.ToString()));
+                bike = booking.Bike;
+                var customer = await _customerService.GetCustomerById(Guid.Parse(booking.CustomerId.ToString()));
+                booking.CustomerName = customer.Fullname;
+                var owner = await _utilService.GetOwnerByOwnerId(Guid.Parse(booking.OwnerId.ToString()));
+                booking.OwnerName = owner.Fullname;
+                return booking;
+            }
             else throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature");
         }
 
@@ -344,7 +364,7 @@ namespace BikeRental.Business.Services
                 throw new ErrorResponse((int)HttpStatusCode.Forbidden, "You can not edit other's booking.");
 
             if (targetBooking == null)
-                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This booking is not found.");
+                throw new ErrorResponse((int)HttpStatusCode.NotFound, "This booking is not found.");
 
             if (targetBooking.Status == (int)BookingStatus.Finished || targetBooking.Status == (int)BookingStatus.Canceled)
                 throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This booking has done, so that, it can not be updated anymore.");
@@ -360,7 +380,7 @@ namespace BikeRental.Business.Services
                     throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Cannot update booking status to pending.");
 
                 case (int)BookingStatus.Inprocess:
-                    if (role == (int)RoleConstants.Customer)
+                    if (role != (int)RoleConstants.Customer && role != (int)RoleConstants.Owner)
                         throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
 
                     targetBike.Status = (int)BikeStatus.Rent;

@@ -62,6 +62,7 @@ namespace BikeRental.Business.Utilities
                     Data = new Dictionary<string, string>()
                     {
                         {"data", jsonConvert },
+                        {"action", "acceptBooking" }
                     },
                     RegistrationIds = new List<string> { registrationId.RegistrationId },
                     Notification = new Notification
