@@ -33,11 +33,20 @@ namespace BikeRental.API.Controllers
             return await Task.Run(() => Ok(voucher));
         }
 
+        [Authorize]
         [HttpGet]
         [MapToApiVersion("1")]
-        public List<VoucherViewModel> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return _voucherService.GetAll();
+            string token = null;
+            if (Request.Headers["Authorization"].Count > 0)
+            {
+                token = Request.Headers["Authorization"];
+            }
+
+            var result = await _voucherService.GetAll(token);
+
+            return await Task.Run(() => Ok(result));
         }
 
         [HttpGet("{id}")]

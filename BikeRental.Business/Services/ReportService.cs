@@ -118,7 +118,7 @@ namespace BikeRental.Business.Services
                 if (result == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
                 else
                 {
-                    throw new ErrorResponse((int) HttpStatusCode.Accepted, "Found");
+                    throw new ErrorResponse((int) HttpStatusCode.OK, "Found");
                 }
             }
             else throw new ErrorResponse((int)HttpStatusCode.NotAcceptable, "This role cannot use this feature");

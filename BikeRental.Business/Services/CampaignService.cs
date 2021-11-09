@@ -25,6 +25,7 @@ namespace BikeRental.Business.Services
         Task<Campaign> Update(Guid id, CampaignUpdateRequest campaign);
         Task<bool> Delete(Guid id);
         Task<DynamicModelResponse<CampaignViewModel>> GetAll(CampaignViewModel model,int size, int pageNum);
+        Task<List<CampaignViewModel>> GetAll();
         Task<CampaignViewModel> GetById(Guid id);
         Task<List<CampaignViewModel>> GetByAreaId(Guid areaId);
         List<CampaignViewModel> GetStartInRangeDate(DateTime startDate, DateTime endDate); // this method is used to get all campaign that start in the range time
@@ -131,6 +132,13 @@ namespace BikeRental.Business.Services
             var updateBike = _mapper.CreateMapper().Map(request, campaign);
             await UpdateAsync(updateBike);
             return updateBike;
+        }
+
+        public async Task<List<CampaignViewModel>> GetAll()
+        {
+            var campaigns = await Get().Where(tempCampaign => tempCampaign.Status == 0).ProjectTo<CampaignViewModel>(_mapper).ToListAsync();
+
+            return await Task.Run(() => campaigns);
         }
     }
 }

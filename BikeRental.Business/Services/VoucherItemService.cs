@@ -71,6 +71,8 @@ namespace BikeRental.Business.Services
             voucherItemResult.voucherExchange = _mapper.CreateMapper().Map<VoucherExchangeHistoryViewModel>(exchangeHistory);
 
             customer.RewardPoints -= voucher.PointExchange;
+
+            await _voucherService.UpdateAsync(voucher);
             await _customerService.UpdateAsync(customer);
 
             return await Task.Run(() => voucherItemResult);
