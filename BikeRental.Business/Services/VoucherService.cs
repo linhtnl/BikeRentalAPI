@@ -25,7 +25,7 @@ namespace BikeRental.Business.Services
         Task<Voucher> CreateNew(VoucherCreateRequest voucherRequest);
         Task<Voucher> UpdateVoucher(Guid id, VoucherUpdateRequest voucherRequest);
         Task<Voucher> DeleteVoucher(Guid id);
-        List<VoucherViewModel> GetAll();
+        Task<List<VoucherViewModel>> GetAll(string token);
         Task<VoucherViewModel> GetById(Guid id);
         Task<List<VoucherViewModel>> GetByCampaignId(Guid campaignId);
         Task<List<VoucherViewModel>>  GetByAreaId(Guid areaId, string token);
@@ -74,11 +74,46 @@ namespace BikeRental.Business.Services
             return await Task.Run(() => voucher);
         }
 
-        public List<VoucherViewModel> GetAll()
+        public async Task<List<VoucherViewModel>> GetAll(string token)
         {
-            return Get()
-                .ProjectTo<VoucherViewModel>(_mapper)
-                .ToList();
+            TokenViewModel tokenModel = TokenService.ReadJWTTokenToModel(token, _configuration);
+
+            int role = tokenModel.Role;
+            if (role != (int)RoleConstants.Customer)
+                throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
+
+            var customerId = tokenModel.Id;
+
+            var customer = await _customerRepository.GetAsync(customerId);
+            var currentPoint = customer.RewardPoints;
+
+            var campaigns = await _campaignService.GetAll();
+
+            List<VoucherViewModel> resultList = new();
+
+            foreach (var campaignTemp in campaigns)
+            {
+                var vouchers = await GetByCampaignId(campaignTemp.Id.Value);
+
+                if (resultList.Count <= 0)
+                {
+                    resultList = vouchers;
+                    continue;
+                }
+
+                resultList.AddRange(vouchers);
+            }
+
+            for (int i = 0; i < resultList.Count; i++)
+            {
+                if (resultList[i].PointExchange > currentPoint || DateTime.Compare(resultList[i].ExpiredDate, DateTime.Now) <= 0 || DateTime.Compare(resultList[i].StartingDate, DateTime.Now) > 0)
+                {
+                    resultList.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            return await Task.Run(() => resultList);
         }
 
         public async Task<List<VoucherViewModel>> GetByCampaignId(Guid campaignId)
