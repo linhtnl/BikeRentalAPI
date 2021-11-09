@@ -393,6 +393,9 @@ namespace BikeRental.Business.Services
             if (!string.IsNullOrEmpty(request.Address))
                 owner.Address = request.Address;
 
+            if (!string.IsNullOrEmpty(request.ImgPath))
+                owner.ImgPath = request.ImgPath;
+
             await UpdateAsync(owner);
 
             var result = _mapper.CreateMapper().Map<OwnerViewModel>(owner);

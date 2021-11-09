@@ -165,16 +165,7 @@ namespace BikeRental.Business.Services
                 {
                     if (e.InnerException.ToString().Contains("UNIQUE"))
                     {
-                        /*bike.Status = (int)BikeStatus.Pending;
-                        bike.LicensePlate = "[" + bike.LicensePlate + "]";
-                        await CreateAsync(bike);
-                        var result = _mapper.CreateMapper().Map<BikeViewModel>(bike);
-                        result.CategoryName = cate.Name;
-                        var brand = await _brandService.GetBrandById(cate.BrandId);
-                        result.BrandName = brand.Name;
-                        return result;*/
-                        //send noti to admin
-                        throw new ErrorResponse((int)HttpStatusCode.BadRequest, "License Plate is exist.");
+                        throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "License Plate is exist.");
                     }
                     throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid data.");
                 }
@@ -197,6 +188,8 @@ namespace BikeRental.Business.Services
                 if (bike == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
                 if(tokenModel.Role == (int)RoleConstants.Owner && !bike.OwnerId.Equals(tokenModel.Id)) throw new ErrorResponse((int)HttpStatusCode.Forbidden, "You can only update information of your bike.");
                 var updateBike = _mapper.CreateMapper().Map(request, bike);
+                if(updateBike.Status != (int)BikeStatus.Available && updateBike.Status != (int)BikeStatus.Unavailable) 
+                    throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Your Bike is not available to edit");
                 try
                 {
                     await UpdateAsync(updateBike);
@@ -211,16 +204,7 @@ namespace BikeRental.Business.Services
                 {
                     if (e.InnerException.ToString().Contains("UNIQUE"))
                     {
-                        /*bike.Status = (int)BikeStatus.Pending;
-                        bike.LicensePlate = "[" + bike.LicensePlate + "]";
-                        await CreateAsync(bike);
-                        var result = _mapper.CreateMapper().Map<BikeViewModel>(bike);
-                        result.CategoryName = cate.Name;
-                        var brand = await _brandService.GetBrandById(cate.BrandId);
-                        result.BrandName = brand.Name;
-                        return result;*/
-                        //send noti to admin
-                        throw new ErrorResponse((int)HttpStatusCode.BadRequest, "License Plate is exist.");
+                        throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "License Plate is exist.");
                     }
                     throw new ErrorResponse((int)HttpStatusCode.UnprocessableEntity, "Invalid data!");
                 }
@@ -242,7 +226,7 @@ namespace BikeRental.Business.Services
                 var bike = await GetAsync(id);
 
                 if (bike == null) throw new ErrorResponse((int)HttpStatusCode.NotFound, "Can not found");
-                if (bike.Status == (int)BikeStatus.Rent) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not delete Rented bike!");
+                if (bike.Status != (int)BikeStatus.Available && bike.Status != (int)BikeStatus.Unavailable) throw new ErrorResponse((int)HttpStatusCode.BadRequest, "Can not delete Rented bike!");
                 bike.LicensePlate = bike.LicensePlate + "_Delete_" + DateTime.Now;
                 bike.Status = (int)BikeStatus.Delete;
                 await UpdateAsync(bike);
