@@ -27,6 +27,7 @@ namespace BikeRental.Business.Services
         Task<CustomerViewModel> DeleteCustomer(Guid id, string token);
         Task<CustomerViewModel> UnbanCustomer(Guid id, string token);
         Task<CustomerViewModel> UpdateCustomer(CustomerUpdateRequest request);
+        Task<bool> BonusRewardPoint(Guid id, int rewardPoint);
     }
     public class CustomerService : BaseService<Customer>, ICustomerService
     {
@@ -38,6 +39,14 @@ namespace BikeRental.Business.Services
         {
             _mapper = mapper.ConfigurationProvider;
             _configuration = configuration;
+        }
+
+        public async Task<bool> BonusRewardPoint(Guid id, int rewardPoint)
+        {
+            var customer = await GetAsync(id);
+            customer.RewardPoints += rewardPoint;
+
+            return await Task.Run(() => true);
         }
 
         public async Task<Customer> CreateNew(CustomerCreateRequest request)
