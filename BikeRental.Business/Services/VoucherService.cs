@@ -190,7 +190,7 @@ namespace BikeRental.Business.Services
             
             for (int i = 0; i < resultList.Count; i++)
             {
-                if (resultList[i].PointExchange > currentPoint)
+                if (resultList[i].PointExchange > currentPoint || DateTime.Compare(resultList[i].ExpiredDate, DateTime.Now) <= 0 || DateTime.Compare(resultList[i].ExpiredDate, DateTime.Now) > 0)
                 {
                     resultList.RemoveAt(i);
                     i--;
