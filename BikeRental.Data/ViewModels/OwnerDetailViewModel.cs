@@ -16,6 +16,8 @@ namespace BikeRental.Data.ViewModels
         public double? Rating { get; set; }
         public int? NumberOfRatings { get; set; }
         public int? BanTimes { get; set; }
+        public string ImgPath { get; set; }
         public List<BikeViewModel>? ListBike { get; set; }
+
     }
 }
