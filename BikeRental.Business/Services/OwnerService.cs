@@ -313,11 +313,11 @@ namespace BikeRental.Business.Services
                 double bookingtimes = 0;
                 double deniedtimes = 0;
                 var trackingBooking = await TrackingBookingUtil.GetTrackingBookingByDate(ownerTemp.Id, dateRent);
-                if(trackingBooking != null)
+                if (trackingBooking != null)
                 {
                     bookingtimes = double.Parse(trackingBooking.BookingTimes.ToString());
                     deniedtimes = double.Parse(trackingBooking.DeniedTimes.ToString());
-                }              
+                }
                 double totalBike = double.Parse(ownerTemp.Bike.TotalBike.ToString());
                 double distance = double.Parse(ownerTemp.LocationInfo.Distance.ToString());
                 double rating = double.Parse(ownerTemp.Rating.ToString());              
@@ -384,13 +384,13 @@ namespace BikeRental.Business.Services
 
             var owner = await GetAsync(tokenModel.Id);
 
-            if (owner.PhoneNumber != null)
+            if (!string.IsNullOrEmpty(request.PhoneNumber))
                 owner.PhoneNumber = request.PhoneNumber;
 
-            if (owner.Fullname != null)
+            if (!string.IsNullOrEmpty(request.Fullname))
                 owner.Fullname = request.Fullname;
 
-            if (owner.Address != null)
+            if (!string.IsNullOrEmpty(request.Address))
                 owner.Address = request.Address;
 
             await UpdateAsync(owner);
