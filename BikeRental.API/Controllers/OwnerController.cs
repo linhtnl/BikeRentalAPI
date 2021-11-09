@@ -113,14 +113,11 @@ namespace BikeRental.API.Controllers
             return await Task.Run(() => Ok(result));
         }
 
-        [Authorize]
         [HttpGet("sendBookingReply")]
         [MapToApiVersion("2")]
         public async Task<IActionResult> SendBookingReply([FromQuery] ReplyBookingRequest request)
         {
-            var result = await _ownerService.SendBookingReply(request);
-
-            return await Task.Run(() => Ok(result));
+            return Ok(await _ownerService.SendBookingReply(request));
         }
 
         [HttpPost("TestRead")]
