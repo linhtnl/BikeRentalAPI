@@ -43,6 +43,9 @@ namespace BikeRental.Business.Services
             try
             {
                 var campaign = _mapper.CreateMapper().Map<Campaign>(model);
+
+                campaign.Status = 0;
+
                 await CreateAsync(campaign);
                 return campaign;
             }
