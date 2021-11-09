@@ -369,8 +369,6 @@ namespace BikeRental.Business.Services
             if (targetBooking.Status == (int)BookingStatus.Finished || targetBooking.Status == (int)BookingStatus.Canceled)
                 throw new ErrorResponse((int)HttpStatusCode.Forbidden, "This booking has done, so that, it can not be updated anymore.");
 
-            //targetBooking.Status = request.Status;
-
             Bike targetBike = await _bikeService.GetAsync(targetBooking.BikeId);
             bool isUpdated = false;
 
@@ -393,6 +391,16 @@ namespace BikeRental.Business.Services
                         throw new ErrorResponse((int)HttpStatusCode.Forbidden, "Your role cannot use this feature.");
 
                     targetBike.Status = (int)BikeStatus.Available;
+
+                    ConversionRateViewModel conversionRateViewModel = await PointConversionRateUtil.GetConversionRate();
+
+                    decimal conversionRate = conversionRateViewModel.Basic;
+                    decimal bookingPrice = targetBooking.Price.Value;
+
+                    var finalPointDecimal = decimal.Divide(bookingPrice, conversionRate);
+                    var finalPoint = Decimal.ToInt32(finalPointDecimal);
+
+                    await _customerService.BonusRewardPoint(targetBooking.CustomerId.Value, finalPoint);
 
                     isUpdated = true;
                     break;
