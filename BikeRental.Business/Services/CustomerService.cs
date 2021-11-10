@@ -151,6 +151,7 @@ namespace BikeRental.Business.Services
                 var customer = await GetAsync(request.Id);
                 if (customer == null) 
                     throw new ErrorResponse((int)HttpStatusCode.NotFound, "Customer not found.");
+                    customer.Fullname = request.Fullname;
 
                 await UpdateAsync(customer);
                 CustomerViewModel updatedCustomer = _mapper.CreateMapper().Map<CustomerViewModel>(customer);
